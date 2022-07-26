@@ -1,0 +1,27 @@
+{
+    "name": "Critrole Combat Tracker",
+    "version": "0.1.0",
+    "description": "Track current health of players during combats",
+    "manifest_version": 3,
+    "icons":  { "128": "icons/CombatTrackerIcon.png" },
+    "permissions": [
+      "storage"
+    ],
+    "content_scripts": [
+      {
+        "matches": ["*://www.youtube.com/*"],
+        "all_frames": true,
+        "css": ["trackerStyle.css"],
+        "js": ["content.js"]
+      }
+    ],
+    "web_accessible_resources": [
+     {
+       "resources": ["trackerStyle.css", "characterImages/*", "hearts/*", "icons/*", "apiKey.txt"],
+       "matches": [ "*://www.youtube.com/*" ]
+     },{
+       "resources": ["options.js"],
+       "matches": [ "*://*/*" ]
+     }
+   ]
+}

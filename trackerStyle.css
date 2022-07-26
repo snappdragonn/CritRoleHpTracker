@@ -1,0 +1,390 @@
+#trackerBlock {
+    position: absolute;
+    z-index: 3000;
+}
+
+#trackerBody{
+  background-color: dimgray;
+  border-style: solid;
+  border-color: black;
+  border-width: 2px;
+  border-radius: 3px;
+  color: white;
+  font-size: 15px;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  z-index: 1000;
+}
+
+
+#expandButton {
+  position: absolute;
+  right: 2px;
+  top: 2px;
+}
+
+#trackerTable {
+  width: 100%;
+  height: 90%;
+  border-top: 2px solid black;
+}
+
+#hpPanelsContainer {
+  width: 98%;
+  height: 98%;
+  color: #9e9a8d;
+  min-height: 0px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-evenly;
+  align-items: center;
+  flex-grow: 1;
+  /*border: black solid;
+  border-width: 2px 0 0 0;
+  box-sizing: border-box;*/
+  place-self: center;
+}
+
+.panelContainer {
+  flex: 1 1 50px;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.playerPanel {
+  box-sizing: border-box;
+  border-color: white;
+  border-width: 1px;
+  width: 95%;
+  height: 90%;
+  background-color: steelblue;
+  border-radius: 4px;
+  border-style: solid;
+  align-items: center;
+  display: flex;
+  justify-content: space-evenly;
+}
+
+.headshotImg {
+  border-radius: 50%;
+  height: 90%;
+}
+
+.playerImage {
+  height: 80%;
+  text-align: center;
+}
+
+.playerName {
+  position: relative;
+  top: -40%;
+}
+
+/*
+.panelContainer:hover .chracterStatsPanel {
+  width: 200px;
+  height: auto;
+  border-width: 2px;
+
+  transition-delay: 0.5s;
+}
+
+
+.panelContainer:hover .statDiv {
+  margin: 2px;
+  padding: 2px;
+  border-radius: 3px;
+  opacity: 1;
+  font-size: 15px;
+  width: auto;
+  height: auto;
+  transition-duration: 0.05s;
+  transition-delay: 0.5s;
+}
+
+.panelContainer:hover .chracterStats {
+  align-content: center;
+  justify-content: flex-start;
+  transition-delay: 0.5s;
+}
+
+
+.statDiv {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+*/
+
+/*
+.panelContainer:hover .chracterStatsPanel {
+  display: flex;
+}
+*/
+
+.chracterStatsPanel {
+  /*transition: width 0.10s, height 0.10s, border-width 0s, font-size 0.10s;
+  transition-delay: 0s;
+  width: 0px;
+  height: 0px;*/
+  width: 230px;
+  z-index: 1000;
+  display: none;
+  flex-direction: column;
+  background-color: dimgray;
+  position: absolute;
+  top: 5%;
+  right: 100%;
+  border-color: black;
+  border-style: solid;
+  /*border-width: 0px;*/
+  border-width: 2px;
+  /*font-size: 0;*/
+}
+
+.charBasicInfo {
+  display: flex;
+  justify-content: space-between;
+  padding: 1px 2px 1px 2px;
+  color: #e1e1e1
+}
+
+.separator{
+  width: 100%;
+  height: 2px;
+  margin: 2px 0 2px 0;
+  background-color: black;
+}
+
+.statDiv {
+  margin: 2px;
+  padding: 2px;
+  border-radius: 3px;
+  font-size: 15px;
+}
+
+.chracterStats {
+  align-content: center;
+  justify-content: flex-start;
+}
+
+
+
+
+#resizer {
+  position: absolute;
+  height: 10px;
+  width: 10px;
+  bottom: 1px;
+  left: 1px;
+  cursor: ne-resize;
+}
+
+.menuItem:hover {
+  background-color: gray;
+}
+
+.menuItem {
+  padding: 0 0 0 2px;
+  border-color: #525252;
+  border-style: solid;
+  border-width: 1px 0 1px 0;
+  box-sizing: border-box;
+  padding: 0 2% 0 2%;
+}
+
+.menuDropDown {
+  background-color: dimgray;
+  /* color: #d5d3cc; */
+  display: none;
+  box-shadow: 0px 8px 16px 8px rgba(0,0,0,0.2);
+  position: absolute;
+  width: 110px;
+  cursor: default;
+  right: 0;
+  z-index: 1000;
+  border-color: black;
+  border-style: solid;
+  border-width: 2px;
+}
+
+.menuDropDown h4 {
+  font-weight: 100;
+}
+
+#mainMenu {
+  right: -2px;
+}
+
+.submenu {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 3px;
+}
+
+.radioButton {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+#trackerTitle {
+  height: 20px;
+  cursor: pointer;
+  overflow: hidden;
+  border: black solid;
+  border-width: 0 2px 2px 0;
+}
+
+#menuContainer {
+  border: black solid;
+  border-width: 0 0 2px 0;
+}
+
+#expandButton {
+  height: 24px;
+  width: 24px;
+  border: black solid 2px;
+  border-radius: 3px;
+  /*box-shadow: 0px 8px 16px 8px rgba(0,0,0,0.15); TODO add only when tracker is minimised*/
+}
+
+.button {
+  /*border: black solid;
+  border-width: 0 0 0 1px*/
+  background-color: dimgray;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.button:hover {
+  background-color: gray;
+}
+
+.button:hover img{
+  height: 90% !important;
+}
+
+.submenu:hover .menuDropDown {
+  display: block !important;
+}
+
+.submenuDropdown{
+  right: 110px;
+  top: 0;
+}
+
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+.spinner{
+  width: 100px;
+  height: 100px;
+  position: relative;
+}
+.spinner:before {
+  content: "";
+  box-sizing: border-box;
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+  border: solid 6px gray;
+  border-radius: 50%;
+  border-bottom-color: lightGray;
+  animation: 1.5s linear infinite spin;
+  animation-play-state: inherit;
+  will-change: transform;
+}
+
+
+
+
+
+
+.heart {
+ --size: 33px;
+ --color: red;
+
+  position: relative;
+  width: var(--size);
+  height: calc(var(--size) * 0.9);
+}
+.heart:before,
+.heart:after {
+  position: absolute;
+  content: "";
+  left: calc(var(--size) * 0.5);
+  top: 0;
+  width: calc(var(--size) * 0.5);
+  height: calc(var(--size) * 0.8);
+  background: var(--color);
+  border-radius: calc(var(--size) * 0.5) calc(var(--size) * 0.5) 0 0;
+  transform: translate(0, calc(var(--size) * 0.05)) rotate(-45deg);
+  transform-origin: 0 100%;
+}
+.heart:after {
+  left: 0;
+  transform: translate(0, calc(var(--size) * 0.05)) rotate(45deg);
+  transform-origin: 100% 100%;
+}
+
+
+.shield {
+  --size: 25px;
+  --color: red;
+
+  width: var(--size);
+  height: calc(var(--size) * 1.2);
+  position: relative;
+}
+.shieldCenter{
+  width: var(--size);
+  height: calc(var(--size) * 0.9);
+  background: var(--color);
+  position: absolute;
+  top: calc(var(--size) * 0.15);
+  left: 0;
+  border-radius: 0 0 calc(var(--size) * 0.4) calc(var(--size) * 0.4);
+  box-sizing: border-box;
+}
+.shield::before {
+  content: "";
+  position: absolute;
+  top: 0; /*calc(var(--size) * -0.15);*/
+  left: 0;
+  width: 0;
+  height: 0;
+  border-left: calc(var(--size) * 0.5) solid transparent;
+  border-right: calc(var(--size) * 0.5) solid transparent;
+  border-bottom: calc(var(--size) * 0.15) solid var(--color);
+  box-sizing: border-box;
+}
+.shield::after {
+  content: "";
+  position: absolute;
+  bottom: 0; /*calc(var(--size) * -0.15); */
+  left: calc(var(--size) * 0.2);
+  width: 0;
+  height: 0;
+  border-left: calc(var(--size) * 0.3) solid transparent;
+  border-right: calc(var(--size) * 0.3) solid transparent;
+  border-top: calc(var(--size) * 0.2) solid var(--color);
+
+}
