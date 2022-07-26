@@ -504,7 +504,11 @@ function applyEvent(event, updateUI){
 
   }else if(event.type === "longRest"){
     console.log("longRest");
-    resetPlayers(event.players.map(name => getPlayer(name)));
+    if(event.players != null){
+      resetPlayers(event.players.map(name => getPlayer(name)));
+    }else{
+      resetPlayers();
+    }
 
   }else{
     console.warn("invalid event: " + event.type);
