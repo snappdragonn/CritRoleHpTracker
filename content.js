@@ -24,7 +24,8 @@ charColors = {"Bertrand": "#5b2640",
               "Imogen": "#564c64",
               "Orym": "#33413b",
               "Ashton": "#512f30",
-              "Dusk": "#784b37"};
+              "Dusk": "#784b37",
+              "Yu": "#4e4c4f"};
 
 var panels = [];
 var players = [];
