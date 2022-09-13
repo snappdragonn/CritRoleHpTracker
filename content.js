@@ -15,17 +15,17 @@ var hpSize = {"h": 0.8, "w": 0.4};
 var imgSize = {"h": 0.8, "w": 0.3};
 var nameSize = {"h": 0.3, "w": 0.125};
 
-charColors = {"Bertrand": "#5b2640",
-              "Chetney": "#415054",
-              "Dorian": "#3a4660",
-              "Laudna": "#42333e",
-              "FCG": "#3c5864",
-              "Fearne": "#875d51",
-              "Imogen": "#564c64",
-              "Orym": "#33413b",
-              "Ashton": "#512f30",
-              "Dusk": "#784b37",
-              "Yu": "#4e4c4f"};
+// charColors = {"Bertrand": "#5b2640",
+//               "Chetney": "#415054",
+//               "Dorian": "#3a4660",
+//               "Laudna": "#42333e",
+//               "FCG": "#3c5864",
+//               "Fearne": "#875d51",
+//               "Imogen": "#564c64",
+//               "Orym": "#33413b",
+//               "Ashton": "#512f30",
+//               "Dusk": "#784b37",
+//               "Yu": "#4e4c4f"};
 
 var panels = [];
 var players = [];
@@ -127,7 +127,7 @@ class NumberPanel extends Panel {
     var htmlstring = /*html*/`
                       <div id=${"player"+this.playerId} class="playerPanel" data-deathSaves="false" style="background-color: ${players[this.playerId].characterColor};">
                         <div class="playerImage">
-                          <img src=${players[this.playerId].headShotImg} alt="headshot" class="headshotImg">
+                          <img src=${players[this.playerId].headShotImg} alt="headshot" class="headshotImg" referrerPolicy="no-referrer" crossorigin="anonymous">
                           <div class="playerName">${players[this.playerId].characterName}</div>
                         </div>
                         <h1>${players[this.playerId].currentHp}</h1>
@@ -148,7 +148,7 @@ class NumberPanel extends Panel {
     var htmlstring = /*html*/`
                       <div id=${"player"+this.playerId} class="playerPanel" data-deathSaves="true" style="background-color: ${players[this.playerId].characterColor}; display: grid; grid-template: 50% 50% / 50% 16% 16% 16%;">
                         <div class="playerImage" style="grid-area: 1 / 1 / 3 / 2">
-                          <img src=${players[this.playerId].headShotImg} alt="headshot" class="headshotImg">
+                          <img src=${players[this.playerId].headShotImg} alt="headshot" class="headshotImg" referrerPolicy="no-referrer" crossorigin="anonymous">
                           <div class="playerName">${players[this.playerId].characterName}</div>
                         </div>
 
@@ -216,7 +216,7 @@ class HeathbarPanel extends Panel {
             <div id=${"player"+this.playerId} class="playerPanel" data-deathSaves="false" style="background-color: ${players[this.playerId].characterColor}; justify-content: center;">
               <div class="barFlexbox" style="display: flex; flex-direction: column; gap: 3px; align-items: flex-start; height: 80%; width: 90%">
                 <div class="barPanelHeader" style="flex: 1; height: 45%; align-self: flex-start;">
-                  <img src=${players[this.playerId].headShotImg} alt="headshot" style="height: 100%; float: left; border-radius: 50%; margin: 0 3px 0 0;"></img>
+                  <img src=${players[this.playerId].headShotImg} alt="headshot" referrerPolicy="no-referrer" crossorigin="anonymous" style="height: 100%; float: left; border-radius: 50%; margin: 0 3px 0 0;"></img>
                   <div class="barPlayerName" style="float: left; font-weight: bold;">${players[this.playerId].characterName}</div>
                 </div>
                 <div class="healthBar" style="flex: 1; height: 45%; width: 100%; position: relative; border: 1px solid #9e9a8d; border-radius: 3px">
@@ -242,7 +242,7 @@ class HeathbarPanel extends Panel {
             <div id=${"player"+this.playerId} class="playerPanel" data-deathSaves="false" style="background-color: ${players[this.playerId].characterColor}; justify-content: center;">
               <div class="barGrid" style="display: grid; height: 80%; width: 90%; grid-template: 1fr 1fr / repeat(6, 1fr); row-gap: 3px;">
                 <div class="barPanelHeader" style="grid-area: 1 / 1 / 2 / 7; min-height: 0;">
-                  <img src=${players[this.playerId].headShotImg} alt="headshot" style="height: 100%; float: left; border-radius: 50%; margin: 0 3px 0 0;"></img>
+                  <img src=${players[this.playerId].headShotImg} alt="headshot" referrerPolicy="no-referrer" crossorigin="anonymous" style="height: 100%; float: left; border-radius: 50%; margin: 0 3px 0 0;"></img>
                   <div class="barPlayerName" style="float: left; font-weight: bold;">${players[this.playerId].characterName}</div>
                 </div>
                 <img src=${successImgscr} alt="sHeart1" class="SuccessHeart" style="object-fit: contain; width: 100%; height: 100%;">
@@ -329,7 +329,7 @@ class PlayerChracter {
 
   statsPanel;
 
-  constructor(id, name, lvl, charClass, ac, hp, stats){
+  constructor(id, name, lvl, charClass, ac, hp, stats, color, imgURL){
     this.id = id;
     this.characterName = name;
     this.level = lvl;
@@ -338,8 +338,8 @@ class PlayerChracter {
     this.maxHp = hp;
     this.currentHp = hp;
     this.stats = stats;
-    this.characterColor = charColors[name]; //TODO use color from chracter json from database
-    this.headShotImg = chrome.runtime.getURL("/characterImages/" + this.characterName + ".webp");
+    this.characterColor = color; //charColors[name]; //TODO use color from chracter json from database
+    this.headShotImg = imgURL //"https://testdb-2091.restdb.io/media/" + imgId + "?key=" + apiKey //chrome.runtime.getURL("/characterImages/" + this.characterName + ".webp");
 
     this.makePanel();
   }
@@ -466,7 +466,7 @@ function updateStats(){
     for(i=0; i<=episodeData.length; i++){
       if(i >= episodeData.length || episodeData[i].time >= currentTime){
         currentTimeSlot = i;
-        console.log("slot = " + i);
+        //console.log("slot = " + i);
 //          console.log("new slot " + currentTimeSlot);
         break;
       }
@@ -474,7 +474,7 @@ function updateStats(){
 
     //update the players hp/deathsaves/etc
     if(currentTimeSlot > oldTimeSlot){ //moved forwards - apply all events from current time to the new time
-      console.log("moved forward");
+      //console.log("moved forward");
       for(i=oldTimeSlot+1; i<=currentTimeSlot; i++){
         applyEvent(episodeData[i-1].event, false);
       }
@@ -495,16 +495,16 @@ function updateStats(){
 
 function applyEvent(event, updateUI){
   if(event.type === "hpUpdate"){
-    console.log("hp update");
+    //console.log("hp update");
     getPlayer(event.characterName).updateHp(event.amount, updateUI);
-    console.log("new hp = " + getPlayer(event.characterName).currentHp);
+    //console.log("new hp = " + getPlayer(event.characterName).currentHp);
 
   }else if(event.type === "deathsave"){
-    console.log("deathsave");
+    //console.log("deathsave");
     getPlayer(event.characterName).addDeathSave((event.saveType === "succeed"), (("amount" in event) ? event.amount : 1), updateUI);
 
   }else if(event.type === "longRest"){
-    console.log("longRest");
+    //console.log("longRest");
     if(event.players != null){
       resetPlayers(event.players.map(name => getPlayer(name)));
     }else{
@@ -801,7 +801,15 @@ function makePanels(){
 
       console.log(charData[i]);
 
-      players.push(new PlayerChracter(i, charData[i].name, charData[i].level, charData[i].charClass, charData[i].ac, charData[i].hp, charData[i].stats))
+      players.push(new PlayerChracter(i, 
+                                      charData[i].name, 
+                                      charData[i].level, 
+                                      charData[i].charClass, 
+                                      charData[i].ac, 
+                                      charData[i].hp, 
+                                      charData[i].stats, 
+                                      charData[i].color, 
+                                      charData[i].imageURL));
 
       var panelContainer = document.createElement("div");
       panelContainer.className = "panelContainer";
