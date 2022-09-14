@@ -1,5 +1,5 @@
 {
-    "name": "Critrole Combat Tracker",
+    "name": "Critrole HP Tracker",
     "version": "0.1.0",
     "description": "Track current health of players during combats",
     "manifest_version": 3,

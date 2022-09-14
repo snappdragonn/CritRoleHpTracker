@@ -69,6 +69,7 @@
   align-items: center;
   display: flex;
   justify-content: space-evenly;
+  cursor: default;
 }
 
 .headshotImg {
@@ -84,6 +85,7 @@
 .playerName {
   position: relative;
   top: -40%;
+  cursor: default;
 }
 
 /*
@@ -146,6 +148,7 @@
   /*border-width: 0px;*/
   border-width: 2px;
   /*font-size: 0;*/
+  cursor: default;
 }
 
 .charBasicInfo {
@@ -167,6 +170,7 @@
   padding: 2px;
   border-radius: 3px;
   font-size: 15px;
+  cursor: default;
 }
 
 .chracterStats {
@@ -253,6 +257,7 @@
   width: 24px;
   border: black solid 2px;
   border-radius: 3px;
+  cursor: pointer;
   /*box-shadow: 0px 8px 16px 8px rgba(0,0,0,0.15); TODO add only when tracker is minimised*/
 }
 

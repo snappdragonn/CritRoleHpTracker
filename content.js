@@ -703,7 +703,7 @@ function makeTable(){
                           <div id="contentGrid" style="width: 100%; height: 100%; display: grid; grid-template: 22px 1fr / 1fr 22px; grid-template-areas: 'title menuButton' 'content content'">
 
                             <div id="trackerTitle" style="grid-area: title">
-                              <h4 style="padding: 2px 0 0 4px">Combat Tracker</h4>
+                              <h4 style="padding: 2px 0 0 4px">HP Tracker</h4>
                             </div>
 
                             <div id="menuContainer" style="grid-area: menuButton; float: right;">
