@@ -1046,20 +1046,24 @@ function mouseUp(){
 }
 
 function mouseDownDrag(e){
+  e.preventDefault()
   window.addEventListener('mousemove', divMove, true);
 }
 
 function mouseDownResize(e){
+  e.preventDefault()
   window.addEventListener('mousemove', divResize, true);
 }
 
 function divMove(e){
+  e.preventDefault()
   var div = document.getElementById("trackerBlock");
   div.style.top = clamp(e.clientY - 10, 0, window.innerHeight - div.offsetHeight) + "px";
   div.style.right = clamp(document.body.clientWidth - e.clientX - 100, 0, document.body.clientWidth - div.offsetWidth) + "px";
 }
 
 function divResize(e){
+  e.preventDefault()
   var div = document.getElementById("trackerBody");
   div.style.width = Math.max( (parseInt(div.style.width) + (-e.movementX)), parseInt(div.style["min-width"]) ) + "px";
   div.style.height = Math.max( (parseInt(div.style.height) + e.movementY), parseInt(div.style["min-height"])) + "px";
