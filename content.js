@@ -1045,9 +1045,13 @@ function mouseUp(){
   window.removeEventListener('mousemove', divResize, true);
 }
 
+var mouseTrackerDiffPos
 function mouseDownDrag(e){
   e.preventDefault()
   window.addEventListener('mousemove', divMove, true);
+
+  divRight = parseInt((document.getElementById("trackerBlock").style.right).slice(0, -2));
+  mouseTrackerDiffPos = (document.body.clientWidth - e.clientX) - divRight;
 }
 
 function mouseDownResize(e){
@@ -1059,7 +1063,7 @@ function divMove(e){
   e.preventDefault()
   var div = document.getElementById("trackerBlock");
   div.style.top = clamp(e.clientY - 10, 0, window.innerHeight - div.offsetHeight) + "px";
-  div.style.right = clamp(document.body.clientWidth - e.clientX - 100, 0, document.body.clientWidth - div.offsetWidth) + "px";
+  div.style.right = clamp(document.body.clientWidth - e.clientX - mouseTrackerDiffPos, 0, document.body.clientWidth - div.offsetWidth) + "px"; //move popup to mouse position offest on x so that mouse is in same place relative to popup as was when first mouse down
 }
 
 function divResize(e){
