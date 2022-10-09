@@ -987,7 +987,7 @@ function getEpisodeData(successCallback, failCallback){
     }
   });
 
-  xhr.open("GET", "https://testdb-2091.restdb.io/rest/combat-data?q={\"EpNum\": " + episodeNum + "}"); //q={\"EpNum\": " + episodeNum + "}
+  xhr.open("GET", "https://critrolehpdata-5227.restdb.io/rest/combat-data?q={\"EpNum\": " + episodeNum + "}"); //q={\"EpNum\": " + episodeNum + "}
   xhr.setRequestHeader("content-type", "application/json");
   xhr.setRequestHeader("x-apikey", apiKey);
   xhr.setRequestHeader("cache-control", "no-cache");
