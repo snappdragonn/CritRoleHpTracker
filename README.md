@@ -24,8 +24,11 @@ Features:
 
 Install Instructions:
 
-1) Download the zip file from the latest release and extract to a location of your choice.
+1) Download the code as a zip file and extract to a location of your choice.
+![image](https://user-images.githubusercontent.com/109569193/194732266-f0360f43-da4c-41c1-b878-0deb8a445cee.png)
+
 2) Open google chrome and go to the settings page then click on the "Extensions" option.  
 ![image](https://user-images.githubusercontent.com/38895965/174467353-29f913f8-08e2-44e5-b7bd-14102e39e4b4.png)
+
 3) Enable developer mode in the top right then click on "Load Unpacked" and select the folder containing the extracted combat tracker extension (this should contain the "manifest.json" file).  
 ![image](https://user-images.githubusercontent.com/38895965/174467489-250db389-d18f-4177-8fbc-05d7c577d2d3.png)
