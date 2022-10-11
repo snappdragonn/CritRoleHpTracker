@@ -166,7 +166,7 @@
 }
 
 
-.EffectsBox:empty + .separator{ /* TODO could use ":not(:has(*))" instead of ":empty" */
+.EffectsBox:not(:has(*)) + .separator{ /* TODO could use ":not(:has(*))" instead of ":empty" */
   display: none;
 }
 

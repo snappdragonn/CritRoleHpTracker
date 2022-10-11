@@ -371,6 +371,21 @@ class PlayerChracter {
     }
   }
 
+  addEffect(effectName, effectDesc){
+    this.statsPanel.getElementsByClassName("EffectsBox")[0].insertAdjacentHTML("beforeend", /*html*/`
+                                                                <div class="effect ${effectName}" style="background-color: ${this.characterColor}">${effectName}</div>
+                                                              `);
+  }
+
+  removeEffect(effectName){
+    let effectsBox = this.statsPanel.getElementsByClassName("EffectsBox")[0];
+    effectsBox.removeChild(effectsBox.getElementsByClassName(effectName)[0]);
+  }
+
+  removeAllEffects(){
+    this.statsPanel.getElementsByClassName("EffectsBox")[0].replaceChildren();
+  }
+
   makePanel(){ //TODO make sure EffectsBox has nothing in it (including no whitespace)
     var panelStr = /*html*/`
                     <div class="chracterStatsPanel">
@@ -382,12 +397,7 @@ class PlayerChracter {
 
                       <div class="separator"></div>
 
-                      <div class="EffectsBox">
-                        <div class="effect" style="background-color: ${this.characterColor}">Blessed</div>
-                        <div class="effect" style="background-color: ${this.characterColor}">Afraid</div>
-                        <div class="effect" style="background-color: ${this.characterColor}">Poisoned</div>
-                        <div class="effect" style="background-color: ${this.characterColor}">Mage Armor</div>
-                      </div>
+                      <div class="EffectsBox"></div>
 
                       <div class="separator"></div>
 
@@ -518,6 +528,10 @@ function applyEvent(event, updateUI){
     }else{
       resetPlayers();
     }
+  }else if(event.type === "addEffect"){
+    getPlayer(event.characterName).addEffect(event.effectName, event.effectDesc);
+  }else if(event.type === "removeEffect"){
+    getPlayer(event.characterName).removeEffect(event.effectName);
 
   }else{
     console.warn("invalid event: " + event.type);
@@ -544,6 +558,7 @@ function resetPlayers(playersToReset = players){
   for(let player of playersToReset){
     player.deathSaves = [0,0];
     player.currentHp = player.maxHp;
+    player.removeAllEffects();
   }
 }
 
