@@ -338,7 +338,7 @@ class PlayerChracter {
     this.maxHp = hp;
     this.currentHp = hp;
     this.stats = stats;
-    this.characterColor = color; //charColors[name]; //TODO use color from chracter json from database
+    this.characterColor = color; //charColors[name];
     this.headShotImg = imgURL //"https://testdb-2091.restdb.io/media/" + imgId + "?key=" + apiKey //chrome.runtime.getURL("/characterImages/" + this.characterName + ".webp");
 
     this.makePanel();
@@ -371,7 +371,7 @@ class PlayerChracter {
     }
   }
 
-  makePanel(){
+  makePanel(){ //TODO make sure EffectsBox has nothing in it (including no whitespace)
     var panelStr = /*html*/`
                     <div class="chracterStatsPanel">
                       <div class="charBasicInfo">
@@ -382,6 +382,14 @@ class PlayerChracter {
 
                       <div class="separator"></div>
 
+                      <div class="EffectsBox">
+                        <div class="effect" style="background-color: ${this.characterColor}">Blessed</div>
+                        <div class="effect" style="background-color: ${this.characterColor}">Afraid</div>
+                        <div class="effect" style="background-color: ${this.characterColor}">Poisoned</div>
+                        <div class="effect" style="background-color: ${this.characterColor}">Mage Armor</div>
+                      </div>
+
+                      <div class="separator"></div>
 
                       <div class="chracterStats" style="display: flex">
                         <div class="physStats" style="display: flex; flex-direction: column;">
@@ -801,14 +809,14 @@ function makePanels(){
 
       console.log(charData[i]);
 
-      players.push(new PlayerChracter(i, 
-                                      charData[i].name, 
-                                      charData[i].level, 
-                                      charData[i].charClass, 
-                                      charData[i].ac, 
-                                      charData[i].hp, 
-                                      charData[i].stats, 
-                                      charData[i].color, 
+      players.push(new PlayerChracter(i,
+                                      charData[i].name,
+                                      charData[i].level,
+                                      charData[i].charClass,
+                                      charData[i].ac,
+                                      charData[i].hp,
+                                      charData[i].stats,
+                                      charData[i].color,
                                       charData[i].imageURL));
 
       var panelContainer = document.createElement("div");
