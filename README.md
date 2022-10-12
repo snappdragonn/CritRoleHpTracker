@@ -12,9 +12,9 @@ A google chrome extension that creates a popup on critical role campaign 3 episo
 <br />
 
 Features:
-- Displayes hp for each player as exact numbers or a health bar
+- Displays hp for each player as exact numbers or a health bar
 - Displays death saves when a player is unconcious
-- Displayes stats, level, class for each player on hover
+- Displays stats, level, class for each player on hover
 - Tracker popup is resizeable, draggable, and minimisable
 - Orientation can be set to vertical or horizontal
 
