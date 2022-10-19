@@ -373,7 +373,10 @@ class PlayerChracter {
 
   addEffect(effectName, effectDesc){
     this.statsPanel.getElementsByClassName("EffectsBox")[0].insertAdjacentHTML("beforeend", /*html*/`
-                                                                <div class="effect ${effectName}" style="background-color: ${this.characterColor}">${effectName}</div>
+                                                                <div class="effect ${effectName}" style="background-color: ${this.characterColor}">
+                                                                  ${effectName}
+                                                                  <div class="tooltip">${effectDesc}</div>
+                                                                </div>
                                                               `);
   }
 

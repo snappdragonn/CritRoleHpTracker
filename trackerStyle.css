@@ -196,6 +196,31 @@
   border-radius: 3px;
   font-size: 15px;
   cursor: default;
+  position: relative;
+}
+
+
+.tooltip {
+  display: none;
+  position: absolute;
+  width: max-content;
+  max-width: 200px;
+  left: 0;
+  z-index: 1001;
+  border-color: black;
+  border-style: solid;
+  border-width: 2px;
+  background-color: dimgray;
+  box-shadow: 0px 8px 16px 8px rgba(0,0,0,0.2);
+  cursor: default;
+  color: #e1e1e1;
+  opacity: 0.9;
+  font-weight: lighter;
+  padding-left: 2px;
+}
+
+*:has(> .tooltip):hover .tooltip{ /* show tooltip when hover over direct parent  */
+  display: block;
 }
 
 
