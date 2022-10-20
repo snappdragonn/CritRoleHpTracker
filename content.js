@@ -323,7 +323,7 @@ class PlayerChracter {
   headShotImg;
 
   currentHp;
-  //tmpHp = 0;
+  tmpHp = 0;
   deathSaves = [0,0]; //[numSuccess, numFailed]
   //idDead = false;
 
@@ -338,8 +338,8 @@ class PlayerChracter {
     this.maxHp = hp;
     this.currentHp = hp;
     this.stats = stats;
-    this.characterColor = color; //charColors[name];
-    this.headShotImg = imgURL //"https://testdb-2091.restdb.io/media/" + imgId + "?key=" + apiKey //chrome.runtime.getURL("/characterImages/" + this.characterName + ".webp");
+    this.characterColor = color;
+    this.headShotImg = imgURL
 
     this.makePanel();
   }
@@ -352,7 +352,15 @@ class PlayerChracter {
   }
 
   updateHp(amount, updatePanel){
-    this.currentHp = Math.max(this.currentHp + amount, 0); //TODO do temp hp differently so can stop normal hp going above max
+    if(amount <= this.tmpHp){
+      this.tmpHp -= amount;
+      amount = 0;
+    }else {
+      amount -= this.tmpHp;
+      this.tmpHp = 0;
+    }
+
+    this.currentHp = Math.min(Math.max(this.currentHp + amount, 0), this.maxHp);
 
     if(updatePanel){
       panels[this.id].update();
@@ -387,6 +395,10 @@ class PlayerChracter {
 
   removeAllEffects(){
     this.statsPanel.getElementsByClassName("EffectsBox")[0].replaceChildren();
+  }
+
+  addTmpHp(amount){
+    this.tmpHp += amount;
   }
 
   makePanel(){ //TODO make sure EffectsBox has nothing in it (including no whitespace)
@@ -531,10 +543,14 @@ function applyEvent(event, updateUI){
     }else{
       resetPlayers();
     }
+
   }else if(event.type === "addEffect"){
     getPlayer(event.characterName).addEffect(event.effectName, event.effectDesc);
   }else if(event.type === "removeEffect"){
     getPlayer(event.characterName).removeEffect(event.effectName);
+
+  }else if(event.type === "addTmpHp"){
+    getPlayer(event.characterName).addTmpHp(event.amount);
 
   }else{
     console.warn("invalid event: " + event.type);
