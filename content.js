@@ -130,7 +130,9 @@ class NumberPanel extends Panel {
                           <img src=${players[this.playerId].headShotImg} alt="headshot" class="headshotImg" referrerPolicy="no-referrer" crossorigin="anonymous">
                           <div class="playerName">${players[this.playerId].characterName}</div>
                         </div>
-                        <h1>${players[this.playerId].currentHp}</h1>
+                        <div class="hpNumber" style="display: flex; flex-direction: column; align-items: center;">
+                          <h1>${players[this.playerId].currentHp}</h1>
+                        </div>
                       </div>
                     `;
 
@@ -190,6 +192,23 @@ class NumberPanel extends Panel {
   updatePanel(newHp){
     var playerPanel = this.panel.getElementsByTagName("h1")[0];
     playerPanel.innerText = newHp;
+
+    var hpNum = this.panel.getElementsByClassName("hpNumber")[0];
+    if(players[this.playerId].tmpHp > 0){ //add tmp hp number
+      if(hpNum.childElementCount < 2){
+        hpNum.insertAdjacentHTML("beforeend", /*html*/`
+                                                      <h4 class="tmpHp" style="font-size: 12px;">+${players[this.playerId].tmpHp}</h4>
+                                                    `);
+        hpNum.firstElementChild.style["font-size"] = "35px"; //TODO make size depend on popup size
+        hpNum.firstElementChild.style["line-height"] = "30px";
+      }else{
+        hpNum.lastElementChild.innerHTML = "+" + players[this.playerId].tmpHp;
+      }
+    }else if(hpNum.childElementCount > 1){
+      hpNum.removeChild(hpNum.lastElementChild); //remove tmp hp number
+      hpNum.firstElementChild.style.removeProperty("line-height");
+      hpNum.firstElementChild.style["font-size"] = "40.8px";
+    }
   }
 
   setContentsSize(){
