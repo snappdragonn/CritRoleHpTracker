@@ -221,7 +221,8 @@ class HeathbarPanel extends Panel {
                 </div>
                 <div class="healthBar" style="flex: 1; height: 45%; width: 100%; position: relative; border: 1px solid #9e9a8d; border-radius: 3px">
                   <div class="barBackground" style="background-color: #723939; width: 100%; height: 100%; position: absolute; top: 0; left: 0; border-radius: 3px"></div>
-                  <div class="slider" style="background-color: rgb(54 82 54); width: ${Math.min(players[this.playerId].currentHp / charData[this.playerId].hp, 1) * 100}%; height: 100%; position: absolute; top: 0; left: 0; border-radius: 3px"</div>
+                  <div class="slider hpSlider" style="background-color: rgb(54 82 54); width: ${Math.min(players[this.playerId].currentHp / charData[this.playerId].hp, 1) * 100}%;"></div>
+                  <div class="slider tmpHpSlider" style="background-color: rgba(10, 100, 255, 0.4); width: ${Math.min(players[this.playerId].tmpHp / charData[this.playerId].hp, 1) * 100}%;"></div>
                 </div>
               </div>
             </div>
@@ -264,6 +265,9 @@ class HeathbarPanel extends Panel {
   updatePanel(newHp){
     var slider = this.panel.getElementsByClassName("slider")[0];
     slider.style.width = (Math.min(newHp / charData[this.playerId].hp, 1) * 100) + "%";
+
+    var tmpHpSlider = this.panel.getElementsByClassName("tmpHpSlider")[0];
+    tmpHpSlider.style.width = (Math.min(players[this.playerId].tmpHp / charData[this.playerId].hp, 1) * 100) + "%";
   }
 
   updateDeathSavePanel(saves){
@@ -352,12 +356,14 @@ class PlayerChracter {
   }
 
   updateHp(amount, updatePanel){
-    if(amount <= this.tmpHp){
-      this.tmpHp -= amount;
-      amount = 0;
-    }else {
-      amount -= this.tmpHp;
-      this.tmpHp = 0;
+    if(amount < 0 ){ //remove temp hp before normal hp
+      if(Math.abs(amount) <= this.tmpHp){
+        this.tmpHp -= Math.abs(amount);
+        amount = 0;
+      }else{
+        amount += this.tmpHp;
+        this.tmpHp = 0;
+      }
     }
 
     this.currentHp = Math.min(Math.max(this.currentHp + amount, 0), this.maxHp);
@@ -397,8 +403,12 @@ class PlayerChracter {
     this.statsPanel.getElementsByClassName("EffectsBox")[0].replaceChildren();
   }
 
-  addTmpHp(amount){
+  addTmpHp(amount, updatePanel){
     this.tmpHp += amount;
+
+    if(updatePanel){
+      panels[this.id].update();
+    }
   }
 
   makePanel(){ //TODO make sure EffectsBox has nothing in it (including no whitespace)
@@ -550,11 +560,13 @@ function applyEvent(event, updateUI){
     getPlayer(event.characterName).removeEffect(event.effectName);
 
   }else if(event.type === "addTmpHp"){
-    getPlayer(event.characterName).addTmpHp(event.amount);
+    getPlayer(event.characterName).addTmpHp(event.amount, updateUI);
 
   }else{
     console.warn("invalid event: " + event.type);
   }
+
+  //TODO update UI here
 }
 
 function getPlayer(name){
@@ -577,6 +589,7 @@ function resetPlayers(playersToReset = players){
   for(let player of playersToReset){
     player.deathSaves = [0,0];
     player.currentHp = player.maxHp;
+    player.tmpHp = 0;
     player.removeAllEffects();
   }
 }

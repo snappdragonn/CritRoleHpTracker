@@ -88,6 +88,14 @@
   cursor: default;
 }
 
+.slider {
+  height: 100%; 
+  position: absolute; 
+  top: 0; 
+  left: 0; 
+  border-radius: 3px
+}
+
 /*
 .panelContainer:hover .chracterStatsPanel {
   width: 200px;
