@@ -123,6 +123,11 @@
   font-size: min(calc(16px * var(--heightMod, 1)), calc(16px * var(--widthMod, 1)));
 }
 
+.playerPanel .barPanelHeader {
+  display: flex;
+  align-items: center;
+}
+
 
 .chracterStatsPanel {
   width: calc( 230px * min(var(--heightMod, 1), var(--widthMod, 1)) );

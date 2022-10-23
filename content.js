@@ -229,7 +229,7 @@ class HeathbarPanel extends Panel {
 
     var htmlstring = /*html*/`
             <div id=${"player"+this.playerId} class="playerPanel" data-deathSaves="false" style="background-color: ${players[this.playerId].characterColor}; justify-content: center;">
-              <div class="barGrid" style="display: grid; height: 80%; width: 90%; grid-template: 1fr 1fr / repeat(6, 1fr); row-gap: 3px;">
+              <div class="barGrid" style="display: grid; height: 80%; width: 90%; grid-template: 50% 50% / repeat(6, 1fr); row-gap: 3px;">
                 <div class="barPanelHeader" style="grid-area: 1 / 1 / 2 / 7; min-height: 0;">
                   <img src=${players[this.playerId].headShotImg} alt="headshot" referrerPolicy="no-referrer" crossorigin="anonymous" style="height: 100%; float: left; border-radius: 50%; margin: 0 3px 0 0;"></img>
                   <div class="barPlayerName" style="float: left; font-weight: bold;">${players[this.playerId].characterName}</div>
