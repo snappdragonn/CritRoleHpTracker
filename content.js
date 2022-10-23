@@ -15,17 +15,6 @@ var hpSize = {"h": 0.8, "w": 0.4};
 var imgSize = {"h": 0.8, "w": 0.3};
 var nameSize = {"h": 0.3, "w": 0.125};
 
-// charColors = {"Bertrand": "#5b2640",
-//               "Chetney": "#415054",
-//               "Dorian": "#3a4660",
-//               "Laudna": "#42333e",
-//               "FCG": "#3c5864",
-//               "Fearne": "#875d51",
-//               "Imogen": "#564c64",
-//               "Orym": "#33413b",
-//               "Ashton": "#512f30",
-//               "Dusk": "#784b37",
-//               "Yu": "#4e4c4f"};
 
 var panels = [];
 var players = [];
@@ -65,7 +54,6 @@ class Panel{
       this.panel.addEventListener("mouseenter", (e) => onPanelHover(e, players[playerId].statsPanel));
     }
 
-    this.setContentsSize();
   }
 
   makePanel(){}
@@ -94,8 +82,6 @@ class Panel{
 
   updatePanel(newHp){}
 
-  setContentsSize(){}
-
   setPanel(string){
     var tmp = document.createElement("div");
     tmp.innerHTML = string;
@@ -110,8 +96,6 @@ class Panel{
     if(players[this.playerId] != null){
       this.panel.addEventListener("mouseenter", (e) => onPanelHover(e, players[this.playerId].statsPanel));
     }
-
-    this.setContentsSize();
 
     return this.panel;
   }
@@ -197,31 +181,16 @@ class NumberPanel extends Panel {
     if(players[this.playerId].tmpHp > 0){ //add tmp hp number
       if(hpNum.childElementCount < 2){
         hpNum.insertAdjacentHTML("beforeend", /*html*/`
-                                                      <h4 class="tmpHp" style="font-size: 12px;">+${players[this.playerId].tmpHp}</h4>
+                                                      <h4 class="tmpHp">+${players[this.playerId].tmpHp}</h4>
                                                     `);
-        hpNum.firstElementChild.style["font-size"] = "35px"; //TODO make size depend on popup size
-        hpNum.firstElementChild.style["line-height"] = "30px";
       }else{
         hpNum.lastElementChild.innerHTML = "+" + players[this.playerId].tmpHp;
       }
     }else if(hpNum.childElementCount > 1){
       hpNum.removeChild(hpNum.lastElementChild); //remove tmp hp number
-      hpNum.firstElementChild.style.removeProperty("line-height");
-      hpNum.firstElementChild.style["font-size"] = "40.8px";
     }
   }
 
-  setContentsSize(){
-    var panelH = parseInt(getComputedStyle(this.panel, 50).height);
-    var panelW = parseInt(getComputedStyle(this.panel, 120).width);
-
-    this.panel.getElementsByClassName("playerImage")[0].style.height = Math.min(panelH*imgSize["h"], panelW*imgSize["w"]) + "px"
-    this.panel.getElementsByClassName("playerName")[0].style["font-size"] = Math.min(panelH*nameSize["h"], panelW*nameSize["w"]) + "px"
-    var hpText = this.panel.getElementsByTagName("h1")[0];
-    if(hpText != null){
-      hpText.style["font-size"] = Math.min(panelH*hpSize["h"], panelW*hpSize["w"]) + "px";
-    }
-  }
 
 }
 
@@ -309,25 +278,6 @@ class HeathbarPanel extends Panel {
 
   }
 
-  setContentsSize(){
-    var panelH = parseInt(getComputedStyle(this.panel, 50).height);
-    var panelW = parseInt(getComputedStyle(this.panel, 120).width);
-
-    this.panel.getElementsByClassName("playerImage")[0].style.height = Math.min(panelH*imgSize["h"], panelW*imgSize["w"]) + "px"
-    this.panel.getElementsByClassName("playerName")[0].style["font-size"] = Math.min(panelH*nameSize["h"], panelW*nameSize["w"]) + "px"
-    var hpText = this.panel.getElementsByTagName("h1")[0];
-    if(hpText != null){
-      hpText.style["font-size"] = Math.min(panelH*hpSize["h"], panelW*hpSize["w"]) + "px";
-    }
-  }
-
-  setContentsSize(){
-    var panelH = parseInt(getComputedStyle(this.panel, 50).height);
-    var panelW = parseInt(getComputedStyle(this.panel, 120).width);
-
-    this.panel.getElementsByClassName("barPlayerName")[0].style["font-size"] = Math.min(panelH*nameSize["h"], panelW*nameSize["w"]) + "px"
-
-  }
 
 }
 
@@ -348,7 +298,6 @@ class PlayerChracter {
   currentHp;
   tmpHp = 0;
   deathSaves = [0,0]; //[numSuccess, numFailed]
-  //idDead = false;
 
   statsPanel;
 
@@ -520,7 +469,7 @@ function updateStats(){
   var videoPlayer = document.getElementsByTagName('video')[0];
   var currentTime = videoPlayer.currentTime;
 
-  if(!isInTimeSlot(currentTime, currentTimeSlot)){//}!((currentTimeSlot >= episodeData.length || currentTime <= episodeData[currentTimeSlot].time) && (currentTimeSlot <= 0 || currentTime > episodeData[currentTimeSlot-1].time))){
+  if(!isInTimeSlot(currentTime, currentTimeSlot)){
 
     console.log("new time slot");
     //find the new current time slot
@@ -528,15 +477,12 @@ function updateStats(){
     for(i=0; i<=episodeData.length; i++){
       if(i >= episodeData.length || episodeData[i].time >= currentTime){
         currentTimeSlot = i;
-        //console.log("slot = " + i);
-//          console.log("new slot " + currentTimeSlot);
         break;
       }
     }
 
     //update the players hp/deathsaves/etc
     if(currentTimeSlot > oldTimeSlot){ //moved forwards - apply all events from current time to the new time
-      //console.log("moved forward");
       for(i=oldTimeSlot+1; i<=currentTimeSlot; i++){
         applyEvent(episodeData[i-1].event, false);
       }
@@ -559,7 +505,6 @@ function applyEvent(event, updateUI){
   if(event.type === "hpUpdate"){
     //console.log("hp update");
     getPlayer(event.characterName).updateHp(event.amount, updateUI);
-    //console.log("new hp = " + getPlayer(event.characterName).currentHp);
 
   }else if(event.type === "deathsave"){
     //console.log("deathsave");
@@ -642,16 +587,6 @@ function setPanelType(strType){
 }
 
 
-// function toggleMenu(event){
-//   console.log("toggle menu");
-//   var menu = event.currentTarget.parentNode.getElementsByClassName("menuDropDown")[0];
-//   if(menu.style.display === "block"){
-//     menu.style.display = "none";
-//   }else{
-//     menu.style.display = "block";
-//   }
-// }
-
 function minimise(){
   console.log("minimise");
   if(!minimised){
@@ -697,12 +632,9 @@ function setOrientation(newOrientation){
 
   if(newOrientation === "vertical"){
     container.style["flex-direction"] = "column";
-    //container.style.width = "100%";
 
     popup.style.minHeight = (container.childElementCount * 40 + 10) + "px";
     popup.style.minWidth = "100px";
-    //popup.style.height = (container.childElementCount * 60 + 10) + "px";
-    //popup.style.width = "150px"
     root.style.setProperty("--defaultWidth", "150px");
     root.style.setProperty("--defaultHeight", (container.childElementCount * 60 + 10) + "px");
 
@@ -717,12 +649,9 @@ function setOrientation(newOrientation){
 
   }else if(newOrientation === "horizontal"){
     container.style["flex-direction"] = "row";
-    //container.style.height = "100%";
 
     popup.style.minHeight = "65px";
     popup.style.minWidth = (container.childElementCount * 80 + 10) + "px";
-    //popup.style.height = "75px"
-    //popup.style.width = (container.childElementCount * 120 + 10) + "px";
     root.style.setProperty("--defaultWidth", (container.childElementCount * 120 + 10) + "px");
     root.style.setProperty("--defaultHeight", "75px");
 
@@ -741,9 +670,6 @@ function setOrientation(newOrientation){
 
   chrome.storage.sync.set({ orientation: newOrientation });
 
-  for(panel of panels){
-    panel.setContentsSize();
-  }
 }
 
 
@@ -807,7 +733,6 @@ function makeTable(){
   document.body.insertAdjacentHTML("beforeend", trackerHTML);
 
   document.getElementById("menuButton").addEventListener("click", openMainMenu, false);
-  //document.getElementById("menuContainer").addEventListener("mouseleave", toggleMenu, false);
 
   document.getElementById("DisplayNumberButton").addEventListener("click", e => setPanelType("number"), false);
   document.getElementById("DisplayHealthbarButton").addEventListener("click", e => setPanelType("healthBar"), false);
@@ -820,8 +745,6 @@ function makeTable(){
 
 
   addDragListeners();
-
-  //setOrientation(orientation);
 
 }
 
@@ -1055,14 +978,6 @@ function getEpisodeData(successCallback, failCallback){
         charData = null;
       }
 
-      // document.getElementById("hpPanelsContainer").innerHTML = "";
-      // makePanels();
-      // setOrientation(orientation);
-      //
-      // //check every few seconds for an update to the stats
-      // if(episodeData != null && episodeData.length > 0){ //check there is data stored for the episode
-      //   updateTimer = setInterval(updateStats, 1000);
-      // }
     }
   });
 
@@ -1085,17 +1000,6 @@ function getEpisodeData(successCallback, failCallback){
 
 
 
-// function setStyleRed(id){
-//   document.getElementById("player" + id).style = "color: #ff4b4b; font-weight: bold;";
-// }
-//
-// function setStyleOrange(id){
-//     document.getElementById("player" + id).style = "color: orange; font-weight: bold;";
-// }
-//
-// function setStyleWhite(id){
-//   document.getElementById("player" + id).style = "";
-// }
 
 
 function onPanelHover(event, statsPanel){
@@ -1150,8 +1054,6 @@ function divResize(e){
   var div = document.getElementById("trackerBody");
   let root = document.getElementById("trackerBlock");
   let style = window.getComputedStyle(div);
-  //div.style.width = Math.max( (parseInt(div.style.width) + (-e.movementX)), parseInt(div.style["min-width"]) ) + "px";
-  //div.style.height = Math.max( (parseInt(div.style.height) + e.movementY), parseInt(div.style["min-height"])) + "px";
 
   let newWidth = Math.max( (parseInt(style.getPropertyValue("width")) + (-e.movementX)), parseInt(style.getPropertyValue("min-width")) )
   let newHeight = Math.max( (parseInt(style.getPropertyValue("height")) + e.movementY), parseInt(style.getPropertyValue("min-height")) )
@@ -1161,12 +1063,6 @@ function divResize(e){
  
   root.style.setProperty("--widthMod", widthMod);
   root.style.setProperty("--heightMod", heightMod);
-
-
-
-  for(panel of panels){
-    panel.setContentsSize();
-  }
 }
 
 

@@ -87,7 +87,7 @@
 }
 
 .playerImage {
-  height: 80%;
+  height: min(calc(41px * var(--heightMod, 1)), calc(41px * var(--widthMod, 1)));
   text-align: center;
 }
 
@@ -95,6 +95,20 @@
   position: relative;
   top: -40%;
   cursor: default;
+  font-size: min(calc(15px * var(--heightMod, 1)), calc(15px * var(--widthMod, 1)));
+}
+
+.hpNumber h1 {
+  font-size: min(calc(41px * var(--heightMod, 1)), calc(41px * var(--widthMod, 1)));
+}
+
+.hpNumber:has(> .tmpHp) h1 {
+  font-size: min(calc(35px * var(--heightMod, 1)), calc(35px * var(--widthMod, 1)));
+  line-height: min(calc(30px * var(--heightMod, 1)), calc(30px * var(--widthMod, 1)));
+}
+
+.hpNumber .tmpHp {
+  font-size: min(calc(12px * var(--heightMod, 1)), calc(12px * var(--widthMod, 1)));
 }
 
 .slider {
@@ -105,47 +119,10 @@
   border-radius: 3px
 }
 
-/*
-.panelContainer:hover .chracterStatsPanel {
-  width: 200px;
-  height: auto;
-  border-width: 2px;
-
-  transition-delay: 0.5s;
+.playerPanel .barPlayerName {
+  font-size: min(calc(16px * var(--heightMod, 1)), calc(16px * var(--widthMod, 1)));
 }
 
-
-.panelContainer:hover .statDiv {
-  margin: 2px;
-  padding: 2px;
-  border-radius: 3px;
-  opacity: 1;
-  font-size: 15px;
-  width: auto;
-  height: auto;
-  transition-duration: 0.05s;
-  transition-delay: 0.5s;
-}
-
-.panelContainer:hover .chracterStats {
-  align-content: center;
-  justify-content: flex-start;
-  transition-delay: 0.5s;
-}
-
-
-.statDiv {
-  opacity: 0;
-  width: 0;
-  height: 0;
-}
-*/
-
-/*
-.panelContainer:hover .chracterStatsPanel {
-  display: flex;
-}
-*/
 
 .chracterStatsPanel {
   /*transition: width 0.10s, height 0.10s, border-width 0s, font-size 0.10s;
