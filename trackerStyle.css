@@ -125,11 +125,8 @@
 
 
 .chracterStatsPanel {
-  /*transition: width 0.10s, height 0.10s, border-width 0s, font-size 0.10s;
-  transition-delay: 0s;
-  width: 0px;
-  height: 0px;*/
-  width: 230px;
+  width: calc( 230px * min(var(--heightMod, 1), var(--widthMod, 1)) );
+  font-size: calc( 15px * min(var(--heightMod, 1), var(--widthMod, 1)) );
   z-index: 1000;
   display: none;
   flex-direction: column;
@@ -152,11 +149,21 @@
   color: #e1e1e1
 }
 
+.chracterStats {
+  margin-bottom: calc( 3px * min(var(--heightMod, 1), var(--widthMod, 1)) );
+  margin-left: calc( 3px * min(var(--heightMod, 1), var(--widthMod, 1)) );
+}
+
 .separator{
   width: 100%;
   height: 2px;
   margin: 2px 0 2px 0;
   background-color: black;
+}
+
+.chracterStatsPanel .separator {
+  height: calc( 2px * min(var(--heightMod, 1), var(--widthMod, 1)) );
+  margin: calc( 2px * min(var(--heightMod, 1), var(--widthMod, 1)) ) 0;
 }
 
 
@@ -169,13 +176,21 @@
   margin: 2px;
   padding: 2px;
   border-radius: 3px;
-  font-size: 15px;
+  /*font-size: 15px;*/
   cursor: default;
 }
 
 .chracterStats {
   align-content: center;
   justify-content: flex-start;
+}
+
+.hp-ac .heart {
+  --size: calc( 33px * min(var(--heightMod, 1), var(--widthMod, 1)) ) !important;
+}
+
+.hp-ac .shield {
+  --size: calc( 25px * min(var(--heightMod, 1), var(--widthMod, 1)) ) !important;
 }
 
 .EffectsBox{
