@@ -1,9 +1,18 @@
 #trackerBlock {
-    position: absolute;
-    z-index: 3000;
+  --defaultWidth: 150px;
+  --defaultHeight: 430px;
+  --widthMod:  1;
+  --heightMod: 1;
+
+  position: absolute;
+  z-index: 3000;
 }
 
 #trackerBody{
+  width: calc(var(--defaultWidth, 150px) * var(--widthMod, 1));
+  height: calc(var(--defaultHeight, 430px) * var(--heightMod, 1));
+  min-width: 100px;
+  min-height: 290px;
   background-color: dimgray;
   border-style: solid;
   border-color: black;
@@ -174,7 +183,7 @@
 }
 
 
-.EffectsBox:not(:has(*)) + .separator{ /* TODO could use ":not(:has(*))" instead of ":empty" */
+.EffectsBox:not(:has(*)) + .separator{
   display: none;
 }
 

@@ -430,7 +430,7 @@ class PlayerChracter {
     }
   }
 
-  makePanel(){ //TODO make sure EffectsBox has nothing in it (including no whitespace)
+  makePanel(){
     var panelStr = /*html*/`
                     <div class="chracterStatsPanel">
                       <div class="charBasicInfo">
@@ -687,6 +687,7 @@ function setOrientation(newOrientation){
   orientation = newOrientation;
   var container = document.getElementById("hpPanelsContainer");
   var popup = document.getElementById("trackerBody");
+  let root = document.getElementById("trackerBlock");
 
   if(episodeData == null){
     popup.style.minHeight = "130px";
@@ -700,8 +701,10 @@ function setOrientation(newOrientation){
 
     popup.style.minHeight = (container.childElementCount * 40 + 10) + "px";
     popup.style.minWidth = "100px";
-    popup.style.height = (container.childElementCount * 60 + 10) + "px";
-    popup.style.width = "150px"
+    //popup.style.height = (container.childElementCount * 60 + 10) + "px";
+    //popup.style.width = "150px"
+    root.style.setProperty("--defaultWidth", "150px");
+    root.style.setProperty("--defaultHeight", (container.childElementCount * 60 + 10) + "px");
 
     document.getElementById("verticalButton").getElementsByTagName("img")[0].style.display = "block";
     document.getElementById("horizonalButton").getElementsByTagName("img")[0].style.display = "none";
@@ -718,8 +721,10 @@ function setOrientation(newOrientation){
 
     popup.style.minHeight = "65px";
     popup.style.minWidth = (container.childElementCount * 80 + 10) + "px";
-    popup.style.height = "75px"
-    popup.style.width = (container.childElementCount * 120 + 10) + "px";
+    //popup.style.height = "75px"
+    //popup.style.width = (container.childElementCount * 120 + 10) + "px";
+    root.style.setProperty("--defaultWidth", (container.childElementCount * 120 + 10) + "px");
+    root.style.setProperty("--defaultHeight", "75px");
 
     document.getElementById("verticalButton").getElementsByTagName("img")[0].style.display = "none";
     document.getElementById("horizonalButton").getElementsByTagName("img")[0].style.display = "block";
@@ -773,7 +778,7 @@ function makeTable(){
                           <img src=${chrome.runtime.getURL("icons/CombatTrackerIcon.png")} style="height: 85%;">
                         </div>
 
-                        <div id="trackerBody" style="width: ${width}px; height: ${height}px; min-width: ${minWidth}px; min-height: ${minHeight}px; flex-direction: ${flexDir}">
+                        <div id="trackerBody" style="flex-direction: ${flexDir}">
                           <div id="contentGrid" style="width: 100%; height: 100%; display: grid; grid-template: 22px 1fr / 1fr 22px; grid-template-areas: 'title menuButton' 'content content'">
 
                             <div id="trackerTitle" style="grid-area: title">
@@ -1061,7 +1066,7 @@ function getEpisodeData(successCallback, failCallback){
     }
   });
 
-  xhr.open("GET", "https://critrolehpdata-5227.restdb.io/rest/combat-data?q={\"EpNum\": " + episodeNum + "}"); //q={\"EpNum\": " + episodeNum + "}
+  xhr.open("GET", "https://testdb-2091.restdb.io/rest/combat-data?q={\"EpNum\": " + episodeNum + "}"); //q={\"EpNum\": " + episodeNum + "}
   xhr.setRequestHeader("content-type", "application/json");
   xhr.setRequestHeader("x-apikey", apiKey);
   xhr.setRequestHeader("cache-control", "no-cache");
@@ -1115,7 +1120,7 @@ function addDragListeners(){
 }
 
 function mouseUp(){
-  window.removeEventListener('mousemove', divMove, true); //TODO add listener to body element instead of window
+  window.removeEventListener('mousemove', divMove, true);
   window.removeEventListener('mousemove', divResize, true);
 }
 
@@ -1143,8 +1148,21 @@ function divMove(e){
 function divResize(e){
   e.preventDefault()
   var div = document.getElementById("trackerBody");
-  div.style.width = Math.max( (parseInt(div.style.width) + (-e.movementX)), parseInt(div.style["min-width"]) ) + "px";
-  div.style.height = Math.max( (parseInt(div.style.height) + e.movementY), parseInt(div.style["min-height"])) + "px";
+  let root = document.getElementById("trackerBlock");
+  let style = window.getComputedStyle(div);
+  //div.style.width = Math.max( (parseInt(div.style.width) + (-e.movementX)), parseInt(div.style["min-width"]) ) + "px";
+  //div.style.height = Math.max( (parseInt(div.style.height) + e.movementY), parseInt(div.style["min-height"])) + "px";
+
+  let newWidth = Math.max( (parseInt(style.getPropertyValue("width")) + (-e.movementX)), parseInt(style.getPropertyValue("min-width")) )
+  let newHeight = Math.max( (parseInt(style.getPropertyValue("height")) + e.movementY), parseInt(style.getPropertyValue("min-height")) )
+
+  let widthMod = newWidth / parseFloat(window.getComputedStyle(root).getPropertyValue("--defaultWidth"));
+  let heightMod = newHeight / parseFloat(window.getComputedStyle(root).getPropertyValue("--defaultHeight"));
+ 
+  root.style.setProperty("--widthMod", widthMod);
+  root.style.setProperty("--heightMod", heightMod);
+
+
 
   for(panel of panels){
     panel.setContentsSize();
