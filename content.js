@@ -504,7 +504,11 @@ function updateStats(){
 function applyEvent(event, updateUI){
   if(event.type === "hpUpdate"){
     //console.log("hp update");
-    getPlayer(event.characterName).updateHp(event.amount, updateUI);
+    if(event.hasOwnProperty("tmp") && event.tmp == true){
+      getPlayer(event.characterName).addTmpHp(event.amount, updateUI);
+    }else{
+      getPlayer(event.characterName).updateHp(event.amount, updateUI);
+    }
 
   }else if(event.type === "deathsave"){
     //console.log("deathsave");
@@ -522,9 +526,6 @@ function applyEvent(event, updateUI){
     getPlayer(event.characterName).addEffect(event.effectName, event.effectDesc);
   }else if(event.type === "removeEffect"){
     getPlayer(event.characterName).removeEffect(event.effectName);
-
-  }else if(event.type === "addTmpHp"){
-    getPlayer(event.characterName).addTmpHp(event.amount, updateUI);
 
   }else{
     console.warn("invalid event: " + event.type);
