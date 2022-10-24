@@ -353,10 +353,10 @@ class PlayerChracter {
     }
   }
 
-  addEffect(effectName, effectDesc){
+  addEffect(effectName, effectDesc, level){
     this.statsPanel.getElementsByClassName("EffectsBox")[0].insertAdjacentHTML("beforeend", /*html*/`
-                                                                <div class="effect ${effectName}" style="background-color: ${this.characterColor}">
-                                                                  ${effectName}
+                                                                <div class="effect ${effectName.replace(/\s+/g, '')}" style="background-color: ${this.characterColor}">
+                                                                  ${effectName} ${level ? " " + level : ""} 
                                                                   <div class="tooltip">${effectDesc}</div>
                                                                 </div>
                                                               `);
@@ -364,7 +364,17 @@ class PlayerChracter {
 
   removeEffect(effectName){
     let effectsBox = this.statsPanel.getElementsByClassName("EffectsBox")[0];
-    effectsBox.removeChild(effectsBox.getElementsByClassName(effectName)[0]);
+    effectsBox.removeChild(effectsBox.getElementsByClassName(effectName.replace(/\s+/g, ''))[0]);
+  }
+
+  modifyEffect(effectName, effectDesc, level){
+    let effectElem = this.statsPanel.getElementsByClassName(effectName.replace(/\s+/g, ''))[0];
+    if(effectDesc){
+      effectElem.firstElementChild.innerHTML = effectDesc;
+    }
+    if(level){
+      effectElem.firstChild.textContent = effectName + " " + level;
+    }
   }
 
   removeAllEffects(){
@@ -523,9 +533,11 @@ function applyEvent(event, updateUI){
     }
 
   }else if(event.type === "addEffect"){
-    getPlayer(event.characterName).addEffect(event.effectName, event.effectDesc);
+    getPlayer(event.characterName).addEffect(event.effectName, event.effectDesc, event.level);
   }else if(event.type === "removeEffect"){
     getPlayer(event.characterName).removeEffect(event.effectName);
+  }else if(event.type === "modifyEffect"){
+    getPlayer(event.characterName).modifyEffect(event.effectName, event.effectDesc, event.level);
 
   }else{
     console.warn("invalid event: " + event.type);
