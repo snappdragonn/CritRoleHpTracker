@@ -214,6 +214,7 @@ class HeathbarPanel extends Panel {
                   <div class="barBackground" style="background-color: #723939; width: 100%; height: 100%; position: absolute; top: 0; left: 0; border-radius: 3px"></div>
                   <div class="slider hpSlider" style="background-color: rgb(54 82 54); width: ${Math.min(players[this.playerId].currentHp / charData[this.playerId].hp, 1) * 100}%;"></div>
                   <div class="slider tmpHpSlider" style="background-color: rgba(10, 100, 255, 0.4); width: ${Math.min(players[this.playerId].tmpHp / charData[this.playerId].hp, 1) * 100}%;"></div>
+                  <div class="healthbarHpNum"><div>${players[this.playerId].currentHp}</div></div>
                 </div>
               </div>
             </div>
@@ -256,6 +257,9 @@ class HeathbarPanel extends Panel {
   updatePanel(newHp){
     var slider = this.panel.getElementsByClassName("slider")[0];
     slider.style.width = (Math.min(newHp / charData[this.playerId].hp, 1) * 100) + "%";
+
+    var hpNum = this.panel.getElementsByClassName("healthbarHpNum")[0];
+    hpNum.firstElementChild.innerHTML = newHp;
 
     var tmpHpSlider = this.panel.getElementsByClassName("tmpHpSlider")[0];
     tmpHpSlider.style.width = (Math.min(players[this.playerId].tmpHp / charData[this.playerId].hp, 1) * 100) + "%";
