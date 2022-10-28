@@ -657,6 +657,8 @@ function setOrientation(newOrientation){
     popup.style.minWidth = "100px";
     root.style.setProperty("--defaultWidth", "150px");
     root.style.setProperty("--defaultHeight", (container.childElementCount * 60 + 10) + "px");
+    root.style.setProperty("--widthMod", 1);
+    root.style.setProperty("--heightMod", 1);
 
     document.getElementById("verticalButton").getElementsByTagName("img")[0].style.display = "block";
     document.getElementById("horizonalButton").getElementsByTagName("img")[0].style.display = "none";
@@ -674,6 +676,9 @@ function setOrientation(newOrientation){
     popup.style.minWidth = (container.childElementCount * 80 + 10) + "px";
     root.style.setProperty("--defaultWidth", (container.childElementCount * 120 + 10) + "px");
     root.style.setProperty("--defaultHeight", "75px");
+    root.style.setProperty("--widthMod", 1);
+    root.style.setProperty("--heightMod", 1);
+
 
     document.getElementById("verticalButton").getElementsByTagName("img")[0].style.display = "none";
     document.getElementById("horizonalButton").getElementsByTagName("img")[0].style.display = "block";
