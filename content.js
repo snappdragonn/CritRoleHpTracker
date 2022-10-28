@@ -116,6 +116,7 @@ class NumberPanel extends Panel {
                         </div>
                         <div class="hpNumber" style="display: flex; flex-direction: column; align-items: center;">
                           <h1>${players[this.playerId].currentHp}</h1>
+                          <h4 class="tmpHp" style="display: ${players[this.playerId].tmpHp == 0 ? "none" : "block"}">+${players[this.playerId].tmpHp}</h4>
                         </div>
                       </div>
                     `;
@@ -179,14 +180,16 @@ class NumberPanel extends Panel {
 
     var hpNum = this.panel.getElementsByClassName("hpNumber")[0];
     if(players[this.playerId].tmpHp > 0){ //add tmp hp number
-      if(hpNum.childElementCount < 2){
-        hpNum.insertAdjacentHTML("beforeend", /*html*/`
-                                                      <h4 class="tmpHp">+${players[this.playerId].tmpHp}</h4>
-                                                    `);
-      }else{
+      // if(hpNum.childElementCount < 2){
+      //   hpNum.insertAdjacentHTML("beforeend", /*html*/`
+      //                                                 <h4 class="tmpHp">+${players[this.playerId].tmpHp}</h4>
+      //                                               `);
+      // }else{
+        hpNum.lastElementChild.style.display = "block";
         hpNum.lastElementChild.innerHTML = "+" + players[this.playerId].tmpHp;
-      }
+      //}
     }else if(hpNum.childElementCount > 1){
+      hpNum.lastElementChild.style.display = "none";
       hpNum.removeChild(hpNum.lastElementChild); //remove tmp hp number
     }
   }
