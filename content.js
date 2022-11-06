@@ -180,14 +180,8 @@ class NumberPanel extends Panel {
 
     var hpNum = this.panel.getElementsByClassName("hpNumber")[0];
     if(players[this.playerId].tmpHp > 0){ //add tmp hp number
-      // if(hpNum.childElementCount < 2){
-      //   hpNum.insertAdjacentHTML("beforeend", /*html*/`
-      //                                                 <h4 class="tmpHp">+${players[this.playerId].tmpHp}</h4>
-      //                                               `);
-      // }else{
-        hpNum.lastElementChild.style.display = "block";
-        hpNum.lastElementChild.innerHTML = "+" + players[this.playerId].tmpHp;
-      //}
+      hpNum.lastElementChild.style.display = "block";
+      hpNum.lastElementChild.innerHTML = "+" + players[this.playerId].tmpHp;
     }else if(hpNum.childElementCount > 1){
       hpNum.lastElementChild.style.display = "none";
       hpNum.removeChild(hpNum.lastElementChild); //remove tmp hp number
@@ -1006,7 +1000,7 @@ function getEpisodeData(successCallback, failCallback){
     }
   });
 
-  xhr.open("GET", "https://testdb-2091.restdb.io/rest/combat-data?q={\"EpNum\": " + episodeNum + "}"); //q={\"EpNum\": " + episodeNum + "}
+  xhr.open("GET", "https://critrolehpdata-5227.restdb.io/rest/combat-data?q={\"EpNum\": " + episodeNum + "}"); //q={\"EpNum\": " + episodeNum + "}
   xhr.setRequestHeader("content-type", "application/json");
   xhr.setRequestHeader("x-apikey", apiKey);
   xhr.setRequestHeader("cache-control", "no-cache");
