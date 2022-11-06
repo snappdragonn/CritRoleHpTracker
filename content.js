@@ -355,27 +355,31 @@ class PlayerChracter {
   }
 
   addEffect(effectName, effectDesc, level){
-    this.statsPanel.getElementsByClassName("EffectsBox")[0].insertAdjacentHTML("beforeend", /*html*/`
-                                                                <div class="effect ${effectName.replace(/\s+/g, '')}" style="background-color: ${this.characterColor}">
-                                                                  ${effectName} ${level ? " " + level : ""} 
-                                                                  <div class="tooltip">${effectDesc}</div>
-                                                                </div>
-                                                              `);
+    if(this.statsPanel.getElementsByClassName(effectName.replace(/\s+/g, '')).length == 0){
+      this.statsPanel.getElementsByClassName("EffectsBox")[0].insertAdjacentHTML("beforeend", /*html*/`
+                                                                  <div class="effect ${effectName.replace(/\s+/g, '')}" style="background-color: ${this.characterColor}">
+                                                                    ${effectName}${level ? ": " + level : ""} 
+                                                                    <div class="tooltip">${effectDesc}</div>
+                                                                  </div>
+                                                                `);
+    }else{
+      let effectElem = this.statsPanel.getElementsByClassName(effectName.replace(/\s+/g, ''))[0];
+      if(effectDesc){
+        effectElem.firstElementChild.innerHTML = effectDesc;
+      }
+      if(level){
+        effectElem.firstChild.textContent = effectName + ": " + level;
+      }
+    }
   }
 
   removeEffect(effectName){
+    if(this.statsPanel.getElementsByClassName(effectName.replace(/\s+/g, '')).length == 0){
+      console.warn("Effect to remove does not exist: " + effectName);
+      return;
+    }
     let effectsBox = this.statsPanel.getElementsByClassName("EffectsBox")[0];
     effectsBox.removeChild(effectsBox.getElementsByClassName(effectName.replace(/\s+/g, ''))[0]);
-  }
-
-  modifyEffect(effectName, effectDesc, level){
-    let effectElem = this.statsPanel.getElementsByClassName(effectName.replace(/\s+/g, ''))[0];
-    if(effectDesc){
-      effectElem.firstElementChild.innerHTML = effectDesc;
-    }
-    if(level){
-      effectElem.firstChild.textContent = effectName + " " + level;
-    }
   }
 
   removeAllEffects(){
@@ -537,8 +541,6 @@ function applyEvent(event, updateUI){
     getPlayer(event.characterName).addEffect(event.effectName, event.effectDesc, event.level);
   }else if(event.type === "removeEffect"){
     getPlayer(event.characterName).removeEffect(event.effectName);
-  }else if(event.type === "modifyEffect"){
-    getPlayer(event.characterName).modifyEffect(event.effectName, event.effectDesc, event.level);
 
   }else{
     console.warn("invalid event: " + event.type);
