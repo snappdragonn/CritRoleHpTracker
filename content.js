@@ -15,17 +15,6 @@ var hpSize = {"h": 0.8, "w": 0.4};
 var imgSize = {"h": 0.8, "w": 0.3};
 var nameSize = {"h": 0.3, "w": 0.125};
 
-// charColors = {"Bertrand": "#5b2640",
-//               "Chetney": "#415054",
-//               "Dorian": "#3a4660",
-//               "Laudna": "#42333e",
-//               "FCG": "#3c5864",
-//               "Fearne": "#875d51",
-//               "Imogen": "#564c64",
-//               "Orym": "#33413b",
-//               "Ashton": "#512f30",
-//               "Dusk": "#784b37",
-//               "Yu": "#4e4c4f"};
 
 var panels = [];
 var players = [];
@@ -65,7 +54,6 @@ class Panel{
       this.panel.addEventListener("mouseenter", (e) => onPanelHover(e, players[playerId].statsPanel));
     }
 
-    this.setContentsSize();
   }
 
   makePanel(){}
@@ -94,8 +82,6 @@ class Panel{
 
   updatePanel(newHp){}
 
-  setContentsSize(){}
-
   setPanel(string){
     var tmp = document.createElement("div");
     tmp.innerHTML = string;
@@ -110,8 +96,6 @@ class Panel{
     if(players[this.playerId] != null){
       this.panel.addEventListener("mouseenter", (e) => onPanelHover(e, players[this.playerId].statsPanel));
     }
-
-    this.setContentsSize();
 
     return this.panel;
   }
@@ -130,7 +114,10 @@ class NumberPanel extends Panel {
                           <img src=${players[this.playerId].headShotImg} alt="headshot" class="headshotImg" referrerPolicy="no-referrer" crossorigin="anonymous">
                           <div class="playerName">${players[this.playerId].characterName}</div>
                         </div>
-                        <h1>${players[this.playerId].currentHp}</h1>
+                        <div class="hpNumber" style="display: flex; flex-direction: column; align-items: center;">
+                          <h1>${players[this.playerId].currentHp}</h1>
+                          <h4 class="tmpHp" style="display: ${players[this.playerId].tmpHp == 0 ? "none" : "block"}">+${players[this.playerId].tmpHp}</h4>
+                        </div>
                       </div>
                     `;
 
@@ -190,19 +177,17 @@ class NumberPanel extends Panel {
   updatePanel(newHp){
     var playerPanel = this.panel.getElementsByTagName("h1")[0];
     playerPanel.innerText = newHp;
-  }
 
-  setContentsSize(){
-    var panelH = parseInt(getComputedStyle(this.panel, 50).height);
-    var panelW = parseInt(getComputedStyle(this.panel, 120).width);
-
-    this.panel.getElementsByClassName("playerImage")[0].style.height = Math.min(panelH*imgSize["h"], panelW*imgSize["w"]) + "px"
-    this.panel.getElementsByClassName("playerName")[0].style["font-size"] = Math.min(panelH*nameSize["h"], panelW*nameSize["w"]) + "px"
-    var hpText = this.panel.getElementsByTagName("h1")[0];
-    if(hpText != null){
-      hpText.style["font-size"] = Math.min(panelH*hpSize["h"], panelW*hpSize["w"]) + "px";
+    var hpNum = this.panel.getElementsByClassName("hpNumber")[0];
+    if(players[this.playerId].tmpHp > 0){ //add tmp hp number
+      hpNum.lastElementChild.style.display = "block";
+      hpNum.lastElementChild.innerHTML = "+" + players[this.playerId].tmpHp;
+    }else if(hpNum.childElementCount > 1){
+      hpNum.lastElementChild.style.display = "none";
+      hpNum.removeChild(hpNum.lastElementChild); //remove tmp hp number
     }
   }
+
 
 }
 
@@ -221,7 +206,9 @@ class HeathbarPanel extends Panel {
                 </div>
                 <div class="healthBar" style="flex: 1; height: 45%; width: 100%; position: relative; border: 1px solid #9e9a8d; border-radius: 3px">
                   <div class="barBackground" style="background-color: #723939; width: 100%; height: 100%; position: absolute; top: 0; left: 0; border-radius: 3px"></div>
-                  <div class="slider" style="background-color: rgb(54 82 54); width: ${Math.min(players[this.playerId].currentHp / charData[this.playerId].hp, 1) * 100}%; height: 100%; position: absolute; top: 0; left: 0; border-radius: 3px"</div>
+                  <div class="slider hpSlider" style="background-color: rgb(54 82 54); width: ${Math.min(players[this.playerId].currentHp / charData[this.playerId].hp, 1) * 100}%;"></div>
+                  <div class="slider tmpHpSlider" style="background-color: rgba(10, 100, 255, 0.4); width: ${Math.min(players[this.playerId].tmpHp / charData[this.playerId].hp, 1) * 100}%;"></div>
+                  <div class="healthbarHpNum"><div>${players[this.playerId].currentHp}</div></div>
                 </div>
               </div>
             </div>
@@ -240,7 +227,7 @@ class HeathbarPanel extends Panel {
 
     var htmlstring = /*html*/`
             <div id=${"player"+this.playerId} class="playerPanel" data-deathSaves="false" style="background-color: ${players[this.playerId].characterColor}; justify-content: center;">
-              <div class="barGrid" style="display: grid; height: 80%; width: 90%; grid-template: 1fr 1fr / repeat(6, 1fr); row-gap: 3px;">
+              <div class="barGrid" style="display: grid; height: 80%; width: 90%; grid-template: 50% 50% / repeat(6, 1fr); row-gap: 3px;">
                 <div class="barPanelHeader" style="grid-area: 1 / 1 / 2 / 7; min-height: 0;">
                   <img src=${players[this.playerId].headShotImg} alt="headshot" referrerPolicy="no-referrer" crossorigin="anonymous" style="height: 100%; float: left; border-radius: 50%; margin: 0 3px 0 0;"></img>
                   <div class="barPlayerName" style="float: left; font-weight: bold;">${players[this.playerId].characterName}</div>
@@ -264,6 +251,12 @@ class HeathbarPanel extends Panel {
   updatePanel(newHp){
     var slider = this.panel.getElementsByClassName("slider")[0];
     slider.style.width = (Math.min(newHp / charData[this.playerId].hp, 1) * 100) + "%";
+
+    var hpNum = this.panel.getElementsByClassName("healthbarHpNum")[0];
+    hpNum.firstElementChild.innerHTML = newHp;
+
+    var tmpHpSlider = this.panel.getElementsByClassName("tmpHpSlider")[0];
+    tmpHpSlider.style.width = (Math.min(players[this.playerId].tmpHp / charData[this.playerId].hp, 1) * 100) + "%";
   }
 
   updateDeathSavePanel(saves){
@@ -286,25 +279,6 @@ class HeathbarPanel extends Panel {
 
   }
 
-  setContentsSize(){
-    var panelH = parseInt(getComputedStyle(this.panel, 50).height);
-    var panelW = parseInt(getComputedStyle(this.panel, 120).width);
-
-    this.panel.getElementsByClassName("playerImage")[0].style.height = Math.min(panelH*imgSize["h"], panelW*imgSize["w"]) + "px"
-    this.panel.getElementsByClassName("playerName")[0].style["font-size"] = Math.min(panelH*nameSize["h"], panelW*nameSize["w"]) + "px"
-    var hpText = this.panel.getElementsByTagName("h1")[0];
-    if(hpText != null){
-      hpText.style["font-size"] = Math.min(panelH*hpSize["h"], panelW*hpSize["w"]) + "px";
-    }
-  }
-
-  setContentsSize(){
-    var panelH = parseInt(getComputedStyle(this.panel, 50).height);
-    var panelW = parseInt(getComputedStyle(this.panel, 120).width);
-
-    this.panel.getElementsByClassName("barPlayerName")[0].style["font-size"] = Math.min(panelH*nameSize["h"], panelW*nameSize["w"]) + "px"
-
-  }
 
 }
 
@@ -323,9 +297,8 @@ class PlayerChracter {
   headShotImg;
 
   currentHp;
-  //tmpHp = 0;
+  tmpHp = 0;
   deathSaves = [0,0]; //[numSuccess, numFailed]
-  //idDead = false;
 
   statsPanel;
 
@@ -338,8 +311,8 @@ class PlayerChracter {
     this.maxHp = hp;
     this.currentHp = hp;
     this.stats = stats;
-    this.characterColor = color; //charColors[name]; //TODO use color from chracter json from database
-    this.headShotImg = imgURL //"https://testdb-2091.restdb.io/media/" + imgId + "?key=" + apiKey //chrome.runtime.getURL("/characterImages/" + this.characterName + ".webp");
+    this.characterColor = color;
+    this.headShotImg = imgURL
 
     this.makePanel();
   }
@@ -352,7 +325,17 @@ class PlayerChracter {
   }
 
   updateHp(amount, updatePanel){
-    this.currentHp = Math.max(this.currentHp + amount, 0); //TODO do temp hp differently so can stop normal hp going above max
+    if(amount < 0 ){ //remove temp hp before normal hp
+      if(Math.abs(amount) <= this.tmpHp){
+        this.tmpHp -= Math.abs(amount);
+        amount = 0;
+      }else{
+        amount += this.tmpHp;
+        this.tmpHp = 0;
+      }
+    }
+
+    this.currentHp = Math.min(Math.max(this.currentHp + amount, 0), this.maxHp);
 
     if(updatePanel){
       panels[this.id].update();
@@ -371,6 +354,46 @@ class PlayerChracter {
     }
   }
 
+  addEffect(effectName, effectDesc, level){
+    if(this.statsPanel.getElementsByClassName(effectName.replace(/\s+/g, '')).length == 0){
+      this.statsPanel.getElementsByClassName("EffectsBox")[0].insertAdjacentHTML("beforeend", /*html*/`
+                                                                  <div class="effect ${effectName.replace(/\s+/g, '')}" style="background-color: ${this.characterColor}">
+                                                                    ${effectName}${level ? ": " + level : ""} 
+                                                                    <div class="tooltip">${effectDesc}</div>
+                                                                  </div>
+                                                                `);
+    }else{
+      let effectElem = this.statsPanel.getElementsByClassName(effectName.replace(/\s+/g, ''))[0];
+      if(effectDesc){
+        effectElem.firstElementChild.innerHTML = effectDesc;
+      }
+      if(level){
+        effectElem.firstChild.textContent = effectName + ": " + level;
+      }
+    }
+  }
+
+  removeEffect(effectName){
+    if(this.statsPanel.getElementsByClassName(effectName.replace(/\s+/g, '')).length == 0){
+      console.warn("Effect to remove does not exist: " + effectName);
+      return;
+    }
+    let effectsBox = this.statsPanel.getElementsByClassName("EffectsBox")[0];
+    effectsBox.removeChild(effectsBox.getElementsByClassName(effectName.replace(/\s+/g, ''))[0]);
+  }
+
+  removeAllEffects(){
+    this.statsPanel.getElementsByClassName("EffectsBox")[0].replaceChildren();
+  }
+
+  addTmpHp(amount, updatePanel){
+    this.tmpHp += amount;
+
+    if(updatePanel){
+      panels[this.id].update();
+    }
+  }
+
   makePanel(){
     var panelStr = /*html*/`
                     <div class="chracterStatsPanel">
@@ -382,6 +405,9 @@ class PlayerChracter {
 
                       <div class="separator"></div>
 
+                      <div class="EffectsBox"></div>
+
+                      <div class="separator"></div>
 
                       <div class="chracterStats" style="display: flex">
                         <div class="physStats" style="display: flex; flex-direction: column;">
@@ -458,7 +484,7 @@ function updateStats(){
   var videoPlayer = document.getElementsByTagName('video')[0];
   var currentTime = videoPlayer.currentTime;
 
-  if(!isInTimeSlot(currentTime, currentTimeSlot)){//}!((currentTimeSlot >= episodeData.length || currentTime <= episodeData[currentTimeSlot].time) && (currentTimeSlot <= 0 || currentTime > episodeData[currentTimeSlot-1].time))){
+  if(!isInTimeSlot(currentTime, currentTimeSlot)){
 
     console.log("new time slot");
     //find the new current time slot
@@ -466,15 +492,12 @@ function updateStats(){
     for(i=0; i<=episodeData.length; i++){
       if(i >= episodeData.length || episodeData[i].time >= currentTime){
         currentTimeSlot = i;
-        //console.log("slot = " + i);
-//          console.log("new slot " + currentTimeSlot);
         break;
       }
     }
 
     //update the players hp/deathsaves/etc
     if(currentTimeSlot > oldTimeSlot){ //moved forwards - apply all events from current time to the new time
-      //console.log("moved forward");
       for(i=oldTimeSlot+1; i<=currentTimeSlot; i++){
         applyEvent(episodeData[i-1].event, false);
       }
@@ -496,8 +519,11 @@ function updateStats(){
 function applyEvent(event, updateUI){
   if(event.type === "hpUpdate"){
     //console.log("hp update");
-    getPlayer(event.characterName).updateHp(event.amount, updateUI);
-    //console.log("new hp = " + getPlayer(event.characterName).currentHp);
+    if(event.hasOwnProperty("tmp") && event.tmp == true){
+      getPlayer(event.characterName).addTmpHp(event.amount, updateUI);
+    }else{
+      getPlayer(event.characterName).updateHp(event.amount, updateUI);
+    }
 
   }else if(event.type === "deathsave"){
     //console.log("deathsave");
@@ -511,9 +537,16 @@ function applyEvent(event, updateUI){
       resetPlayers();
     }
 
+  }else if(event.type === "addEffect"){
+    getPlayer(event.characterName).addEffect(event.effectName, event.effectDesc, event.level);
+  }else if(event.type === "removeEffect"){
+    getPlayer(event.characterName).removeEffect(event.effectName);
+
   }else{
     console.warn("invalid event: " + event.type);
   }
+
+  //TODO update UI here
 }
 
 function getPlayer(name){
@@ -536,6 +569,8 @@ function resetPlayers(playersToReset = players){
   for(let player of playersToReset){
     player.deathSaves = [0,0];
     player.currentHp = player.maxHp;
+    player.tmpHp = 0;
+    player.removeAllEffects();
   }
 }
 
@@ -567,16 +602,6 @@ function setPanelType(strType){
   chrome.storage.sync.set({ displayType: strType});
 }
 
-
-// function toggleMenu(event){
-//   console.log("toggle menu");
-//   var menu = event.currentTarget.parentNode.getElementsByClassName("menuDropDown")[0];
-//   if(menu.style.display === "block"){
-//     menu.style.display = "none";
-//   }else{
-//     menu.style.display = "block";
-//   }
-// }
 
 function minimise(){
   console.log("minimise");
@@ -613,6 +638,7 @@ function setOrientation(newOrientation){
   orientation = newOrientation;
   var container = document.getElementById("hpPanelsContainer");
   var popup = document.getElementById("trackerBody");
+  let root = document.getElementById("trackerBlock");
 
   if(episodeData == null){
     popup.style.minHeight = "130px";
@@ -622,12 +648,13 @@ function setOrientation(newOrientation){
 
   if(newOrientation === "vertical"){
     container.style["flex-direction"] = "column";
-    //container.style.width = "100%";
 
     popup.style.minHeight = (container.childElementCount * 40 + 10) + "px";
     popup.style.minWidth = "100px";
-    popup.style.height = (container.childElementCount * 60 + 10) + "px";
-    popup.style.width = "150px"
+    root.style.setProperty("--defaultWidth", "150px");
+    root.style.setProperty("--defaultHeight", (container.childElementCount * 60 + 10) + "px");
+    root.style.setProperty("--widthMod", 1);
+    root.style.setProperty("--heightMod", 1);
 
     document.getElementById("verticalButton").getElementsByTagName("img")[0].style.display = "block";
     document.getElementById("horizonalButton").getElementsByTagName("img")[0].style.display = "none";
@@ -640,12 +667,14 @@ function setOrientation(newOrientation){
 
   }else if(newOrientation === "horizontal"){
     container.style["flex-direction"] = "row";
-    //container.style.height = "100%";
 
     popup.style.minHeight = "65px";
     popup.style.minWidth = (container.childElementCount * 80 + 10) + "px";
-    popup.style.height = "75px"
-    popup.style.width = (container.childElementCount * 120 + 10) + "px";
+    root.style.setProperty("--defaultWidth", (container.childElementCount * 120 + 10) + "px");
+    root.style.setProperty("--defaultHeight", "75px");
+    root.style.setProperty("--widthMod", 1);
+    root.style.setProperty("--heightMod", 1);
+
 
     document.getElementById("verticalButton").getElementsByTagName("img")[0].style.display = "none";
     document.getElementById("horizonalButton").getElementsByTagName("img")[0].style.display = "block";
@@ -662,9 +691,6 @@ function setOrientation(newOrientation){
 
   chrome.storage.sync.set({ orientation: newOrientation });
 
-  for(panel of panels){
-    panel.setContentsSize();
-  }
 }
 
 
@@ -699,7 +725,7 @@ function makeTable(){
                           <img src=${chrome.runtime.getURL("icons/CombatTrackerIcon.png")} style="height: 85%;">
                         </div>
 
-                        <div id="trackerBody" style="width: ${width}px; height: ${height}px; min-width: ${minWidth}px; min-height: ${minHeight}px; flex-direction: ${flexDir}">
+                        <div id="trackerBody" style="flex-direction: ${flexDir}">
                           <div id="contentGrid" style="width: 100%; height: 100%; display: grid; grid-template: 22px 1fr / 1fr 22px; grid-template-areas: 'title menuButton' 'content content'">
 
                             <div id="trackerTitle" style="grid-area: title">
@@ -728,7 +754,6 @@ function makeTable(){
   document.body.insertAdjacentHTML("beforeend", trackerHTML);
 
   document.getElementById("menuButton").addEventListener("click", openMainMenu, false);
-  //document.getElementById("menuContainer").addEventListener("mouseleave", toggleMenu, false);
 
   document.getElementById("DisplayNumberButton").addEventListener("click", e => setPanelType("number"), false);
   document.getElementById("DisplayHealthbarButton").addEventListener("click", e => setPanelType("healthBar"), false);
@@ -741,8 +766,6 @@ function makeTable(){
 
 
   addDragListeners();
-
-  //setOrientation(orientation);
 
 }
 
@@ -801,14 +824,14 @@ function makePanels(){
 
       console.log(charData[i]);
 
-      players.push(new PlayerChracter(i, 
-                                      charData[i].name, 
-                                      charData[i].level, 
-                                      charData[i].charClass, 
-                                      charData[i].ac, 
-                                      charData[i].hp, 
-                                      charData[i].stats, 
-                                      charData[i].color, 
+      players.push(new PlayerChracter(i,
+                                      charData[i].name,
+                                      charData[i].level,
+                                      charData[i].charClass,
+                                      charData[i].ac,
+                                      charData[i].hp,
+                                      charData[i].stats,
+                                      charData[i].color,
                                       charData[i].imageURL));
 
       var panelContainer = document.createElement("div");
@@ -976,14 +999,6 @@ function getEpisodeData(successCallback, failCallback){
         charData = null;
       }
 
-      // document.getElementById("hpPanelsContainer").innerHTML = "";
-      // makePanels();
-      // setOrientation(orientation);
-      //
-      // //check every few seconds for an update to the stats
-      // if(episodeData != null && episodeData.length > 0){ //check there is data stored for the episode
-      //   updateTimer = setInterval(updateStats, 1000);
-      // }
     }
   });
 
@@ -1006,17 +1021,6 @@ function getEpisodeData(successCallback, failCallback){
 
 
 
-// function setStyleRed(id){
-//   document.getElementById("player" + id).style = "color: #ff4b4b; font-weight: bold;";
-// }
-//
-// function setStyleOrange(id){
-//     document.getElementById("player" + id).style = "color: orange; font-weight: bold;";
-// }
-//
-// function setStyleWhite(id){
-//   document.getElementById("player" + id).style = "";
-// }
 
 
 function onPanelHover(event, statsPanel){
@@ -1041,7 +1045,7 @@ function addDragListeners(){
 }
 
 function mouseUp(){
-  window.removeEventListener('mousemove', divMove, true); //TODO add listener to body element instead of window
+  window.removeEventListener('mousemove', divMove, true);
   window.removeEventListener('mousemove', divResize, true);
 }
 
@@ -1069,12 +1073,17 @@ function divMove(e){
 function divResize(e){
   e.preventDefault()
   var div = document.getElementById("trackerBody");
-  div.style.width = Math.max( (parseInt(div.style.width) + (-e.movementX)), parseInt(div.style["min-width"]) ) + "px";
-  div.style.height = Math.max( (parseInt(div.style.height) + e.movementY), parseInt(div.style["min-height"])) + "px";
+  let root = document.getElementById("trackerBlock");
+  let style = window.getComputedStyle(div);
 
-  for(panel of panels){
-    panel.setContentsSize();
-  }
+  let newWidth = Math.max( (parseInt(style.getPropertyValue("width")) + (-e.movementX)), parseInt(style.getPropertyValue("min-width")) )
+  let newHeight = Math.max( (parseInt(style.getPropertyValue("height")) + e.movementY), parseInt(style.getPropertyValue("min-height")) )
+
+  let widthMod = newWidth / parseFloat(window.getComputedStyle(root).getPropertyValue("--defaultWidth"));
+  let heightMod = newHeight / parseFloat(window.getComputedStyle(root).getPropertyValue("--defaultHeight"));
+ 
+  root.style.setProperty("--widthMod", widthMod);
+  root.style.setProperty("--heightMod", heightMod);
 }
 
 

@@ -1,9 +1,18 @@
 #trackerBlock {
-    position: absolute;
-    z-index: 3000;
+  --defaultWidth: 150px;
+  --defaultHeight: 430px;
+  --widthMod:  1;
+  --heightMod: 1;
+
+  position: absolute;
+  z-index: 3000;
 }
 
 #trackerBody{
+  width: calc(var(--defaultWidth, 150px) * var(--widthMod, 1));
+  height: calc(var(--defaultHeight, 430px) * var(--heightMod, 1));
+  min-width: 100px;
+  min-height: 290px;
   background-color: dimgray;
   border-style: solid;
   border-color: black;
@@ -78,7 +87,7 @@
 }
 
 .playerImage {
-  height: 80%;
+  height: min(calc(41px * var(--heightMod, 1)), calc(41px * var(--widthMod, 1)));
   text-align: center;
 }
 
@@ -86,56 +95,58 @@
   position: relative;
   top: -40%;
   cursor: default;
+  font-size: min(calc(15px * var(--heightMod, 1)), calc(15px * var(--widthMod, 1)));
 }
 
-/*
-.panelContainer:hover .chracterStatsPanel {
-  width: 200px;
-  height: auto;
-  border-width: 2px;
-
-  transition-delay: 0.5s;
+.hpNumber h1 {
+  font-size: min(calc(41px * var(--heightMod, 1)), calc(41px * var(--widthMod, 1)));
 }
 
-
-.panelContainer:hover .statDiv {
-  margin: 2px;
-  padding: 2px;
-  border-radius: 3px;
-  opacity: 1;
-  font-size: 15px;
-  width: auto;
-  height: auto;
-  transition-duration: 0.05s;
-  transition-delay: 0.5s;
+.hpNumber:has(> .tmpHp) h1 {
+  font-size: min(calc(35px * var(--heightMod, 1)), calc(35px * var(--widthMod, 1)));
+  line-height: min(calc(30px * var(--heightMod, 1)), calc(30px * var(--widthMod, 1)));
 }
 
-.panelContainer:hover .chracterStats {
-  align-content: center;
-  justify-content: flex-start;
-  transition-delay: 0.5s;
+.hpNumber .tmpHp {
+  font-size: min(calc(12px * var(--heightMod, 1)), calc(12px * var(--widthMod, 1)));
 }
 
-
-.statDiv {
-  opacity: 0;
-  width: 0;
-  height: 0;
+.slider {
+  height: 100%; 
+  position: absolute; 
+  top: -1px; /* -1px because border takes up 1px */
+  left: -1px;
+  border: 1px solid rgb(158, 154, 141);
+  border-radius: 3px
 }
-*/
 
-/*
-.panelContainer:hover .chracterStatsPanel {
+.tmpHpSlider[style*="width: 0%;"] {
+    border: none;
+}
+
+.playerPanel .barPlayerName {
+  font-size: min(calc(16px * var(--heightMod, 1)), calc(16px * var(--widthMod, 1)));
+}
+
+.playerPanel .barPanelHeader {
   display: flex;
+  align-items: center;
 }
-*/
+
+.playerPanel .healthbarHpNum {
+  font-weight: 500;
+  position: absolute;
+  margin-left: calc( 2px * min(var(--heightMod, 1), var(--widthMod, 1)) );
+  font-size: calc( 15px * min(var(--heightMod, 1), var(--widthMod, 1)) );
+  display: flex;
+  align-items: center;
+  height: 100%;
+}
+
 
 .chracterStatsPanel {
-  /*transition: width 0.10s, height 0.10s, border-width 0s, font-size 0.10s;
-  transition-delay: 0s;
-  width: 0px;
-  height: 0px;*/
-  width: 230px;
+  width: calc( 230px * min(var(--heightMod, 1), var(--widthMod, 1)) );
+  font-size: calc( 15px * min(var(--heightMod, 1), var(--widthMod, 1)) );
   z-index: 1000;
   display: none;
   flex-direction: column;
@@ -158,6 +169,11 @@
   color: #e1e1e1
 }
 
+.chracterStats {
+  margin-bottom: calc( 3px * min(var(--heightMod, 1), var(--widthMod, 1)) );
+  margin-left: calc( 3px * min(var(--heightMod, 1), var(--widthMod, 1)) );
+}
+
 .separator{
   width: 100%;
   height: 2px;
@@ -165,17 +181,75 @@
   background-color: black;
 }
 
+.chracterStatsPanel .separator {
+  height: calc( 2px * min(var(--heightMod, 1), var(--widthMod, 1)) );
+  margin: calc( 2px * min(var(--heightMod, 1), var(--widthMod, 1)) ) 0;
+}
+
+
+.EffectsBox:not(:has(*)) + .separator{
+  display: none;
+}
+
+
 .statDiv {
   margin: 2px;
   padding: 2px;
   border-radius: 3px;
-  font-size: 15px;
+  /*font-size: 15px;*/
   cursor: default;
 }
 
 .chracterStats {
   align-content: center;
   justify-content: flex-start;
+}
+
+.hp-ac .heart {
+  --size: calc( 33px * min(var(--heightMod, 1), var(--widthMod, 1)) ) !important;
+}
+
+.hp-ac .shield {
+  --size: calc( 25px * min(var(--heightMod, 1), var(--widthMod, 1)) ) !important;
+}
+
+.EffectsBox{
+  display: flex;
+  flex-wrap: wrap;
+  margin: 2px 2px;
+  gap: 4px;
+}
+
+.effect {
+  padding: 2px;
+  border-radius: 3px;
+  font-size: 15px;
+  cursor: default;
+  position: relative;
+}
+
+
+.tooltip {
+  display: none;
+  position: absolute;
+  width: max-content;
+  max-width: 200px;
+  left: 0;
+  z-index: 1001;
+  border-color: black;
+  border-style: solid;
+  border-width: 2px;
+  background-color: dimgray;
+  box-shadow: 0px 8px 16px 8px rgba(0,0,0,0.2);
+  cursor: default;
+  color: #e1e1e1;
+  opacity: 0.9;
+  font-weight: lighter;
+  padding-left: 2px;
+}
+
+*:has(> .tooltip):hover .tooltip{ /* show tooltip when hover over direct parent  */
+  display: block;
 }
 
 
