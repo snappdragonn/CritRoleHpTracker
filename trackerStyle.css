@@ -223,7 +223,7 @@
 .effect {
   padding: 2px;
   border-radius: 3px;
-  font-size: 15px;
+  /*font-size: calc( 15px * min(var(--heightMod, 1), var(--widthMod, 1)) );*/
   cursor: default;
   position: relative;
 }
@@ -246,6 +246,7 @@
   opacity: 0.9;
   font-weight: lighter;
   padding-left: 2px;
+  white-space: pre-line;
 }
 
 *:has(> .tooltip):hover .tooltip{ /* show tooltip when hover over direct parent  */
