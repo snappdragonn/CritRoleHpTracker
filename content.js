@@ -62,7 +62,7 @@ class Panel{
 
   update(){
     var newHp = players[this.playerId].currentHp;
-    this.swapType(newHp);
+    this.swapType(newHp, players[this.playerId].deathSaves);
     if(this.isDeathSave){
       this.updateDeathSavePanel(players[this.playerId].deathSaves);
     }else{
@@ -70,12 +70,16 @@ class Panel{
     }
   }
 
-  swapType(newHp){
-    if(newHp <= 0 && !this.isDeathSave){
+  swapType(newHp, deathSaves){
+    if(newHp <= 0 && this.hasDeathSaves() && !this.isDeathSave){
       this.makeDeathSavePanel();
-    }else if(newHp > 0 && this.isDeathSave){
+    }else if(!this.hasDeathSaves() && this.isDeathSave){
       this.makePanel();
     }
+  }
+
+  hasDeathSaves(){
+    return players[this.playerId].deathSaves[0] > 0 || players[this.playerId].deathSaves[1] > 0
   }
 
   updateDeathSavePanel(saves){}
@@ -317,7 +321,7 @@ class PlayerChracter {
     this.makePanel();
   }
 
-  update(newHp, deathSaves){
+  update(newHp, deathSaves){ //TODO is this being used?
     this.currentHp = newHp;
     this.deathSaves = deathSaves;
 
@@ -336,6 +340,10 @@ class PlayerChracter {
     }
 
     this.currentHp = Math.min(Math.max(this.currentHp + amount, 0), this.maxHp);
+    if(this.currentHp > 0){
+      this.deathSaves = [0,0]
+    }
+
 
     if(updatePanel){
       panels[this.id].update();
@@ -1002,7 +1010,7 @@ function getEpisodeData(successCallback, failCallback){
     }
   });
 
-  xhr.open("GET", "https://critrolehpdata-5227.restdb.io/rest/combat-data?q={\"EpNum\": " + episodeNum + "}"); //q={\"EpNum\": " + episodeNum + "}
+  xhr.open("GET", "https://testdb-2091.restdb.io/rest/combat-data?q={\"EpNum\": " + episodeNum + "}"); //q={\"EpNum\": " + episodeNum + "}
   xhr.setRequestHeader("content-type", "application/json");
   xhr.setRequestHeader("x-apikey", apiKey);
   xhr.setRequestHeader("cache-control", "no-cache");
