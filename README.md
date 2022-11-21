@@ -17,6 +17,8 @@ Features:
 - Displays stats, level, class for each player on hover
 - Tracker popup is resizeable, draggable, and minimisable
 - Orientation can be set to vertical or horizontal
+- Displays temp hp of players
+- Displays conditions/effects on the players
 
 <br />
 <br />
