@@ -17,7 +17,7 @@ var nameSize = {"h": 0.3, "w": 0.125};
 
 
 var panels = [];
-var players = [];
+var players = []; //TODO make map instead <Name, Player>
 
 
 
@@ -549,6 +549,10 @@ function applyEvent(event, updateUI){
     getPlayer(event.characterName).addEffect(event.effectName, event.effectDesc, event.level);
   }else if(event.type === "removeEffect"){
     getPlayer(event.characterName).removeEffect(event.effectName);
+  }else if(event.type === "initiativeStart"){
+    reorderPanels(event.order);
+  }else if(event.type === "initiativeEnd"){
+    resetPanelsOrder();
 
   }else{
     console.warn("invalid event: " + event.type);
@@ -579,6 +583,20 @@ function resetPlayers(playersToReset = players){
     player.currentHp = player.maxHp;
     player.tmpHp = 0;
     player.removeAllEffects();
+  }
+}
+
+function reorderPanels(order){
+  console.log(order);
+  for(let i=0; i<order.length; i++){
+    let name = order[i];
+    panels[getPlayer(name).id].panel.parentElement.style.order = i+1;
+  }
+}
+
+function resetPanelsOrder(){
+  for(let panelObj of panels){
+    panelObj.panel.parentElement.style.order = "";
   }
 }
 
