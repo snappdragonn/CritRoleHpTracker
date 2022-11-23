@@ -19,6 +19,9 @@ var nameSize = {"h": 0.3, "w": 0.125};
 var panels = [];
 var players = []; //TODO make map instead <Name, Player>
 
+var initiativeOrder = [];
+var currentInitiative = "";
+
 
 
 
@@ -269,7 +272,7 @@ class HeathbarPanel extends Panel {
 
     for(i=0; i<successHearts.length; i++){
       if(saves[0] >= i+1){ //successes
-        successHearts[i].src = chrome.runtime.getURL("/hearts/successHeart.png");
+        successHearts[i].src = chrome.runtime.getURL("/hearts/successHeart.png"); //TODO get fail and success heart urls at start and set as global var
       }else{
         successHearts[i].src = chrome.runtime.getURL("/hearts/emptySuccessHeart.png");
       }
@@ -550,9 +553,11 @@ function applyEvent(event, updateUI){
   }else if(event.type === "removeEffect"){
     getPlayer(event.characterName).removeEffect(event.effectName);
   }else if(event.type === "initiativeStart"){
-    reorderPanels(event.order);
+    startInitiative(event.order);
   }else if(event.type === "initiativeEnd"){
-    resetPanelsOrder();
+    endInitiative();
+  }else if(event.type === "nextInitiativeTurn"){
+    nextInitiativeTurn();
 
   }else{
     console.warn("invalid event: " + event.type);
@@ -584,21 +589,39 @@ function resetPlayers(playersToReset = players){
     player.tmpHp = 0;
     player.removeAllEffects();
   }
+  endInitiative()
 }
 
-function reorderPanels(order){
-  console.log(order);
+function startInitiative(order){
+  initiativeOrder = order;
+  currentInitiative = 0;
   for(let i=0; i<order.length; i++){
     let name = order[i];
-    panels[getPlayer(name).id].panel.parentElement.style.order = i+1;
+    panel = panels[getPlayer(name).id].panel.parentElement;
+    panel.style.order = i+1;
+    panel.classList.add("initiative");
+    if(i == currentInitiative){ panel.classList.add("initiativeCurrent"); }
   }
 }
 
-function resetPanelsOrder(){
+function endInitiative(){
   for(let panelObj of panels){
     panelObj.panel.parentElement.style.order = "";
+    panelObj.panel.parentElement.classList.remove("initiative");
+    panelObj.panel.parentElement.classList.remove("initiativeCurrent");
   }
+  initiativeOrder = [];
+  currentInitiative = 0;
 }
+
+function nextInitiativeTurn(){
+  previousInitiativePanel = panels[getPlayer(initiativeOrder[currentInitiative]).id].panel.parentElement;
+  previousInitiativePanel.classList.remove("initiativeCurrent");
+  currentInitiative = (currentInitiative+1) % (initiativeOrder.length)
+  nextInitiativePanel = panels[getPlayer(initiativeOrder[currentInitiative]).id].panel.parentElement;
+  nextInitiativePanel.classList.add("initiativeCurrent");
+}
+
 
 
 

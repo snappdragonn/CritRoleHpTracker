@@ -81,6 +81,14 @@
   cursor: default;
 }
 
+.panelContainer.initiative .playerPanel{
+  border-color: darkgray;
+}
+.panelContainer.initiativeCurrent .playerPanel{
+  border-color: white;
+  border-width: 2px;
+}
+
 .headshotImg {
   border-radius: 50%;
   height: 90%;
