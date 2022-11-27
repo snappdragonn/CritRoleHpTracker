@@ -168,18 +168,36 @@
   border-width: 2px;
   /*font-size: 0;*/
   cursor: default;
+  border-radius: 3px;
 }
 
 .charBasicInfo {
-  display: flex;
-  justify-content: space-between;
-  padding: 1px 2px 1px 2px;
-  color: #e1e1e1
+  border-bottom: solid black 2px;
+  margin-bottom: calc( 3px * min(var(--heightMod, 1), var(--widthMod, 1)) );
 }
 
 .chracterStats {
   margin-bottom: calc( 3px * min(var(--heightMod, 1), var(--widthMod, 1)) );
   margin-left: calc( 3px * min(var(--heightMod, 1), var(--widthMod, 1)) );
+}
+
+.statsHeader {
+  border-bottom: solid #3c3c3c 1px;
+  font-size: calc( 20px * min(var(--heightMod, 1), var(--widthMod, 1)) );
+  font-weight: 500;
+  padding: calc( 2px * min(var(--heightMod, 1), var(--widthMod, 1)) ) calc( 5px * min(var(--heightMod, 1), var(--widthMod, 1)) );
+}
+
+.charLevel {
+  float: right;
+  line-height: calc( 25px * min(var(--heightMod, 1), var(--widthMod, 1)) );
+  font-size: calc( 25px * min(var(--heightMod, 1), var(--widthMod, 1)) );
+}
+
+.classLevel {
+  font-size: calc( 12px * min(var(--heightMod, 1), var(--widthMod, 1)) );
+  padding: 0 calc( 5px * min(var(--heightMod, 1), var(--widthMod, 1)) );
+  color: #c5c3bc;
 }
 
 .separator{
@@ -190,8 +208,8 @@
 }
 
 .chracterStatsPanel .separator {
-  height: calc( 2px * min(var(--heightMod, 1), var(--widthMod, 1)) );
-  margin: calc( 2px * min(var(--heightMod, 1), var(--widthMod, 1)) ) 0;
+  height: 2px;
+  margin: calc( 3px * min(var(--heightMod, 1), var(--widthMod, 1)) ) 0;
 }
 
 
@@ -199,13 +217,41 @@
   display: none;
 }
 
+.EffectsBox:not(:has(*)) {
+  display: none !important;
+}
+
 
 .statDiv {
-  margin: 2px;
+  /*margin: 2px;*/
   padding: 2px;
-  border-radius: 3px;
+  /*border-radius: 3px;*/
   /*font-size: 15px;*/
+  color: #c5c3bc;
   cursor: default;
+}
+
+.statsTable,  
+.statsTable th,
+.statsTable td {
+  border: solid black 1px;
+  border-collapse: collapse;
+  color: #c5c3bc;
+  background-color: #606060
+}
+
+.statsTable td,
+.statsTable th {
+  padding: 0 5px;
+}
+
+.statsTable td {
+  border-left: solid rgb(82 82 82) 1px;
+  font-weight: bold;
+}
+.statsTable th {
+  border-right: solid rgb(82 82 82) 1px;
+  font-weight: normal;
 }
 
 .chracterStats {
@@ -224,16 +270,20 @@
 .EffectsBox{
   display: flex;
   flex-wrap: wrap;
-  margin: 2px 2px;
+  margin: 0 3px;
   gap: 4px;
+  color: #c5c3bc;
 }
 
+
+
 .effect {
-  padding: 2px;
+  padding: 1px;
   border-radius: 3px;
   /*font-size: calc( 15px * min(var(--heightMod, 1), var(--widthMod, 1)) );*/
   cursor: default;
   position: relative;
+  border: solid black 1px;
 }
 
 
@@ -241,7 +291,7 @@
   display: none;
   position: absolute;
   width: max-content;
-  max-width: 200px;
+  max-width: calc( 200px * min(var(--heightMod, 1), var(--widthMod, 1)) );
   left: 0;
   z-index: 1001;
   border-color: black;

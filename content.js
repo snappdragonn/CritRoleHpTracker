@@ -368,18 +368,20 @@ class PlayerChracter {
   addEffect(effectName, effectDesc, level){
     if(this.statsPanel.getElementsByClassName(effectName.replace(/\s+/g, '')).length == 0){
       this.statsPanel.getElementsByClassName("EffectsBox")[0].insertAdjacentHTML("beforeend", /*html*/`
-                                                                  <div class="effect ${effectName.replace(/\s+/g, '')}" style="background-color: ${this.characterColor}">
-                                                                    ${effectName}${level ? ": " + level : ""} 
+                                                                  <div class="effect ${effectName.replace(/\s+/g, '')}" style="background-color: ${this.characterColor};">
+                                                                    <div class="effectInner" style="background-color: #606060; border: solid black 1px; padding: 0 2px">
+                                                                      ${effectName}${level ? ": " + level : ""} 
+                                                                    </div>
                                                                     <div class="tooltip">${effectDesc}</div>
                                                                   </div>
                                                                 `);
     }else{
       let effectElem = this.statsPanel.getElementsByClassName(effectName.replace(/\s+/g, ''))[0];
       if(effectDesc){
-        effectElem.firstElementChild.innerHTML = effectDesc;
+        effectElem.lastElementChild.innerHTML = effectDesc;
       }
       if(level){
-        effectElem.firstChild.textContent = effectName + ": " + level;
+        effectElem.firstElementChild.textContent = effectName + ": " + level;
       }
     }
   }
@@ -409,29 +411,41 @@ class PlayerChracter {
     var panelStr = /*html*/`
                     <div class="chracterStatsPanel">
                       <div class="charBasicInfo">
-                        <div class="charName"> ${this.characterName} </div>
-                        <div class="charClass"> ${this.chracterClass} </div>
-                        <div class="charlevel"> lvl: ${this.level} </div>
+                        <div class="statsHeader" style="background-color: ${this.characterColor};">
+                          <span class="charName"> ${this.characterName} </span>
+                          <span class="charLevel" style="float: right;"> ${this.level} </span>
+                        </div>
+
+                        <div class="classLevel"> ${this.chracterClass}: ${this.level} </div>
                       </div>
 
-                      <div class="separator"></div>
 
                       <div class="EffectsBox"></div>
 
                       <div class="separator"></div>
 
                       <div class="chracterStats" style="display: flex">
-                        <div class="physStats" style="display: flex; flex-direction: column;">
-                          <div class="statDiv" style="background-color: ${this.characterColor}"><b>STR:</b> ${this.stats.str}</div>
-                          <div class="statDiv" style="background-color: ${this.characterColor}"><b>DEX:</b> ${this.stats.dex}</div>
-                          <div class="statDiv" style="background-color: ${this.characterColor}"><b>CON:</b> ${this.stats.con}</div>
-                        </div>
 
-                        <div class="mentalStats" style="display: flex; flex-direction: column;">
-                          <div class="statDiv" style="background-color: ${this.characterColor}"><b>INT:</b> ${this.stats.int}</div>
-                          <div class="statDiv" style="background-color: ${this.characterColor}"><b>WIS:</b> ${this.stats.wis}</div>
-                          <div class="statDiv" style="background-color: ${this.characterColor}"><b>CHA:</b> ${this.stats.cha}</div>
-                        </div>
+                        <table class="statsTable">
+                          <tr>
+                            <th>STR</td>
+                            <td>${this.stats.str}</td>
+                            <th>INT</td>
+                            <td>${this.stats.int}</td>
+                          </tr>
+                          <tr>
+                            <th>DEX</td>
+                            <td>${this.stats.dex}</td>
+                            <th>WIS</td>
+                            <td>${this.stats.wis}</td>
+                          </tr>
+                          <tr>
+                            <th>CON</td>
+                            <td>${this.stats.con}</td>
+                            <th>CHA</td>
+                            <td>${this.stats.cha}</td>
+                          </tr>
+                        </table>
 
                         <div class="hp-ac" style="display: flex; flex-direction: column; justify-content: space-evenly; flex-grow: 1; align-items: center;">
                           <div class="statDiv" style="position: relative">
