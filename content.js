@@ -296,6 +296,7 @@ class PlayerChracter {
   characterName = "Name";
   level = 0;
   chracterClass = "Class";
+  classLevels = {};
   armorClass = 0;
   maxHp = 0;
   stats = {"str":0, "dex":0, "con":0, "int":0, "wis":0, "cha":0};
@@ -309,11 +310,12 @@ class PlayerChracter {
 
   statsPanel;
 
-  constructor(id, name, lvl, charClass, ac, hp, stats, color, imgURL){
+  constructor(id, name, lvl, charClass, classLevels, ac, hp, stats, color, imgURL){
     this.id = id;
     this.characterName = name;
     this.level = lvl;
     this.chracterClass = charClass;
+    this.classLevels = classLevels;
     this.armorClass = ac;
     this.maxHp = hp;
     this.currentHp = hp;
@@ -407,6 +409,16 @@ class PlayerChracter {
     }
   }
 
+  getClassLevelString(){
+    console.log("get class levels")
+    if(this.classLevels == undefined || Object.keys(this.classLevels).length === 0){
+      return this.chracterClass + ": " + this.level;
+    }else{
+      console.log("multiple classes")
+      return Object.entries(this.classLevels).map(([clazz, lvl]) => clazz + ": " + lvl).join("    ");
+    }
+  }
+
   makePanel(){
     var panelStr = /*html*/`
                     <div class="chracterStatsPanel">
@@ -416,7 +428,7 @@ class PlayerChracter {
                           <span class="charLevel" style="float: right;"> ${this.level} </span>
                         </div>
 
-                        <div class="classLevel"> ${this.chracterClass}: ${this.level} </div>
+                        <div class="classLevel" style="white-space: pre-wrap;">${this.getClassLevelString()}</div>
                       </div>
 
 
@@ -891,6 +903,7 @@ function makePanels(){
                                       charData[i].name,
                                       charData[i].level,
                                       charData[i].charClass,
+                                      charData[i].classLevels,
                                       charData[i].ac,
                                       charData[i].hp,
                                       charData[i].stats,
