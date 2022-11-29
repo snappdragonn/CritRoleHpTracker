@@ -223,12 +223,15 @@
 
 
 .statDiv {
-  /*margin: 2px;*/
   padding: 2px;
-  /*border-radius: 3px;*/
-  /*font-size: 15px;*/
   color: #c5c3bc;
   cursor: default;
+  font-weight: bold;
+  font-size: calc( 18px * min(var(--heightMod, 1), var(--widthMod, 1)) );
+}
+
+.svgShape {
+  height: calc( 40px * min(var(--heightMod, 1), var(--widthMod, 1)) );
 }
 
 .statsTable,  

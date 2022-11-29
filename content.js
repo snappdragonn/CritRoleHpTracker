@@ -461,12 +461,37 @@ class PlayerChracter {
 
                         <div class="hp-ac" style="display: flex; flex-direction: column; justify-content: space-evenly; flex-grow: 1; align-items: center;">
                           <div class="statDiv" style="position: relative">
-                            <div class="heart" style="--color: ${this.characterColor};"></div>
-                            <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -60%);">${this.maxHp}</div>
+                            <svg class="svgShape" viewBox="-25 0 50 45" style="display: block">
+                              <path stroke="black" fill="${this.characterColor}"
+                                d="M 0 7 
+                                   C -20 -8   -40 22   0 42 
+                                   C 40 22    20 -8    0 7 
+                                   Z" />
+                              <path stroke="black" fill="rgb(96, 96, 96)" stroke-width="1px"
+                                d="M 0 10 
+                                   C -19 -5   -35 22   0 39 
+                                   C 35 22    19 -5    0 10 
+                                   Z" />
+                            </svg>
+                            <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -55%);">${this.maxHp}</div>
                           </div>
-                          <div class="statDiv" style="position: relative">
-                            <div class="shield" style="--color: ${this.characterColor};"><div class="shieldCenter"></div></div>
-                            <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);">${this.armorClass}</div>
+                          <div class="statDiv" style="position: relative;">
+                            <svg class="svgShape" viewBox="-25 0 50 50" style="display: block">
+                              <path stroke="black" fill="${this.characterColor}"
+                                d="M -0 2 
+                                   L -23 8
+                                   C -24 45   0 48    0 48 
+                                   C 0 48     24 45   23 8 
+                                   L 0 2 
+                                   Z" />
+                                 <path stroke="black" fill="rgb(96, 96, 96)"
+                                  d="M 0 4.5 
+                                     L -20.5 10 
+                                     C -21 42   0 45.5   0 45.5 
+                                     C 0 45.5   21 42    20.5 10 
+                                     L 0 4.5" />
+                            </svg>
+                            <div style="position: absolute; top: 50%; left: 50%; transform: translate(-55%, -50%);">${this.armorClass}</div>
                           </div>
                         </div>
                       </div>
@@ -1106,7 +1131,7 @@ function onPanelHover(event, statsPanel){
 
 function onPanelEndHover(event, delayTimer, statsPanel){
   clearInterval(delayTimer);
-  statsPanel.style.display = "none";
+  //statsPanel.style.display = "none";
 }
 
 function openStatsPanel(statsPanel){
