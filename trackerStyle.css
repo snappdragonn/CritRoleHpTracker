@@ -1,6 +1,8 @@
 #trackerBlock {
+  --numPanels: 7;
+
   --defaultWidth: 150px;
-  --defaultHeight: 430px;
+  --defaultHeight: calc( var(--numPanels, 7) * 60px + 10px );
   --widthMod:  1;
   --heightMod: 1;
 
@@ -8,11 +10,16 @@
   z-index: 3000;
 }
 
+#trackerBlock[data-orientation="horizontal"] {
+  --defaultWidth: calc( var(--numPanels, 7) * 140px + 42px );
+  --defaultHeight: 58px;
+}
+
 #trackerBody{
   width: calc(var(--defaultWidth, 150px) * var(--widthMod, 1));
   height: calc(var(--defaultHeight, 430px) * var(--heightMod, 1));
-  min-width: 100px;
-  min-height: 290px;
+  min-width: 55px;
+  min-height: calc( var(--numPanels, 7) * 22px + 16px );
   background-color: dimgray;
   border-style: solid;
   border-color: black;
@@ -26,11 +33,149 @@
   z-index: 1000;
 }
 
+#trackerBlock[data-orientation="horizontal"] #trackerBody {
+  min-height: 30px;
+  min-width: calc( var(--numPanels, 7) * 52px + 16px );
+}
+
 
 #expandButton {
   position: absolute;
   right: 2px;
   top: 2px;
+}
+
+#contentGrid {
+  width: 100%; 
+  height: 100%; 
+  display: grid; 
+  grid-template: calc( 22px * min(var(--heightMod, 1), var(--widthMod, 1)) ) 1fr / 1fr calc( 22px * min(var(--heightMod, 1), var(--widthMod, 1)) ); 
+  grid-template-areas: 'title menuButton' 'content content';
+}
+
+#trackerBlock[data-orientation="horizontal"] #contentGrid {
+  grid-template-areas: "content menuButton" "content title";
+}
+
+
+#trackerTitle {
+  height: 100%;
+  cursor: pointer;
+  overflow: hidden;
+  border: black solid;
+  border-width: 0 2px 2px 0;
+  box-sizing: border-box;
+  font-size: calc( 16px * min(var(--heightMod, 1), var(--widthMod, 1)) );
+}
+
+#trackerBlock[data-orientation="horizontal"] #trackerTitle {
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+  border-width: 2px 0 0 2px;
+}
+
+#trackerTitle h4 {
+  padding: calc( 2px * min(var(--heightMod, 1), var(--widthMod, 1)) ) 0 0 calc( 4px * min(var(--heightMod, 1), var(--widthMod, 1)) )
+}
+
+#trackerBlock[data-orientation="horizontal"] #trackerTitle h4 {
+  padding: calc( 4px * min(var(--heightMod, 1), var(--widthMod, 1)) ) 0 0 calc( 2px * min(var(--heightMod, 1), var(--widthMod, 1)) )
+}
+
+
+#menuContainer {
+  border: black solid;
+  border-width: 0 0 2px 0;
+}
+
+#trackerBlock[data-orientation="horizontal"] #menuContainer {
+  border-width: 0 0 0 2px;
+}
+
+
+.menuItem:hover {
+  background-color: gray;
+}
+
+.menuItem {
+  padding: 0 0 0 2px;
+  border-color: #525252;
+  border-style: solid;
+  border-width: 1px 0 1px 0;
+  box-sizing: border-box;
+  padding: 0 2% 0 2%;
+}
+
+.menuDropDown {
+  background-color: dimgray;
+  /* color: #d5d3cc; */
+  display: none;
+  box-shadow: 0px 8px 16px 8px rgba(0,0,0,0.2);
+  position: absolute;
+  width: 110px;
+  cursor: default;
+  right: 0;
+  z-index: 1000;
+  border-color: black;
+  border-style: solid;
+  border-width: 2px;
+}
+
+.menuDropDown h4 {
+  font-weight: 100;
+}
+
+#mainMenu {
+  right: -2px;
+}
+
+.submenu {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 3px;
+}
+
+.radioButton {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+#expandButton {
+  height: 24px;
+  width: 24px;
+  border: black solid 2px;
+  border-radius: 3px;
+  cursor: pointer;
+  /*box-shadow: 0px 8px 16px 8px rgba(0,0,0,0.15); TODO add only when tracker is minimised*/
+}
+
+.button {
+  /*border: black solid;
+  border-width: 0 0 0 1px*/
+  background-color: dimgray;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.button:hover {
+  background-color: gray;
+}
+
+.button:hover img{
+  height: 90% !important;
+}
+
+.submenu:hover .menuDropDown {
+  display: block !important;
+}
+
+.submenuDropdown{
+  right: 110px;
+  top: 0;
 }
 
 #trackerTable {
@@ -53,6 +198,10 @@
   border-width: 2px 0 0 0;
   box-sizing: border-box;*/
   place-self: center;
+}
+
+#trackerBlock[data-orientation="horizontal"] #hpPanelsContainer {
+  flex-direction: row;
 }
 
 .panelContainer {
@@ -169,6 +318,13 @@
   /*font-size: 0;*/
   cursor: default;
   border-radius: 3px;
+}
+
+#trackerBlock[data-orientation="horizontal"] .chracterStatsPanel {
+  right: unset;
+  top: 100%;
+  left: 0;
+
 }
 
 .charBasicInfo {
@@ -326,103 +482,7 @@
   cursor: ne-resize;
 }
 
-.menuItem:hover {
-  background-color: gray;
-}
 
-.menuItem {
-  padding: 0 0 0 2px;
-  border-color: #525252;
-  border-style: solid;
-  border-width: 1px 0 1px 0;
-  box-sizing: border-box;
-  padding: 0 2% 0 2%;
-}
-
-.menuDropDown {
-  background-color: dimgray;
-  /* color: #d5d3cc; */
-  display: none;
-  box-shadow: 0px 8px 16px 8px rgba(0,0,0,0.2);
-  position: absolute;
-  width: 110px;
-  cursor: default;
-  right: 0;
-  z-index: 1000;
-  border-color: black;
-  border-style: solid;
-  border-width: 2px;
-}
-
-.menuDropDown h4 {
-  font-weight: 100;
-}
-
-#mainMenu {
-  right: -2px;
-}
-
-.submenu {
-  position: relative;
-  display: flex;
-  align-items: center;
-  gap: 3px;
-}
-
-.radioButton {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-#trackerTitle {
-  height: 20px;
-  cursor: pointer;
-  overflow: hidden;
-  border: black solid;
-  border-width: 0 2px 2px 0;
-}
-
-#menuContainer {
-  border: black solid;
-  border-width: 0 0 2px 0;
-}
-
-#expandButton {
-  height: 24px;
-  width: 24px;
-  border: black solid 2px;
-  border-radius: 3px;
-  cursor: pointer;
-  /*box-shadow: 0px 8px 16px 8px rgba(0,0,0,0.15); TODO add only when tracker is minimised*/
-}
-
-.button {
-  /*border: black solid;
-  border-width: 0 0 0 1px*/
-  background-color: dimgray;
-  box-sizing: border-box;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.button:hover {
-  background-color: gray;
-}
-
-.button:hover img{
-  height: 90% !important;
-}
-
-.submenu:hover .menuDropDown {
-  display: block !important;
-}
-
-.submenuDropdown{
-  right: 110px;
-  top: 0;
-}
 
 
 @keyframes spin {

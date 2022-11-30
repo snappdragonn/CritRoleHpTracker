@@ -746,44 +746,23 @@ function setOrientation(newOrientation){
     return;
   }
 
+
+  root.dataset.orientation = newOrientation;
+
+  root.style.setProperty("--widthMod", 1);
+  root.style.setProperty("--heightMod", 1);
+
+  root.style.setProperty("--numPanels", container.childElementCount);
+
+
   if(newOrientation === "vertical"){
-    container.style["flex-direction"] = "column";
-
-    popup.style.minHeight = (container.childElementCount * 40 + 10) + "px";
-    popup.style.minWidth = "100px";
-    root.style.setProperty("--defaultWidth", "150px");
-    root.style.setProperty("--defaultHeight", (container.childElementCount * 60 + 10) + "px");
-    root.style.setProperty("--widthMod", 1);
-    root.style.setProperty("--heightMod", 1);
-
     document.getElementById("verticalButton").getElementsByTagName("img")[0].style.display = "block";
     document.getElementById("horizonalButton").getElementsByTagName("img")[0].style.display = "none";
 
-    for(player of players){
-      player.statsPanel.style.removeProperty("left");
-      player.statsPanel.style.top = "5%";
-      player.statsPanel.style.right = "100%";
-    }
-
   }else if(newOrientation === "horizontal"){
-    container.style["flex-direction"] = "row";
-
-    popup.style.minHeight = "65px";
-    popup.style.minWidth = (container.childElementCount * 80 + 10) + "px";
-    root.style.setProperty("--defaultWidth", (container.childElementCount * 120 + 10) + "px");
-    root.style.setProperty("--defaultHeight", "75px");
-    root.style.setProperty("--widthMod", 1);
-    root.style.setProperty("--heightMod", 1);
-
-
     document.getElementById("verticalButton").getElementsByTagName("img")[0].style.display = "none";
     document.getElementById("horizonalButton").getElementsByTagName("img")[0].style.display = "block";
 
-    for(player of players){
-      player.statsPanel.style.removeProperty("right");
-      player.statsPanel.style.top = "100%";
-      player.statsPanel.style.left = "0";
-    }
 
   }else{
     console.error("Orientation invalid");
@@ -820,19 +799,19 @@ function makeTable(){
   var flexDir = "column";
 
   var trackerHTML = /*html*/`
-                      <div id="trackerBlock" style="right: 5px; top: 60px;">
+                      <div id="trackerBlock" data-orientation="vertical" style="right: 5px; top: 60px;">
                         <div id="expandButton" class="button">
                           <img src=${chrome.runtime.getURL("icons/CombatTrackerIcon.png")} style="height: 85%;">
                         </div>
 
                         <div id="trackerBody" style="flex-direction: ${flexDir}">
-                          <div id="contentGrid" style="width: 100%; height: 100%; display: grid; grid-template: 22px 1fr / 1fr 22px; grid-template-areas: 'title menuButton' 'content content'">
+                          <div id="contentGrid">
 
                             <div id="trackerTitle" style="grid-area: title">
-                              <h4 style="padding: 2px 0 0 4px">HP Tracker</h4>
+                              <h4>HP Tracker</h4>
                             </div>
 
-                            <div id="menuContainer" style="grid-area: menuButton; float: right;">
+                            <div id="menuContainer" style="grid-area: menuButton; float: right; box-sizing: border-box;">
                               <div id="menuButton" class="button" style="height: 100%; width: 100%;">
                                 <img src=${chrome.runtime.getURL("icons/menuIcon-white.png")} style="height: 85%;">
                               </div>
@@ -1131,7 +1110,7 @@ function onPanelHover(event, statsPanel){
 
 function onPanelEndHover(event, delayTimer, statsPanel){
   clearInterval(delayTimer);
-  //statsPanel.style.display = "none";
+  statsPanel.style.display = "none";
 }
 
 function openStatsPanel(statsPanel){
@@ -1173,15 +1152,17 @@ function divMove(e){
 
 function divResize(e){
   e.preventDefault()
-  var div = document.getElementById("trackerBody");
   let root = document.getElementById("trackerBlock");
-  let style = window.getComputedStyle(div);
+  let rootStyle = window.getComputedStyle(root);
+  let style = window.getComputedStyle(document.getElementById("trackerBody"));
 
   let newWidth = Math.max( (parseInt(style.getPropertyValue("width")) + (-e.movementX)), parseInt(style.getPropertyValue("min-width")) )
   let newHeight = Math.max( (parseInt(style.getPropertyValue("height")) + e.movementY), parseInt(style.getPropertyValue("min-height")) )
 
-  let widthMod = newWidth / parseFloat(window.getComputedStyle(root).getPropertyValue("--defaultWidth"));
-  let heightMod = newHeight / parseFloat(window.getComputedStyle(root).getPropertyValue("--defaultHeight"));
+  let defaultH = Math.round( parseFloat(style.height) / parseFloat(rootStyle.getPropertyValue("--heightMod")) );
+  let defaultW = Math.round( parseFloat(style.width) / parseFloat(rootStyle.getPropertyValue("--widthMod")) );
+  let widthMod = newWidth / defaultW;
+  let heightMod = newHeight / defaultH;
  
   root.style.setProperty("--widthMod", widthMod);
   root.style.setProperty("--heightMod", heightMod);
