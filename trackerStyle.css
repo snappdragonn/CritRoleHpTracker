@@ -260,8 +260,8 @@
 }
 
 .hpNumber:has(> .tmpHp) h1 {
-  font-size: min(calc(35px * var(--heightMod, 1)), calc(35px * var(--widthMod, 1)));
-  line-height: min(calc(30px * var(--heightMod, 1)), calc(30px * var(--widthMod, 1)));
+  font-size: min(calc(38px * var(--heightMod, 1)), calc(38px * var(--widthMod, 1)));
+  line-height: min(calc(32px * var(--heightMod, 1)), calc(32px * var(--widthMod, 1)));
 }
 
 .hpNumber .tmpHp {

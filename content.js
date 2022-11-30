@@ -116,10 +116,10 @@ class NumberPanel extends Panel {
 
   makePanel(){
     var htmlstring = /*html*/`
-                      <div id=${"player"+this.playerId} class="playerPanel" data-deathSaves="false" style="background-color: ${players[this.playerId].characterColor};">
+                      <div id=${"player"+this.playerId} class="playerPanel" data-deathSaves="false" style="background-color: ${players[this.playerId].characterColor}; display: grid; grid-template: 1fr / 1fr 1fr">
                         <div class="playerImage">
-                          <img src=${players[this.playerId].headShotImg} alt="headshot" class="headshotImg" referrerPolicy="no-referrer" crossorigin="anonymous">
-                          <div class="playerName">${players[this.playerId].characterName}</div>
+                          <img src=${players[this.playerId].headShotImg} alt="headshot" class="headshotImg" referrerPolicy="no-referrer" crossorigin="anonymous" style="height: 100%;">
+                          <!-- <div class="playerName">${players[this.playerId].characterName}</div> -->
                         </div>
                         <div class="hpNumber" style="display: flex; flex-direction: column; align-items: center;">
                           <h1>${players[this.playerId].currentHp}</h1>
