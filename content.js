@@ -117,8 +117,11 @@ class NumberPanel extends Panel {
   makePanel(){
     var htmlstring = /*html*/`
                       <div id=${"player"+this.playerId} class="playerPanel" data-deathSaves="false" style="background-color: ${players[this.playerId].characterColor}; display: grid; grid-template: 1fr / 1fr 1fr">
-                        <div class="playerImage">
-                          <img src=${players[this.playerId].headShotImg} alt="headshot" class="headshotImg" referrerPolicy="no-referrer" crossorigin="anonymous" style="height: 100%;">
+                        <div class="playerImage" style="display: flex; justify-content: center;">
+                          <div style="position: relative;">
+                            <img class="headshotImg" src=${players[this.playerId].headShotImg} alt="headshot" referrerPolicy="no-referrer" crossorigin="anonymous" style="height: 100%;">
+                            <img class="headshotOverlay" src="${chrome.runtime.getURL("/icons/bloodSpatter.png")}" style="display: ${(players[this.playerId].currentHp < (players[this.playerId].maxHp/2)) ? "inline" : "none"}">
+                          </div>
                           <!-- <div class="playerName">${players[this.playerId].characterName}</div> -->
                         </div>
                         <div class="hpNumber" style="display: flex; flex-direction: column; align-items: center;">
@@ -184,6 +187,10 @@ class NumberPanel extends Panel {
   updatePanel(newHp){
     var playerPanel = this.panel.getElementsByTagName("h1")[0];
     playerPanel.innerText = newHp;
+
+    if(newHp < (players[this.playerId].maxHp/2)){
+      this.panel.getElementsByClassName("headshotOverlay")[0].style.display = "inline";
+    }
 
     var hpNum = this.panel.getElementsByClassName("hpNumber")[0];
     if(players[this.playerId].tmpHp > 0){ //add tmp hp number

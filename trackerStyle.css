@@ -248,6 +248,16 @@
   text-align: center;
 }
 
+.headshotOverlay {
+  height: 100%; 
+  width: 100%; 
+  position: absolute; 
+  left: 0; 
+  border-radius: 50%;
+  display: none;
+  opacity: 70%;
+}
+
 .playerName {
   position: relative;
   top: -40%;
