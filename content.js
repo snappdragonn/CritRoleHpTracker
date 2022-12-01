@@ -144,8 +144,11 @@ class NumberPanel extends Panel {
 
     var htmlstring = /*html*/`
                       <div id=${"player"+this.playerId} class="playerPanel" data-deathSaves="true" style="background-color: ${players[this.playerId].characterColor}; display: grid; grid-template: 50% 50% / 50% 16% 16% 16%;">
-                        <div class="playerImage" style="grid-area: 1 / 1 / 3 / 2">
-                          <img src=${players[this.playerId].headShotImg} alt="headshot" class="headshotImg" referrerPolicy="no-referrer" crossorigin="anonymous" style="height: 100%;">
+                        <div class="playerImage" style="grid-area: 1 / 1 / 3 / 2; display: flex; justify-content: center;">
+                          <div style="position: relative; height: 100%">
+                            <img class="headshotImg" src=${players[this.playerId].headShotImg} alt="headshot" referrerPolicy="no-referrer" crossorigin="anonymous" style="height: 100%;">
+                            <img class="headshotOverlay" src="${chrome.runtime.getURL("/icons/bloodSpatter.png")}" style="display: inline">
+                          </div>
                           <!-- <div class="playerName">${players[this.playerId].characterName}</div> -->
                         </div>
 
