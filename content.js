@@ -144,7 +144,7 @@ class NumberPanel extends Panel {
 
     var htmlstring = /*html*/`
                       <div id=${"player"+this.playerId} class="playerPanel" data-deathSaves="true" style="background-color: ${players[this.playerId].characterColor}; display: grid; grid-template: 50% 50% / 50% 16% 16% 16%;">
-                        <div class="playerImage" style="grid-area: 1 / 1 / 3 / 2; display: flex; justify-content: center;">
+                        <div class="playerImage" style="grid-area: 1 / 1 / 3 / 2; display: flex; justify-content: center; ${players[this.playerId].isDead() ? "filter: grayscale(1) brightness(0.5);" : ""}">
                           <div style="position: relative; height: 100%">
                             <img class="headshotImg" src=${players[this.playerId].headShotImg} alt="headshot" referrerPolicy="no-referrer" crossorigin="anonymous" style="height: 100%;">
                             <img class="headshotOverlay" src="${chrome.runtime.getURL("/icons/bloodSpatter.png")}" style="display: inline">
@@ -172,6 +172,12 @@ class NumberPanel extends Panel {
     var successHearts = this.panel.getElementsByClassName("SuccessHeart");
     var failHearts = this.panel.getElementsByClassName("FailHeart");
 
+    if(players[this.playerId].isDead()){
+      this.panel.getElementsByClassName("playerImage")[0].style.filter = "grayscale(1) brightness(0.5)";
+    }else{
+      this.panel.getElementsByClassName("playerImage")[0].style.filter = "unset";
+    }
+
     for(i=0; i<successHearts.length; i++){
       if(saves[0] >= i+1){ //successes
         successHearts[i].src = chrome.runtime.getURL("/hearts/successHeart.png");
@@ -193,6 +199,8 @@ class NumberPanel extends Panel {
 
     if(newHp < (players[this.playerId].maxHp/2)){
       this.panel.getElementsByClassName("headshotOverlay")[0].style.display = "inline";
+    }else{
+      this.panel.getElementsByClassName("headshotOverlay")[0].style.display = "none";
     }
 
     var hpNum = this.panel.getElementsByClassName("hpNumber")[0];
@@ -246,7 +254,7 @@ class HeathbarPanel extends Panel {
             <div id=${"player"+this.playerId} class="playerPanel" data-deathSaves="false" style="background-color: ${players[this.playerId].characterColor}; justify-content: center;">
               <div class="barDeathSaveGrid">
                 <div class="barPanelHeader" style="grid-area: 1 / 1 / 2 / 7; min-height: 0;">
-                  <img src=${players[this.playerId].headShotImg} alt="headshot" referrerPolicy="no-referrer" crossorigin="anonymous" style="height: 100%; float: left; border-radius: 50%; margin: 0 3px 0 0;"></img>
+                  <img class="barPlayerImg" src=${players[this.playerId].headShotImg} alt="headshot" referrerPolicy="no-referrer" crossorigin="anonymous" style="height: 100%; float: left; border-radius: 50%; margin: 0 3px 0 0; ${players[this.playerId].isDead() ? "filter: grayscale(1) brightness(0.5);" : ""}"></img>
                   <div class="barPlayerName" style="float: left; font-weight: bold;">${players[this.playerId].characterName}</div>
                 </div>
                 <img src=${successImgscr} alt="sHeart1" class="SuccessHeart" style="object-fit: contain; width: 100%; height: 100%; grid-area: succ1">
@@ -279,6 +287,12 @@ class HeathbarPanel extends Panel {
   updateDeathSavePanel(saves){
     var successHearts = this.panel.getElementsByClassName("SuccessHeart");
     var failHearts = this.panel.getElementsByClassName("FailHeart");
+
+    if(players[this.playerId].isDead()){
+      this.panel.getElementsByClassName("barPlayerImg")[0].style.filter = "grayscale(1) brightness(0.5)";
+    }else{
+      this.panel.getElementsByClassName("barPlayerImg")[0].style.filter = "unset";
+    }
 
     for(i=0; i<successHearts.length; i++){
       if(saves[0] >= i+1){ //successes
@@ -334,6 +348,10 @@ class PlayerChracter {
     this.headShotImg = imgURL
 
     this.makePanel();
+  }
+
+  isDead(){
+    return this.deathSaves[1] >= 3;
   }
 
   update(newHp, deathSaves){ //TODO is this being used?
