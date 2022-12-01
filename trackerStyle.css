@@ -187,7 +187,7 @@
 #hpPanelsContainer {
   width: 98%;
   height: 98%;
-  color: #9e9a8d;
+  color: #b1ac9e; /*#9e9a8d;*/
   min-height: 0px;
   display: flex;
   flex-direction: column;
@@ -260,7 +260,7 @@
 }
 
 .hpNumber:has(> .tmpHp) h1 {
-  font-size: min(calc(38px * var(--heightMod, 1)), calc(38px * var(--widthMod, 1)));
+  font-size: min(calc(38px * var(--heightMod, 1)), calc(38px * var(--widthMod, 1))); //TODO currenty always has tmpHp element - use attribute instead?
   line-height: min(calc(32px * var(--heightMod, 1)), calc(32px * var(--widthMod, 1)));
 }
 
@@ -298,6 +298,17 @@
   display: flex;
   align-items: center;
   height: 100%;
+}
+
+.playerPanel .barDeathSaveGrid {
+  display: grid; 
+  height: 80%; 
+  width: 90%; 
+  grid-template: 50% 50% / repeat(3, 1fr) 5% repeat(3, 1fr);
+  grid-template-areas:
+      "header header header header header header header"
+      "succ1 succ2 succ3 . fail1 fail2 fail3";
+  row-gap: 3px;
 }
 
 

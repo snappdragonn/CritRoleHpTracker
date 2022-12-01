@@ -142,8 +142,8 @@ class NumberPanel extends Panel {
     var htmlstring = /*html*/`
                       <div id=${"player"+this.playerId} class="playerPanel" data-deathSaves="true" style="background-color: ${players[this.playerId].characterColor}; display: grid; grid-template: 50% 50% / 50% 16% 16% 16%;">
                         <div class="playerImage" style="grid-area: 1 / 1 / 3 / 2">
-                          <img src=${players[this.playerId].headShotImg} alt="headshot" class="headshotImg" referrerPolicy="no-referrer" crossorigin="anonymous">
-                          <div class="playerName">${players[this.playerId].characterName}</div>
+                          <img src=${players[this.playerId].headShotImg} alt="headshot" class="headshotImg" referrerPolicy="no-referrer" crossorigin="anonymous" style="height: 100%;">
+                          <!-- <div class="playerName">${players[this.playerId].characterName}</div> -->
                         </div>
 
                         <img src=${successImgscr} alt="sHeart1" class="SuccessHeart" style="grid-area: 1 / 2 / 2 / 3; object-fit: contain; width: 100%; height: 100%;">
@@ -234,17 +234,17 @@ class HeathbarPanel extends Panel {
 
     var htmlstring = /*html*/`
             <div id=${"player"+this.playerId} class="playerPanel" data-deathSaves="false" style="background-color: ${players[this.playerId].characterColor}; justify-content: center;">
-              <div class="barGrid" style="display: grid; height: 80%; width: 90%; grid-template: 50% 50% / repeat(6, 1fr); row-gap: 3px;">
+              <div class="barDeathSaveGrid">
                 <div class="barPanelHeader" style="grid-area: 1 / 1 / 2 / 7; min-height: 0;">
                   <img src=${players[this.playerId].headShotImg} alt="headshot" referrerPolicy="no-referrer" crossorigin="anonymous" style="height: 100%; float: left; border-radius: 50%; margin: 0 3px 0 0;"></img>
                   <div class="barPlayerName" style="float: left; font-weight: bold;">${players[this.playerId].characterName}</div>
                 </div>
-                <img src=${successImgscr} alt="sHeart1" class="SuccessHeart" style="object-fit: contain; width: 100%; height: 100%;">
-                <img src=${successImgscr} alt="sHeart2" class="SuccessHeart" style="object-fit: contain; width: 100%; height: 100%;">
-                <img src=${successImgscr} alt="sHeart3" class="SuccessHeart" style="object-fit: contain; width: 100%; height: 100%;">
-                <img src=${failImgscr}    alt="fHeart1" class="FailHeart"    style="object-fit: contain; width: 100%; height: 100%;">
-                <img src=${failImgscr}    alt="fHeart2" class="FailHeart"    style="object-fit: contain; width: 100%; height: 100%;">
-                <img src=${failImgscr}    alt="fHeart3" class="FailHeart"    style="object-fit: contain; width: 100%; height: 100%;">
+                <img src=${successImgscr} alt="sHeart1" class="SuccessHeart" style="object-fit: contain; width: 100%; height: 100%; grid-area: succ1">
+                <img src=${successImgscr} alt="sHeart2" class="SuccessHeart" style="object-fit: contain; width: 100%; height: 100%; grid-area: succ2">
+                <img src=${successImgscr} alt="sHeart3" class="SuccessHeart" style="object-fit: contain; width: 100%; height: 100%; grid-area: succ3">
+                <img src=${failImgscr}    alt="fHeart1" class="FailHeart"    style="object-fit: contain; width: 100%; height: 100%; grid-area: fail1">
+                <img src=${failImgscr}    alt="fHeart2" class="FailHeart"    style="object-fit: contain; width: 100%; height: 100%; grid-area: fail2">
+                <img src=${failImgscr}    alt="fHeart3" class="FailHeart"    style="object-fit: contain; width: 100%; height: 100%; grid-area: fail3">
               </div>
             </div>
           `;
