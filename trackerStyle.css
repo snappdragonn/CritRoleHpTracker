@@ -59,6 +59,8 @@
 
 
 #trackerTitle {
+  display: flex; 
+  align-items: center;
   height: 100%;
   cursor: pointer;
   overflow: hidden;
@@ -75,7 +77,7 @@
 }
 
 #trackerTitle h4 {
-  padding: calc( 2px * min(var(--heightMod, 1), var(--widthMod, 1)) ) 0 0 calc( 4px * min(var(--heightMod, 1), var(--widthMod, 1)) )
+  padding: 0 0 0 calc( 4px * min(var(--heightMod, 1), var(--widthMod, 1)) )
 }
 
 #trackerBlock[data-orientation="horizontal"] #trackerTitle h4 {
@@ -318,7 +320,7 @@
   grid-template-areas:
       "header header header header header header header"
       "succ1 succ2 succ3 . fail1 fail2 fail3";
-  row-gap: 3px;
+  row-gap: calc( 3px * min(var(--heightMod, 1), var(--widthMod, 1)) );
 }
 
 
@@ -411,6 +413,11 @@
   height: calc( 40px * min(var(--heightMod, 1), var(--widthMod, 1)) );
 }
 
+.statsTable {
+  table-layout: fixed;
+  width: 100%;
+}
+
 .statsTable,  
 .statsTable th,
 .statsTable td {
@@ -422,16 +429,18 @@
 
 .statsTable td,
 .statsTable th {
-  padding: 0 5px;
+  text-align: center;
 }
 
 .statsTable td {
   border-left: solid rgb(82 82 82) 1px;
   font-weight: bold;
+  width: 20%;
 }
 .statsTable th {
   border-right: solid rgb(82 82 82) 1px;
   font-weight: normal;
+  width: 30%;
 }
 
 .chracterStats {

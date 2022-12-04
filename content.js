@@ -464,7 +464,7 @@ class PlayerChracter {
 
                       <div class="separator"></div>
 
-                      <div class="chracterStats" style="display: flex">
+                      <div class="chracterStats" style="display: grid; grid-template-columns: 65% 35%;">
 
                         <table class="statsTable">
                           <tr>
@@ -835,7 +835,7 @@ function makeTable(){
                         <div id="trackerBody" style="flex-direction: ${flexDir}">
                           <div id="contentGrid">
 
-                            <div id="trackerTitle" style="grid-area: title">
+                            <div id="trackerTitle" style="grid-area: title;">
                               <h4>HP Tracker</h4>
                             </div>
 
