@@ -74,6 +74,7 @@
   writing-mode: vertical-rl;
   text-orientation: mixed;
   border-width: 2px 0 0 2px;
+  display: block;
 }
 
 #trackerTitle h4 {
@@ -81,7 +82,7 @@
 }
 
 #trackerBlock[data-orientation="horizontal"] #trackerTitle h4 {
-  padding: calc( 4px * min(var(--heightMod, 1), var(--widthMod, 1)) ) 0 0 calc( 2px * min(var(--heightMod, 1), var(--widthMod, 1)) )
+  padding: calc( 4px * min(var(--heightMod, 1), var(--widthMod, 1)) ) 0 0 calc( 2px * min(var(--heightMod, 1), var(--widthMod, 1)) );
 }
 
 
@@ -114,7 +115,7 @@
   display: none;
   box-shadow: 0px 8px 16px 8px rgba(0,0,0,0.2);
   position: absolute;
-  width: 110px;
+  width: calc( 110px * min(var(--heightMod, 1), var(--widthMod, 1)) );
   cursor: default;
   right: 0;
   z-index: 1000;
@@ -129,13 +130,18 @@
 
 #mainMenu {
   right: -2px;
+  font-size: calc( 16px * min(var(--heightMod, 1), var(--widthMod, 1)) );
+}
+
+#mainMenu img {
+  height: calc( 12px * min(var(--heightMod, 1), var(--widthMod, 1)) );
 }
 
 .submenu {
   position: relative;
   display: flex;
   align-items: center;
-  gap: 3px;
+  gap: calc( 3px * min(var(--heightMod, 1), var(--widthMod, 1)) );
 }
 
 .radioButton {
@@ -176,7 +182,7 @@
 }
 
 .submenuDropdown{
-  right: 110px;
+  right: calc( 110px * min(var(--heightMod, 1), var(--widthMod, 1)) );
   top: 0;
 }
 
@@ -271,13 +277,18 @@
   font-size: min(calc(41px * var(--heightMod, 1)), calc(41px * var(--widthMod, 1)));
 }
 
-.hpNumber:has(> .tmpHp) h1 {
-  font-size: min(calc(38px * var(--heightMod, 1)), calc(38px * var(--widthMod, 1))); //TODO currenty always has tmpHp element - use attribute instead?
+.hpNumber:has(> .tmpHp[data-visibility="visible"]) h1 {
+  font-size: min(calc(38px * var(--heightMod, 1)), calc(38px * var(--widthMod, 1)));
   line-height: min(calc(32px * var(--heightMod, 1)), calc(32px * var(--widthMod, 1)));
 }
 
 .hpNumber .tmpHp {
   font-size: min(calc(12px * var(--heightMod, 1)), calc(12px * var(--widthMod, 1)));
+  display: block;
+}
+
+.hpNumber .tmpHp[data-visibility="hidden"]{
+  display: none;
 }
 
 .slider {
@@ -331,6 +342,7 @@
   display: none;
   flex-direction: column;
   background-color: dimgray;
+  color: #c5c3bc;
   position: absolute;
   top: 5%;
   right: 100%;
@@ -376,7 +388,6 @@
 .classLevel {
   font-size: calc( 12px * min(var(--heightMod, 1), var(--widthMod, 1)) );
   padding: 0 calc( 5px * min(var(--heightMod, 1), var(--widthMod, 1)) );
-  color: #c5c3bc;
 }
 
 .separator{
@@ -403,7 +414,6 @@
 
 .statDiv {
   padding: 2px;
-  color: #c5c3bc;
   cursor: default;
   font-weight: bold;
   font-size: calc( 18px * min(var(--heightMod, 1), var(--widthMod, 1)) );
@@ -423,7 +433,6 @@
 .statsTable td {
   border: solid black 1px;
   border-collapse: collapse;
-  color: #c5c3bc;
   background-color: #606060
 }
 
@@ -461,7 +470,6 @@
   flex-wrap: wrap;
   margin: 0 3px;
   gap: 4px;
-  color: #c5c3bc;
 }
 
 

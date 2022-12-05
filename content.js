@@ -74,9 +74,9 @@ class Panel{
   }
 
   swapType(newHp, deathSaves){
-    if(newHp <= 0 && this.hasDeathSaves() && !this.isDeathSave){
+    if(newHp <= 0  && !this.isDeathSave){
       this.makeDeathSavePanel();
-    }else if(!this.hasDeathSaves() && this.isDeathSave){
+    }else if(newHp > 0 && this.isDeathSave){
       this.makePanel();
     }
   }
@@ -126,7 +126,7 @@ class NumberPanel extends Panel {
                         </div>
                         <div class="hpNumber" style="display: flex; flex-direction: column; align-items: center;">
                           <h1>${players[this.playerId].currentHp}</h1>
-                          <h4 class="tmpHp" style="display: ${players[this.playerId].tmpHp == 0 ? "none" : "block"}">+${players[this.playerId].tmpHp}</h4>
+                          <h4 class="tmpHp" data-visibility="${players[this.playerId].tmpHp == 0 ? "hidden" : "visible"}">+${players[this.playerId].tmpHp}</h4>
                         </div>
                       </div>
                     `;
@@ -206,9 +206,11 @@ class NumberPanel extends Panel {
     var hpNum = this.panel.getElementsByClassName("hpNumber")[0];
     if(players[this.playerId].tmpHp > 0){ //add tmp hp number
       hpNum.lastElementChild.style.display = "block";
+      hpNum.lastElementChild.dataset.visibility = "visible";
       hpNum.lastElementChild.innerHTML = "+" + players[this.playerId].tmpHp;
     }else if(hpNum.childElementCount > 1){
       hpNum.lastElementChild.style.display = "none";
+      hpNum.lastElementChild.dataset.visibility = "hidden";
       hpNum.lastElementChild.innerHTML = "";
     }
   }
@@ -488,7 +490,7 @@ class PlayerChracter {
                         </table>
 
                         <div class="hp-ac" style="display: flex; flex-direction: column; justify-content: space-evenly; flex-grow: 1; align-items: center;">
-                          <div class="statDiv" style="position: relative">
+                          <div class="statDiv" title="Max HP" style="position: relative">
                             <svg class="svgShape" viewBox="-25 0 50 45" style="display: block">
                               <path stroke="black" fill="${this.characterColor}"
                                 d="M 0 7 
@@ -503,7 +505,7 @@ class PlayerChracter {
                             </svg>
                             <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -55%);">${this.maxHp}</div>
                           </div>
-                          <div class="statDiv" style="position: relative;">
+                          <div class="statDiv" title="AC" style="position: relative;">
                             <svg class="svgShape" viewBox="-25 0 50 50" style="display: block">
                               <path stroke="black" fill="${this.characterColor}"
                                 d="M -0 2 
@@ -886,34 +888,34 @@ function makeMenu(){
             </div>
 
             <div id="orientationOption" class="menuItem submenu">
-              <img src="${chrome.runtime.getURL("icons/arrow-white.png")}" style="height: 12px;">
+              <img src="${chrome.runtime.getURL("icons/arrow-white.png")}">
               <h4 class="submenuButton"> Orientation </h4>
 
               <div class="menuDropDown submenuDropdown">
                 <div id="verticalButton" class="menuItem menuButton radioButton">
                   <h4>Vertical</h4>
-                  <img src="${chrome.runtime.getURL("icons/tick-white.png")}" style="height: 12px; display: ${(orientation === 'vertical') ? 'block' : 'none'};">
+                  <img src="${chrome.runtime.getURL("icons/tick-white.png")}" style="display: ${(orientation === 'vertical') ? 'block' : 'none'};">
                 </div>
                 <div id="horizonalButton" class="menuItem menuButton radioButton">
                   <h4>Horizontal</h4>
-                  <img src="${chrome.runtime.getURL("icons/tick-white.png")}" style="height: 12px; display: ${(orientation === 'horizontal') ? 'block' : 'none'};">
+                  <img src="${chrome.runtime.getURL("icons/tick-white.png")}" style="display: ${(orientation === 'horizontal') ? 'block' : 'none'};">
                 </div>
               </div>
 
             </div>
 
             <div id="DisplayOption" class="menuItem submenu">
-            <img src="${chrome.runtime.getURL("icons/arrow-white.png")}" style="height: 12px;">
+            <img src="${chrome.runtime.getURL("icons/arrow-white.png")}">
               <h4 class="submenuButton"> Display Type </h4>
 
               <div class="menuDropDown submenuDropdown">
                 <div id="DisplayNumberButton" class="menuItem menuButton radioButton">
                   <h4>Number</h4>
-                  <img src="${chrome.runtime.getURL("icons/tick-white.png")}" style="height: 12px; display: ${(displayType === 'number') ? 'block' : 'none'};">
+                  <img src="${chrome.runtime.getURL("icons/tick-white.png")}" style="display: ${(displayType === 'number') ? 'block' : 'none'};">
                 </div>
                 <div id="DisplayHealthbarButton" class="menuItem menuButton radioButton">
                   <h4>Healthbar</h4>
-                  <img src="${chrome.runtime.getURL("icons/tick-white.png")}" style="height: 12px; display: ${(displayType === 'healthBar') ? 'block' : 'none'};">
+                  <img src="${chrome.runtime.getURL("icons/tick-white.png")}" style="display: ${(displayType === 'healthBar') ? 'block' : 'none'};">
                 </div>
               </div>
             </div>
