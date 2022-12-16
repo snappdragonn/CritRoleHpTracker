@@ -300,8 +300,12 @@
   border-radius: 3px
 }
 
+.hpSlider {
+  background-color: rgb(54 82 54);
+}
+
 .tmpHpSlider[style*="width: 0%;"] {
-    border: none;
+    border: none;   
 }
 
 .playerPanel .barPlayerName {

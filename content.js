@@ -40,6 +40,8 @@ class Panel{
 
   isDeathSave = false;
 
+  pauseUpdate = false;
+
   constructor(playerId, parentDiv){
     this.playerId = playerId;
 
@@ -64,6 +66,7 @@ class Panel{
   makeDeathSavePanel(){}
 
   update(){
+    if(this.pauseUpdate) return;
     var newHp = players[this.playerId].currentHp;
     this.swapType(newHp, players[this.playerId].deathSaves);
     if(this.isDeathSave){
@@ -90,6 +93,7 @@ class Panel{
   updatePanel(newHp){}
 
   setHpDisplay(value, color, sliderWidth, bloody){}
+  unsetHpDisplay(){}
 
   setPanel(string){
     var tmp = document.createElement("div");
@@ -134,7 +138,12 @@ class NumberPanel extends Panel {
                     `;
 
     this.isDeathSave = false;
-    return this.setPanel(htmlstring);
+    let panel = this.setPanel(htmlstring);
+    if(players[this.playerId] != undefined && players[this.playerId].displaySet.length > 0){
+      let displaySet = players[this.playerId].displaySet;
+      this.setHpDisplay(displaySet[0], displaySet[1], displaySet[2], displaySet[3])
+    }
+    return panel;
   }
 
 
@@ -218,13 +227,26 @@ class NumberPanel extends Panel {
   }
 
   setHpDisplay(value, color, sliderWidth, bloody){
-    console.log("set hp display");
     if(!this.isDeathSave){
-      console.log("not deathsave");
-      console.log(value);
       var playerPanel = this.panel.getElementsByTagName("h1")[0];
       playerPanel.innerText = value;
-    }
+
+      if(bloody){
+        this.panel.getElementsByClassName("headshotOverlay")[0].style.display = "inline";
+      }else{
+        this.panel.getElementsByClassName("headshotOverlay")[0].style.display = "none";
+      }
+
+      this.pauseUpdate = true;
+      players[this.playerId].displaySet = [value, color, sliderWidth, bloody];
+
+    }   
+  }
+
+  unsetHpDisplay(){
+    this.pauseUpdate = false;
+    players[this.playerId].displaySet = [];
+    this.update();
   }
 
 
@@ -245,7 +267,7 @@ class HeathbarPanel extends Panel {
                 </div>
                 <div class="healthBar" style="flex: 1; height: 45%; width: 100%; position: relative; border: 1px solid #9e9a8d; border-radius: 3px; overflow: hidden;">
                   <div class="barBackground" style="background-color: #723939; width: 100%; height: 100%; position: absolute; top: 0; left: 0; border-radius: 3px"></div>
-                  <div class="slider hpSlider" style="background-color: rgb(54 82 54); width: ${Math.min(players[this.playerId].currentHp / charData[this.playerId].hp, 1) * 100}%;"></div>
+                  <div class="slider hpSlider" style="width: ${Math.min(players[this.playerId].currentHp / charData[this.playerId].hp, 1) * 100}%;"></div>
                   <div class="slider tmpHpSlider" style="background-color: rgba(10, 100, 255, 0.4); width: ${Math.min(players[this.playerId].tmpHp / charData[this.playerId].hp, 1) * 100}%;"></div>
                   <div class="healthbarHpNum"><div>${players[this.playerId].currentHp + players[this.playerId].tmpHp}</div></div>
                 </div>
@@ -254,7 +276,12 @@ class HeathbarPanel extends Panel {
           `;
 
     this.isDeathSave = false;
-    return this.setPanel(htmlstring);
+    let panel = this.setPanel(htmlstring);
+    if(players[this.playerId] != undefined && players[this.playerId].displaySet.length > 0){
+      let displaySet = players[this.playerId].displaySet;
+      this.setHpDisplay(displaySet[0], displaySet[1], displaySet[2], displaySet[3])
+    }
+    return panel;
   }
 
 
@@ -329,14 +356,24 @@ class HeathbarPanel extends Panel {
     if(!this.isDeathSave){
       var slider = this.panel.getElementsByClassName("slider")[0];
       slider.style.width = sliderWidth;
+      slider.style["background-color"] = color;
 
       var hpNum = this.panel.getElementsByClassName("healthbarHpNum")[0];
       hpNum.firstElementChild.innerHTML = value;
 
-      //TODO set slider color and then reset it to normal on updatePanel() (e.g. remove styles in html element to use css styles)
-      //TODO keep modified display when swap to number panel
-      //TODO make unsetHpDisplay event
+      this.pauseUpdate = true;
+      console.log(players[this.playerId]);
+      console.log(players[this.playerId].displaySet);
+      players[this.playerId].displaySet = [value, color, sliderWidth, bloody];
+
     }
+  }
+
+  unsetHpDisplay(){
+    this.pauseUpdate = false;
+    this.panel.getElementsByClassName("slider")[0].style["background-color"] = "";
+    players[this.playerId].displaySet = [];
+    this.update();
   }
 
 
@@ -360,6 +397,8 @@ class PlayerChracter {
   currentHp;
   tmpHp = 0;
   deathSaves = [0,0]; //[numSuccess, numFailed]
+
+  displaySet = [];
 
   statsPanel;
 
@@ -627,7 +666,7 @@ function updateStats(){
       for(i=1; i<=currentTimeSlot; i++){
         applyEvent(episodeData[i-1].event, false);
       }
-      updateAllPanels();
+      updateAllPanels(); //TODO either update panels here or within every event method on the player
     }
 
 
@@ -670,6 +709,8 @@ function applyEvent(event, updateUI){
 
   }else if(event.type === "setHpDisplay"){
     panels[getPlayer(event.characterName).id].setHpDisplay(event.value, event.color, event.sliderWidth, event.bloody);
+  }else if(event.type === "unsetHpDisplay"){
+    panels[getPlayer(event.characterName).id].unsetHpDisplay();
 
   }else{
     console.warn("invalid event: " + event.type);
@@ -700,6 +741,7 @@ function resetPlayers(playersToReset = players){
     player.currentHp = player.maxHp;
     player.tmpHp = 0;
     player.removeAllEffects();
+    panels[player.id].pauseUpdate = false;
   }
   endInitiative()
 }
@@ -1065,7 +1107,7 @@ function InjectHTML(){
     episodeData = null;
     charData = null;
     currentTimeSlot = 0;
-    panels = [];
+    // panels = [];
     players = [];
   });
 
@@ -1135,7 +1177,7 @@ function getEpisodeData(successCallback, failCallback){
           failCallback(this.status, this.statusText);
         }
       }catch(e){
-        console.error(e.name + ": " + e.message);
+        console.error(e.name + ": " + e.message + "\n" + e.stack);
         episodeData = null;
         charData = null;
       }
