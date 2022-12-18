@@ -705,7 +705,7 @@ function applyEvent(event, updateUI){
   }else if(event.type === "initiativeEnd"){
     endInitiative();
   }else if(event.type === "nextInitiativeTurn"){
-    nextInitiativeTurn();
+    nextInitiativeTurn(event.nextCharacter);
 
   }else if(event.type === "setHpDisplay"){
     panels[getPlayer(event.characterName).id].setHpDisplay(event.value, event.color, event.sliderWidth, event.bloody);
@@ -768,12 +768,24 @@ function endInitiative(){
   currentInitiative = 0;
 }
 
-function nextInitiativeTurn(){
+function nextInitiativeTurn(nextCharacter){
   previousInitiativePanel = panels[getPlayer(initiativeOrder[currentInitiative]).id].panel.parentElement;
   previousInitiativePanel.classList.remove("initiativeCurrent");
-  currentInitiative = (currentInitiative+1) % (initiativeOrder.length)
+  if((nextInit = getCharacterInitiative(nextCharacter)) != undefined){
+    currentInitiative = nextInit;
+  }else{
+    currentInitiative = (currentInitiative+1) % (initiativeOrder.length)
+  }
   nextInitiativePanel = panels[getPlayer(initiativeOrder[currentInitiative]).id].panel.parentElement;
   nextInitiativePanel.classList.add("initiativeCurrent");
+}
+
+function getCharacterInitiative(name){
+  for(let i=0; i<initiativeOrder.length; i++){
+    if(name == initiativeOrder[i]){
+      return i;
+    }
+  }
 }
 
 
