@@ -390,6 +390,8 @@ class PlayerChracter {
   armorClass = 0;
   maxHp = 0;
   stats = {"str":0, "dex":0, "con":0, "int":0, "wis":0, "cha":0};
+  spellslots = [];
+  spellslotsLeft = []
 
   characterColor = "steelblue";
   headShotImg;
@@ -402,7 +404,7 @@ class PlayerChracter {
 
   statsPanel;
 
-  constructor(id, name, lvl, charClass, classLevels, ac, hp, stats, color, imgURL){
+  constructor(id, name, lvl, charClass, classLevels, ac, hp, stats, spellslots, color, imgURL){
     this.id = id;
     this.characterName = name;
     this.level = lvl;
@@ -412,6 +414,8 @@ class PlayerChracter {
     this.maxHp = hp;
     this.currentHp = hp;
     this.stats = stats;
+    this.spellslots = (spellslots != undefined) ? spellslots : [];
+    this.spellslotsLeft = [...this.spellslots];
     this.characterColor = color;
     this.headShotImg = imgURL
 
@@ -505,15 +509,27 @@ class PlayerChracter {
     }
   }
 
-  getClassLevelString(){
-    console.log("get class levels")
-    if(this.classLevels == undefined || Object.keys(this.classLevels).length === 0){
-      return this.chracterClass + ": " + this.level;
+  useSpell(level, amount){
+    let spell = level-1;
+    if(spell >= 0 && spell < this.spellslotsLeft.length){
+      this.spellslotsLeft[spell] -= (amount != undefined) ? amount : 1;
+      this.statsPanel.getElementsByClassName("level-" + level)[0].innerHTML = `lvl ${level}: ${this.spellslotsLeft[spell]}/${this.spellslots[spell]}`;
     }else{
-      console.log("multiple classes")
-      return Object.entries(this.classLevels).map(([clazz, lvl]) => clazz + ": " + lvl).join("    ");
+      console.warn("useSpell (" + this.characterName + "): spell level (" + level + ") invalid")
     }
   }
+
+  regainSpell(level, amount){
+      let spell = level-1;
+      if(spell >= 0 && spell < this.spellslotsLeft.length){
+      this.spellslotsLeft[spell] += (amount != undefined) ? amount : 1;
+      this.statsPanel.getElementsByClassName("level-" + level)[0].innerText = `lvl ${level}: ${this.spellslotsLeft[level-1]}/${this.spellslots[level-1]}`;
+    }else{
+      console.warn("useSpell (" + this.characterName + "): spell level (" + level + ") invalid")
+    }
+  }
+
+  
 
   makePanel(){
     var panelStr = /*html*/`
@@ -590,7 +606,11 @@ class PlayerChracter {
                             <div style="position: absolute; top: 50%; left: 50%; transform: translate(-55%, -50%);">${this.armorClass}</div>
                           </div>
                         </div>
+
                       </div>
+
+                      ${(this.spellslots.length > 0) ? this.makeSpellslotsDisplay() : ""}
+
                     </div>
                   `;
 
@@ -600,6 +620,35 @@ class PlayerChracter {
 
     return this.statsPanel;
   }
+
+
+  makeSpellslotsDisplay(){
+
+    console.log(this.spellslotsLeft);
+
+    let displayStr = `<div class="separator"></div>
+                      <div class="spellSlotsInfo">`;
+
+    for(let i=0; i<this.spellslots.length; i++){
+      displayStr += ` <div class="spellSlotLevel level-${i+1}">
+                        lvl ${i+1}: ${this.spellslotsLeft[i]}/${this.spellslots[i]}
+                      </div>`;
+    }
+
+    displayStr += "</div>";
+
+    return displayStr;
+  }
+
+
+  getClassLevelString(){
+    if(this.classLevels == undefined || Object.keys(this.classLevels).length === 0){
+      return this.chracterClass + ": " + this.level;
+    }else{
+      return Object.entries(this.classLevels).map(([clazz, lvl]) => clazz + ": " + lvl).join("    ");
+    }
+  }
+
 
 
 }
@@ -711,6 +760,11 @@ function applyEvent(event, updateUI){
     panels[getPlayer(event.characterName).id].setHpDisplay(event.value, event.color, event.sliderWidth, event.bloody);
   }else if(event.type === "unsetHpDisplay"){
     panels[getPlayer(event.characterName).id].unsetHpDisplay();
+
+  }else if(event.type === "useSpell"){
+    getPlayer(event.characterName).useSpell(event.level, event.amount);
+  }else if(event.type === "regainSpell"){
+    getPlayer(event.characterName).regainSpell(event.level, event.amount);
 
   }else{
     console.warn("invalid event: " + event.type);
@@ -1026,6 +1080,7 @@ function makePanels(){
                                       charData[i].ac,
                                       charData[i].hp,
                                       charData[i].stats,
+                                      charData[i].spellslots,
                                       charData[i].color,
                                       charData[i].imageURL));
 
@@ -1225,7 +1280,7 @@ function onPanelHover(event, statsPanel){
 
 function onPanelEndHover(event, delayTimer, statsPanel){
   clearInterval(delayTimer);
-  statsPanel.style.display = "none";
+  //statsPanel.style.display = "none";
 }
 
 function openStatsPanel(statsPanel){
