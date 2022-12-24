@@ -513,6 +513,47 @@
 }
 
 
+.spellSlotsInfo {
+  display: flex;
+  justify-content: flex-start;
+  flex-flow: wrap;
+  column-gap: calc( 8px * min(var(--heightMod, 1), var(--widthMod, 1)) );
+  margin-left: calc( 3px * min(var(--heightMod, 1), var(--widthMod, 1)) );
+  margin-bottom: calc( 3px * min(var(--heightMod, 1), var(--widthMod, 1)) );
+  margin-right: calc( 3px * min(var(--heightMod, 1), var(--widthMod, 1)) );
+}
+
+.spellSlotLevel {
+  --color: steelblue;
+  --fillNum: 0;
+
+  display: flex;
+  margin: calc( 3px * min(var(--heightMod, 1), var(--widthMod, 1)) ) 0;
+}
+
+.spellSlotLevel > div {
+  height: calc( 20px * min(var(--heightMod, 1), var(--widthMod, 1)) );
+  border: solid black 1px;
+  background-color: #606060;
+}
+
+.levelLable{
+  width: calc( 15px * min(var(--heightMod, 1), var(--widthMod, 1)) );
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.slot {
+  width: calc( 10px * min(var(--heightMod, 1), var(--widthMod, 1)) );
+}
+
+/*
+.spellSlotLevel:nth-child(-n+2 of .slot){ /* select the first n slots /
+  background-color: var(--color);
+}
+*/
+
 
 
 #resizer {

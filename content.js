@@ -509,25 +509,44 @@ class PlayerChracter {
     }
   }
 
-  useSpell(level, amount){
+  updateSpell(level, amount, remove){
     let spell = level-1;
     if(spell >= 0 && spell < this.spellslotsLeft.length){
-      this.spellslotsLeft[spell] -= (amount != undefined) ? amount : 1;
-      this.statsPanel.getElementsByClassName("level-" + level)[0].innerHTML = `lvl ${level}: ${this.spellslotsLeft[spell]}/${this.spellslots[spell]}`;
+      let diff = (amount != undefined) ? amount : 1;
+      diff = (remove) ? -diff : diff;
+      this.spellslotsLeft[spell] += diff;
+
+      let slots = this.statsPanel.getElementsByClassName("spellSlotLevel")[spell].getElementsByClassName("slot");
+      for(let i=0; i<slots.length; i++){
+        if(i<=this.spellslotsLeft[spell]-1){
+          slots[i].style["background-color"] = this.characterColor;
+        }else{
+          slots[i].style["background-color"] = "";
+        }
+      }
+
     }else{
-      console.warn("useSpell (" + this.characterName + "): spell level (" + level + ") invalid")
+      console.warn("updateSpell (" + this.characterName + "): spell level (" + level + ") invalid")
     }
   }
 
-  regainSpell(level, amount){
-      let spell = level-1;
-      if(spell >= 0 && spell < this.spellslotsLeft.length){
-      this.spellslotsLeft[spell] += (amount != undefined) ? amount : 1;
-      this.statsPanel.getElementsByClassName("level-" + level)[0].innerText = `lvl ${level}: ${this.spellslotsLeft[level-1]}/${this.spellslots[level-1]}`;
-    }else{
-      console.warn("useSpell (" + this.characterName + "): spell level (" + level + ") invalid")
-    }
-  }
+  // regainSpell(level, amount){
+  //     let spell = level-1;
+  //     if(spell >= 0 && spell < this.spellslotsLeft.length){
+  //     this.spellslotsLeft[spell] += (amount != undefined) ? amount : 1;
+
+  //     let slots = this.statsPanel.getElementsByClassName("spellSlotLevel")[spell].getElementsByClassName("slot");
+  //     for(let i=0; i<slots.length; i++){
+  //       if(i<=this.spellslotsLeft[spell]-1){
+  //         slots[i].style["background-color"] = this.characterColor;
+  //       }else{
+  //         slots[i].style["background-color"] = "";
+  //       }
+  //     }
+  //   }else{
+  //     console.warn("useSpell (" + this.characterName + "): spell level (" + level + ") invalid")
+  //   }
+  // }
 
   
 
@@ -629,10 +648,15 @@ class PlayerChracter {
     let displayStr = `<div class="separator"></div>
                       <div class="spellSlotsInfo">`;
 
-    for(let i=0; i<this.spellslots.length; i++){
-      displayStr += ` <div class="spellSlotLevel level-${i+1}">
-                        lvl ${i+1}: ${this.spellslotsLeft[i]}/${this.spellslots[i]}
-                      </div>`;
+    for(let level=0; level<this.spellslots.length; level++){
+      displayStr += ` <div class="spellSlotLevel level-${level+1}">
+                        <div class="levelLable">${level+1}</div>`
+
+      for(let slot=0; slot<this.spellslots[level]; slot++){
+        displayStr += `<div class="slot" style="background-color: ${this.characterColor}"></div>`
+      }
+
+      displayStr += "</div>";
     }
 
     displayStr += "</div>";
@@ -762,9 +786,9 @@ function applyEvent(event, updateUI){
     panels[getPlayer(event.characterName).id].unsetHpDisplay();
 
   }else if(event.type === "useSpell"){
-    getPlayer(event.characterName).useSpell(event.level, event.amount);
+    getPlayer(event.characterName).updateSpell(event.level, event.amount, true);
   }else if(event.type === "regainSpell"){
-    getPlayer(event.characterName).regainSpell(event.level, event.amount);
+    getPlayer(event.characterName).updateSpell(event.level, event.amount, false);
 
   }else{
     console.warn("invalid event: " + event.type);
@@ -1280,7 +1304,7 @@ function onPanelHover(event, statsPanel){
 
 function onPanelEndHover(event, delayTimer, statsPanel){
   clearInterval(delayTimer);
-  //statsPanel.style.display = "none";
+  statsPanel.style.display = "none";
 }
 
 function openStatsPanel(statsPanel){
