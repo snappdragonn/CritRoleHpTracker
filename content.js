@@ -778,7 +778,7 @@ function applyEvent(event, updateUI){
   }else if(event.type === "initiativeEnd"){
     endInitiative();
   }else if(event.type === "nextInitiativeTurn"){
-    nextInitiativeTurn(event.nextCharacter);
+    nextInitiativeTurn(event);
 
   }else if(event.type === "setHpDisplay"){
     panels[getPlayer(event.characterName).id].setHpDisplay(event.value, event.color, event.sliderWidth, event.bloody);
@@ -820,6 +820,7 @@ function resetPlayers(playersToReset = players){
     player.tmpHp = 0;
     player.removeAllEffects();
     panels[player.id].pauseUpdate = false;
+    //TODO reset spell slots
   }
   endInitiative()
 }
@@ -846,10 +847,24 @@ function endInitiative(){
   currentInitiative = 0;
 }
 
-function nextInitiativeTurn(nextCharacter){
+function nextInitiativeTurn(event){
   previousInitiativePanel = panels[getPlayer(initiativeOrder[currentInitiative]).id].panel.parentElement;
   previousInitiativePanel.classList.remove("initiativeCurrent");
-  if((nextInit = getCharacterInitiative(nextCharacter)) != undefined){
+
+  if(event.isEnemy){
+    document.getElementById("hpPanelsContainer").insertAdjacentHTML("beforeend", `<div class='enemyTurnMarker' style='order: ${(event.order != undefined) ? event.order : previousInitiativePanel.style.order}'></div>`);
+    if(event.order != undefined){
+      currentInitiative = (event.order < 0) ? initiativeOrder.length - 1 : event.order;
+    }
+    return;
+  }else {
+    let enemyTurnMarker = document.getElementById("hpPanelsContainer").getElementsByClassName("enemyTurnMarker")[0];
+    if(enemyTurnMarker != undefined){
+      enemyTurnMarker.parentElement.removeChild(enemyTurnMarker);
+    }
+  }
+
+  if((nextInit = getCharacterInitiative(event.nextCharacter)) != undefined){
     currentInitiative = nextInit;
   }else{
     currentInitiative = (currentInitiative+1) % (initiativeOrder.length)

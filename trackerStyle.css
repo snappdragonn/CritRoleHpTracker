@@ -246,6 +246,17 @@
   border-width: 2px;
 }
 
+.enemyTurnMarker {
+  width: 95%;
+  height: 3px;
+  background-color: white;
+}
+
+#trackerBlock[data-orientation="horizontal"] .enemyTurnMarker {
+  width: 3px;
+  height: 95%;
+}
+
 .headshotImg {
   border-radius: 50%;
   height: 90%;
