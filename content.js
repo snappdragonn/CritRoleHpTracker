@@ -517,6 +517,7 @@ class PlayerChracter {
       this.spellslotsLeft[spell] += diff;
 
       let slots = this.statsPanel.getElementsByClassName("spellSlotLevel")[spell].getElementsByClassName("slot");
+      this.statsPanel.getElementsByClassName("spellSlotLevel")[spell].title = "lvl " + (level) + ": " + this.spellslotsLeft[spell] + "/" + this.spellslots[spell];
       for(let i=0; i<slots.length; i++){
         if(i<=this.spellslotsLeft[spell]-1){
           slots[i].style["background-color"] = this.characterColor;
@@ -530,23 +531,17 @@ class PlayerChracter {
     }
   }
 
-  // regainSpell(level, amount){
-  //     let spell = level-1;
-  //     if(spell >= 0 && spell < this.spellslotsLeft.length){
-  //     this.spellslotsLeft[spell] += (amount != undefined) ? amount : 1;
+  restSpellslots(){
+    this.spellslotsLeft = [...this.spellslots];
 
-  //     let slots = this.statsPanel.getElementsByClassName("spellSlotLevel")[spell].getElementsByClassName("slot");
-  //     for(let i=0; i<slots.length; i++){
-  //       if(i<=this.spellslotsLeft[spell]-1){
-  //         slots[i].style["background-color"] = this.characterColor;
-  //       }else{
-  //         slots[i].style["background-color"] = "";
-  //       }
-  //     }
-  //   }else{
-  //     console.warn("useSpell (" + this.characterName + "): spell level (" + level + ") invalid")
-  //   }
-  // }
+    for(let lvl=0; lvl<this.spellslots.length; lvl++){
+      let slots = this.statsPanel.getElementsByClassName("spellSlotLevel")[lvl].getElementsByClassName("slot");
+      this.statsPanel.getElementsByClassName("spellSlotLevel")[lvl].title = "lvl " + (lvl+1) + ": " + this.spellslotsLeft[lvl] + "/" + this.spellslots[lvl];
+      for(let i=0; i<slots.length; i++){
+        slots[i].style["background-color"] = this.characterColor;
+      }
+    }
+  }
 
   
 
@@ -649,7 +644,7 @@ class PlayerChracter {
                       <div class="spellSlotsInfo">`;
 
     for(let level=0; level<this.spellslots.length; level++){
-      displayStr += ` <div class="spellSlotLevel level-${level+1}">
+      displayStr += ` <div class="spellSlotLevel level-${level+1}" title="lvl ${level+1}: ${this.spellslotsLeft[level]}/${this.spellslots[level]}">
                         <div class="levelLable">${level+1}</div>`
 
       for(let slot=0; slot<this.spellslots[level]; slot++){
@@ -820,7 +815,7 @@ function resetPlayers(playersToReset = players){
     player.tmpHp = 0;
     player.removeAllEffects();
     panels[player.id].pauseUpdate = false;
-    //TODO reset spell slots
+    player.restSpellslots();
   }
   endInitiative()
 }
@@ -843,6 +838,7 @@ function endInitiative(){
     panelObj.panel.parentElement.classList.remove("initiative");
     panelObj.panel.parentElement.classList.remove("initiativeCurrent");
   }
+  removeEnemyTurnMarkers();
   initiativeOrder = [];
   currentInitiative = 0;
 }
@@ -858,10 +854,7 @@ function nextInitiativeTurn(event){
     }
     return;
   }else {
-    let enemyTurnMarker = document.getElementById("hpPanelsContainer").getElementsByClassName("enemyTurnMarker")[0];
-    if(enemyTurnMarker != undefined){
-      enemyTurnMarker.parentElement.removeChild(enemyTurnMarker);
-    }
+    removeEnemyTurnMarkers();
   }
 
   if((nextInit = getCharacterInitiative(event.nextCharacter)) != undefined){
@@ -871,6 +864,13 @@ function nextInitiativeTurn(event){
   }
   nextInitiativePanel = panels[getPlayer(initiativeOrder[currentInitiative]).id].panel.parentElement;
   nextInitiativePanel.classList.add("initiativeCurrent");
+}
+
+function removeEnemyTurnMarkers(){
+  let enemyTurnMarkers = document.getElementById("hpPanelsContainer").getElementsByClassName("enemyTurnMarker");
+  for(marker of enemyTurnMarkers){
+      marker.parentElement.removeChild(marker);
+    }
 }
 
 function getCharacterInitiative(name){
