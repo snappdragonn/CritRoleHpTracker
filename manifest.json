@@ -9,7 +9,7 @@
     ],
     "content_scripts": [
       {
-        "matches": ["*://www.youtube.com/*"],
+        "matches": ["*://www.youtube.com/*", "*://www.twitch.tv/*"],
         "all_frames": true,
         "css": ["trackerStyle.css"],
         "js": ["content.js"]
@@ -18,7 +18,7 @@
     "web_accessible_resources": [
      {
        "resources": ["trackerStyle.css", "characterImages/*", "hearts/*", "icons/*", "apiKey.txt"],
-       "matches": [ "*://www.youtube.com/*" ]
+       "matches": [ "*://www.youtube.com/*", "*://www.twitch.tv/*" ]
      },{
        "resources": ["options.js"],
        "matches": [ "*://*/*" ]

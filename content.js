@@ -1,5 +1,6 @@
 var apiKey = "";
 var authorization = "";
+var host = ""
 var minimised = false;
 var episodeNum = 0;
 var episodeData;
@@ -143,6 +144,7 @@ class NumberPanel extends Panel {
       let displaySet = players[this.playerId].displaySet;
       this.setHpDisplay(displaySet[0], displaySet[1], displaySet[2], displaySet[3])
     }
+
     return panel;
   }
 
@@ -1205,19 +1207,62 @@ function InjectHTML(){
 
   //remove tracker when leave video
   document.addEventListener("yt-navigate-start", function(event) {
-    if((tracker = document.getElementById("trackerBlock")) !== null) tracker.remove();
-    if(updateTimer !== null) clearInterval(updateTimer);
-
-    minimised = false;
-    episodeNum = 0;
-    episodeData = null;
-    charData = null;
-    currentTimeSlot = 0;
-    // panels = [];
-    players = [];
+    removeTrackerPopup();
   });
 
 }
+
+function InjectHTMLTwitch(){ //Inject popup html when of twitch (instead of youtube)
+  console.log("inject html on twitch: " + host);
+
+
+      //Add tracker popup when navigate to vod and remove it when nagivate away from vod
+      var obs = new MutationObserver(function (mutations, observer) {
+        console.log("title changed");
+        let videoTitle = document.getElementsByTagName("title")[0].innerText;
+        console.log(videoTitle);
+        removeTrackerPopup();
+        if(videoTitle.startsWith("Critical Role Campaign 3") && location.pathname.startsWith("/videos")){ //watching vod
+          console.log("is critical role c3 ep");
+          
+          //Add popup
+          episodeNum = ((e = videoTitle.match(/(?<=Episode\s)\d+/g)) !== null) ? e[0] : 0;
+          console.log(episodeNum);
+
+          makeTable();
+          getEpisodeData(() => {
+              document.getElementById("hpPanelsContainer").innerHTML = "";
+              makePanels();
+              setOrientation(orientation);
+
+              //check every few seconds for an update to the stats
+              if(episodeData != null && episodeData.length > 0){ //check there is data stored for the episode
+                updateTimer = setInterval(updateStats, 1000);
+              }
+
+            }, makeReloadButton);
+
+        }
+      });
+      obs.observe(document.getElementsByTagName("title")[0], { childList: true, subtree: false, attributes: false, characterData: true });
+      console.log("start observe");
+
+}
+
+function removeTrackerPopup(){
+  if((tracker = document.getElementById("trackerBlock")) !== null) tracker.remove();
+  if(updateTimer !== null) clearInterval(updateTimer);
+
+  minimised = false;
+  episodeNum = 0;
+  episodeData = null;
+  charData = null;
+  currentTimeSlot = 0;
+  // panels = [];
+  players = [];
+}
+
+
 
 
 function makeReloadButton(status, message){
@@ -1400,4 +1445,12 @@ fetch(chrome.runtime.getURL("/apiKey.txt"))
   .then(json => {apiKey = json.apikey; authorization = json.authorization});
 
 
-InjectHTML();
+
+console.log(location.hostname);
+  if(location.hostname == "www.twitch.tv"){
+    host = "twitch";
+    InjectHTMLTwitch();
+  }else if(location.hostname == "www.youtube.com"){
+    host = "youtube";
+    InjectHTML();
+  }
