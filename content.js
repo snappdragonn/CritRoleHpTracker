@@ -18,10 +18,10 @@ var nameSize = {"h": 0.3, "w": 0.125};
 
 
 var panels = [];
-var players = []; //TODO make map instead <Name, Player>
+var players = [];
 
 var initiativeOrder = [];
-var currentInitiative = "";
+var currentInitiative = -1;
 
 
 
@@ -354,7 +354,6 @@ class HeathbarPanel extends Panel {
   }
 
   setHpDisplay(value, color, sliderWidth, bloody){
-    console.log
     if(!this.isDeathSave){
       var slider = this.panel.getElementsByClassName("slider")[0];
       slider.style.width = sliderWidth;
@@ -364,8 +363,8 @@ class HeathbarPanel extends Panel {
       hpNum.firstElementChild.innerHTML = value;
 
       this.pauseUpdate = true;
-      console.log(players[this.playerId]);
-      console.log(players[this.playerId].displaySet);
+      //console.log(players[this.playerId]);
+      //console.log(players[this.playerId].displaySet);
       players[this.playerId].displaySet = [value, color, sliderWidth, bloody];
 
     }
@@ -714,7 +713,7 @@ function updateStats(){
 
   if(!isInTimeSlot(currentTime, currentTimeSlot)){
 
-    console.log("new time slot");
+    //console.log("new time slot");
     //find the new current time slot
     let oldTimeSlot = currentTimeSlot;
     for(i=0; i<=episodeData.length; i++){
@@ -747,19 +746,14 @@ function updateStats(){
 function applyEvent(event, updateUI){
   console.log("event: " + event.type);
   if(event.type === "hpUpdate"){
-    //console.log("hp update");
     if(event.hasOwnProperty("tmp") && event.tmp == true){
       getPlayer(event.characterName).addTmpHp(event.amount, updateUI);
     }else{
       getPlayer(event.characterName).updateHp(event.amount, updateUI);
     }
-
   }else if(event.type === "deathsave"){
-    //console.log("deathsave");
     getPlayer(event.characterName).addDeathSave((event.saveType === "succeed"), (("amount" in event) ? event.amount : 1), updateUI);
-
   }else if(event.type === "longRest"){
-    //console.log("longRest");
     if(event.players != null){
       resetPlayers(event.players.map(name => getPlayer(name)));
     }else{
@@ -770,12 +764,18 @@ function applyEvent(event, updateUI){
     getPlayer(event.characterName).addEffect(event.effectName, event.effectDesc, event.level);
   }else if(event.type === "removeEffect"){
     getPlayer(event.characterName).removeEffect(event.effectName);
+
   }else if(event.type === "initiativeStart"){
     startInitiative(event.order);
   }else if(event.type === "initiativeEnd"){
     endInitiative();
   }else if(event.type === "nextInitiativeTurn"){
     nextInitiativeTurn(event);
+  }else if(event.type === "pauseInitiative"){
+    for(let panelObj of panels){
+    panelObj.panel.parentElement.classList.remove("initiativeCurrent");
+  }
+  removeEnemyTurnMarkers();
 
   }else if(event.type === "setHpDisplay"){
     panels[getPlayer(event.characterName).id].setHpDisplay(event.value, event.color, event.sliderWidth, event.bloody);
@@ -824,13 +824,13 @@ function resetPlayers(playersToReset = players){
 
 function startInitiative(order){
   initiativeOrder = order;
-  currentInitiative = 0;
+  currentInitiative = -1;
   for(let i=0; i<order.length; i++){
     let name = order[i];
     panel = panels[getPlayer(name).id].panel.parentElement;
     panel.style.order = i+1;
     panel.classList.add("initiative");
-    if(i == currentInitiative){ panel.classList.add("initiativeCurrent"); }
+    //if(i == currentInitiative){ panel.classList.add("initiativeCurrent"); }
   }
 }
 
@@ -842,31 +842,36 @@ function endInitiative(){
   }
   removeEnemyTurnMarkers();
   initiativeOrder = [];
-  currentInitiative = 0;
+  currentInitiative = -1;
 }
+
 
 function nextInitiativeTurn(event){
-  previousInitiativePanel = panels[getPlayer(initiativeOrder[currentInitiative]).id].panel.parentElement;
-  previousInitiativePanel.classList.remove("initiativeCurrent");
-
-  if(event.isEnemy){
-    document.getElementById("hpPanelsContainer").insertAdjacentHTML("beforeend", `<div class='enemyTurnMarker' style='order: ${(event.order != undefined) ? event.order : previousInitiativePanel.style.order}'></div>`);
-    if(event.order != undefined){
-      currentInitiative = (event.order < 0) ? initiativeOrder.length - 1 : event.order;
-    }
-    return;
-  }else {
-    removeEnemyTurnMarkers();
+  // unhighlight all panels and remove all enemy turn markers
+  for(let panelObj of panels){
+    panelObj.panel.parentElement.classList.remove("initiativeCurrent");
   }
+  removeEnemyTurnMarkers();
 
-  if((nextInit = getCharacterInitiative(event.nextCharacter)) != undefined){
+  //set next initiative (if is enemies turn don't change initiative)
+  if(!event.isEnemy && (nextInit = getCharacterInitiative(event.nextCharacter)) != undefined){
     currentInitiative = nextInit;
-  }else{
-    currentInitiative = (currentInitiative+1) % (initiativeOrder.length)
+  }else if(!event.isEnemy){
+    currentInitiative = (currentInitiative+1) % (initiativeOrder.length) //add one and at end loop back to start
   }
-  nextInitiativePanel = panels[getPlayer(initiativeOrder[currentInitiative]).id].panel.parentElement;
-  nextInitiativePanel.classList.add("initiativeCurrent");
+
+  //highlight next charater or mark enemy turn
+  if(event.isEnemy){
+    let order = (event.order == undefined) ? currentInitiative + 1 : event.order; //order starts at 1 but initiative starts at 0 
+    document.getElementById("hpPanelsContainer").insertAdjacentHTML("beforeend", `<div class='enemyTurnMarker' style='order: ${order}'></div>`);
+  }else{
+    nextInitiativePanel = panels[getPlayer(initiativeOrder[currentInitiative]).id].panel.parentElement;
+    nextInitiativePanel.classList.add("initiativeCurrent");
+  }
+
+
 }
+
 
 function removeEnemyTurnMarkers(){
   let enemyTurnMarkers = document.getElementById("hpPanelsContainer").getElementsByClassName("enemyTurnMarker");
@@ -876,11 +881,13 @@ function removeEnemyTurnMarkers(){
 }
 
 function getCharacterInitiative(name){
+  if(name == undefined) return undefined;
   for(let i=0; i<initiativeOrder.length; i++){
     if(name == initiativeOrder[i]){
       return i;
     }
   }
+  console.warn("getCharacterInitiative - invalid character name: " + name);
 }
 
 
@@ -1311,7 +1318,7 @@ function getEpisodeData(successCallback, failCallback){
       try{
         console.log("restdb responded");
 
-        console.log(this.responseText);
+        //console.log(this.responseText);
         console.log(this.status);
 
         if(String(this.status)[0] === "2"){
