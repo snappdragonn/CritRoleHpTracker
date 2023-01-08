@@ -3,24 +3,26 @@ campaign 3 only
 
 <br />
 
-A google chrome extension that creates a popup on critical role campaign 3 episodes on youtube.
+A google chrome extension that creates a popup on critical role campaign 3 episodes on youtube and VODs on Twitch.
 
-![image](https://user-images.githubusercontent.com/38895965/174465183-4abb8f86-1123-448f-922d-13644e52732d.png)
+![image](https://user-images.githubusercontent.com/109569193/211224761-8c414b76-4586-4d2f-9483-8e42439c5367.png)
 
-<br />
 <br />
 <br />
 
 Features:
 - Displays hp for each player as exact numbers or a health bar
 - Displays death saves when a player is unconcious
-- Displays stats, level, class for each player on hover
-- Tracker popup is resizeable, draggable, and minimisable
-- Orientation can be set to vertical or horizontal
+- Displays stats, level, and class for each player on hover
+- Displays initiative order and current turn
+- Displays spell slots
 - Displays temp hp of players
 - Displays conditions/effects on the players
+- Player images become bloody when under half hp and grayed out when dead
+- Tracker is resizeable, draggable, and minimisable
+- Orientation can be set to vertical or horizontal
 
-<br />
+
 <br />
 <br />
 
