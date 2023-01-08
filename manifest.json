@@ -1,6 +1,6 @@
 {
     "name": "Critrole HP Tracker",
-    "version": "0.2.1",
+    "version": "0.3.0",
     "description": "Track current health of players during combats",
     "manifest_version": 3,
     "icons":  { "128": "icons/CombatTrackerIcon.png" },
@@ -9,7 +9,7 @@
     ],
     "content_scripts": [
       {
-        "matches": ["*://www.youtube.com/*"],
+        "matches": ["*://www.youtube.com/*", "*://www.twitch.tv/*"],
         "all_frames": true,
         "css": ["trackerStyle.css"],
         "js": ["content.js"]
@@ -18,7 +18,7 @@
     "web_accessible_resources": [
      {
        "resources": ["trackerStyle.css", "characterImages/*", "hearts/*", "icons/*", "apiKey.txt"],
-       "matches": [ "*://www.youtube.com/*" ]
+       "matches": [ "*://www.youtube.com/*", "*://www.twitch.tv/*" ]
      },{
        "resources": ["options.js"],
        "matches": [ "*://*/*" ]

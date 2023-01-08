@@ -1,6 +1,8 @@
 #trackerBlock {
+  --numPanels: 7;
+
   --defaultWidth: 150px;
-  --defaultHeight: 430px;
+  --defaultHeight: calc( var(--numPanels, 7) * 60px + 10px );
   --widthMod:  1;
   --heightMod: 1;
 
@@ -8,11 +10,16 @@
   z-index: 3000;
 }
 
+#trackerBlock[data-orientation="horizontal"] {
+  --defaultWidth: calc( var(--numPanels, 7) * 140px + 42px );
+  --defaultHeight: 58px;
+}
+
 #trackerBody{
   width: calc(var(--defaultWidth, 150px) * var(--widthMod, 1));
   height: calc(var(--defaultHeight, 430px) * var(--heightMod, 1));
-  min-width: 100px;
-  min-height: 290px;
+  min-width: 55px;
+  min-height: calc( var(--numPanels, 7) * 22px + 16px );
   background-color: dimgray;
   border-style: solid;
   border-color: black;
@@ -26,6 +33,11 @@
   z-index: 1000;
 }
 
+#trackerBlock[data-orientation="horizontal"] #trackerBody {
+  min-height: 30px;
+  min-width: calc( var(--numPanels, 7) * 52px + 16px );
+}
+
 
 #expandButton {
   position: absolute;
@@ -33,237 +45,56 @@
   top: 2px;
 }
 
-#trackerTable {
-  width: 100%;
-  height: 90%;
-  border-top: 2px solid black;
-}
-
-#hpPanelsContainer {
-  width: 98%;
-  height: 98%;
-  color: #9e9a8d;
-  min-height: 0px;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-evenly;
-  align-items: center;
-  flex-grow: 1;
-  /*border: black solid;
-  border-width: 2px 0 0 0;
-  box-sizing: border-box;*/
-  place-self: center;
-}
-
-.panelContainer {
-  flex: 1 1 50px;
-  width: 100%;
-  height: 100%;
-  min-height: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  position: relative;
-}
-
-.playerPanel {
-  box-sizing: border-box;
-  border-color: white;
-  border-width: 1px;
-  width: 95%;
-  height: 90%;
-  background-color: steelblue;
-  border-radius: 4px;
-  border-style: solid;
-  align-items: center;
-  display: flex;
-  justify-content: space-evenly;
-  cursor: default;
-}
-
-.headshotImg {
-  border-radius: 50%;
-  height: 90%;
-}
-
-.playerImage {
-  height: min(calc(41px * var(--heightMod, 1)), calc(41px * var(--widthMod, 1)));
-  text-align: center;
-}
-
-.playerName {
-  position: relative;
-  top: -40%;
-  cursor: default;
-  font-size: min(calc(15px * var(--heightMod, 1)), calc(15px * var(--widthMod, 1)));
-}
-
-.hpNumber h1 {
-  font-size: min(calc(41px * var(--heightMod, 1)), calc(41px * var(--widthMod, 1)));
-}
-
-.hpNumber:has(> .tmpHp) h1 {
-  font-size: min(calc(35px * var(--heightMod, 1)), calc(35px * var(--widthMod, 1)));
-  line-height: min(calc(30px * var(--heightMod, 1)), calc(30px * var(--widthMod, 1)));
-}
-
-.hpNumber .tmpHp {
-  font-size: min(calc(12px * var(--heightMod, 1)), calc(12px * var(--widthMod, 1)));
-}
-
-.slider {
+#contentGrid {
+  width: 100%; 
   height: 100%; 
-  position: absolute; 
-  top: -1px; /* -1px because border takes up 1px */
-  left: -1px;
-  border: 1px solid rgb(158, 154, 141);
-  border-radius: 3px
+  display: grid; 
+  grid-template: calc( 22px * min(var(--heightMod, 1), var(--widthMod, 1)) ) 1fr / 1fr calc( 22px * min(var(--heightMod, 1), var(--widthMod, 1)) ); 
+  grid-template-areas: 'title menuButton' 'content content';
 }
 
-.tmpHpSlider[style*="width: 0%;"] {
-    border: none;
+#trackerBlock[data-orientation="horizontal"] #contentGrid {
+  grid-template-areas: "content menuButton" "content title";
 }
 
-.playerPanel .barPlayerName {
-  font-size: min(calc(16px * var(--heightMod, 1)), calc(16px * var(--widthMod, 1)));
-}
 
-.playerPanel .barPanelHeader {
-  display: flex;
-  align-items: center;
-}
-
-.playerPanel .healthbarHpNum {
-  font-weight: 500;
-  position: absolute;
-  margin-left: calc( 2px * min(var(--heightMod, 1), var(--widthMod, 1)) );
-  font-size: calc( 15px * min(var(--heightMod, 1), var(--widthMod, 1)) );
-  display: flex;
+#trackerTitle {
+  display: flex; 
   align-items: center;
   height: 100%;
+  cursor: pointer;
+  overflow: hidden;
+  border: black solid;
+  border-width: 0 2px 2px 0;
+  box-sizing: border-box;
+  font-size: calc( 16px * min(var(--heightMod, 1), var(--widthMod, 1)) );
 }
 
-
-.chracterStatsPanel {
-  width: calc( 230px * min(var(--heightMod, 1), var(--widthMod, 1)) );
-  font-size: calc( 15px * min(var(--heightMod, 1), var(--widthMod, 1)) );
-  z-index: 1000;
-  display: none;
-  flex-direction: column;
-  background-color: dimgray;
-  position: absolute;
-  top: 5%;
-  right: 100%;
-  border-color: black;
-  border-style: solid;
-  /*border-width: 0px;*/
-  border-width: 2px;
-  /*font-size: 0;*/
-  cursor: default;
-}
-
-.charBasicInfo {
-  display: flex;
-  justify-content: space-between;
-  padding: 1px 2px 1px 2px;
-  color: #e1e1e1
-}
-
-.chracterStats {
-  margin-bottom: calc( 3px * min(var(--heightMod, 1), var(--widthMod, 1)) );
-  margin-left: calc( 3px * min(var(--heightMod, 1), var(--widthMod, 1)) );
-}
-
-.separator{
-  width: 100%;
-  height: 2px;
-  margin: 2px 0 2px 0;
-  background-color: black;
-}
-
-.chracterStatsPanel .separator {
-  height: calc( 2px * min(var(--heightMod, 1), var(--widthMod, 1)) );
-  margin: calc( 2px * min(var(--heightMod, 1), var(--widthMod, 1)) ) 0;
-}
-
-
-.EffectsBox:not(:has(*)) + .separator{
-  display: none;
-}
-
-
-.statDiv {
-  margin: 2px;
-  padding: 2px;
-  border-radius: 3px;
-  /*font-size: 15px;*/
-  cursor: default;
-}
-
-.chracterStats {
-  align-content: center;
-  justify-content: flex-start;
-}
-
-.hp-ac .heart {
-  --size: calc( 33px * min(var(--heightMod, 1), var(--widthMod, 1)) ) !important;
-}
-
-.hp-ac .shield {
-  --size: calc( 25px * min(var(--heightMod, 1), var(--widthMod, 1)) ) !important;
-}
-
-.EffectsBox{
-  display: flex;
-  flex-wrap: wrap;
-  margin: 2px 2px;
-  gap: 4px;
-}
-
-.effect {
-  padding: 2px;
-  border-radius: 3px;
-  /*font-size: calc( 15px * min(var(--heightMod, 1), var(--widthMod, 1)) );*/
-  cursor: default;
-  position: relative;
-}
-
-
-.tooltip {
-  display: none;
-  position: absolute;
-  width: max-content;
-  max-width: 200px;
-  left: 0;
-  z-index: 1001;
-  border-color: black;
-  border-style: solid;
-  border-width: 2px;
-  background-color: dimgray;
-  box-shadow: 0px 8px 16px 8px rgba(0,0,0,0.2);
-  cursor: default;
-  color: #e1e1e1;
-  opacity: 0.9;
-  font-weight: lighter;
-  padding-left: 2px;
-  white-space: pre-line;
-}
-
-*:has(> .tooltip):hover .tooltip{ /* show tooltip when hover over direct parent  */
+#trackerBlock[data-orientation="horizontal"] #trackerTitle {
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+  border-width: 2px 0 0 2px;
   display: block;
 }
 
-
-
-
-#resizer {
-  position: absolute;
-  height: 10px;
-  width: 10px;
-  bottom: 1px;
-  left: 1px;
-  cursor: ne-resize;
+#trackerTitle h4 {
+  padding: 0 0 0 calc( 4px * min(var(--heightMod, 1), var(--widthMod, 1)) )
 }
+
+#trackerBlock[data-orientation="horizontal"] #trackerTitle h4 {
+  padding: calc( 4px * min(var(--heightMod, 1), var(--widthMod, 1)) ) 0 0 calc( 2px * min(var(--heightMod, 1), var(--widthMod, 1)) );
+}
+
+
+#menuContainer {
+  border: black solid;
+  border-width: 0 0 2px 0;
+}
+
+#trackerBlock[data-orientation="horizontal"] #menuContainer {
+  border-width: 0 0 0 2px;
+}
+
 
 .menuItem:hover {
   background-color: gray;
@@ -284,7 +115,7 @@
   display: none;
   box-shadow: 0px 8px 16px 8px rgba(0,0,0,0.2);
   position: absolute;
-  width: 110px;
+  width: calc( 110px * min(var(--heightMod, 1), var(--widthMod, 1)) );
   cursor: default;
   right: 0;
   z-index: 1000;
@@ -299,32 +130,24 @@
 
 #mainMenu {
   right: -2px;
+  font-size: calc( 16px * min(var(--heightMod, 1), var(--widthMod, 1)) );
+}
+
+#mainMenu img {
+  height: calc( 12px * min(var(--heightMod, 1), var(--widthMod, 1)) );
 }
 
 .submenu {
   position: relative;
   display: flex;
   align-items: center;
-  gap: 3px;
+  gap: calc( 3px * min(var(--heightMod, 1), var(--widthMod, 1)) );
 }
 
 .radioButton {
   display: flex;
   align-items: center;
   justify-content: space-between;
-}
-
-#trackerTitle {
-  height: 20px;
-  cursor: pointer;
-  overflow: hidden;
-  border: black solid;
-  border-width: 0 2px 2px 0;
-}
-
-#menuContainer {
-  border: black solid;
-  border-width: 0 0 2px 0;
 }
 
 #expandButton {
@@ -359,9 +182,401 @@
 }
 
 .submenuDropdown{
-  right: 110px;
+  right: calc( 110px * min(var(--heightMod, 1), var(--widthMod, 1)) );
   top: 0;
 }
+
+#trackerTable {
+  width: 100%;
+  height: 90%;
+  border-top: 2px solid black;
+}
+
+#hpPanelsContainer {
+  width: 98%;
+  height: 98%;
+  color: #b1ac9e; /*#9e9a8d;*/
+  min-height: 0px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-evenly;
+  align-items: center;
+  flex-grow: 1;
+  /*border: black solid;
+  border-width: 2px 0 0 0;
+  box-sizing: border-box;*/
+  place-self: center;
+}
+
+#trackerBlock[data-orientation="horizontal"] #hpPanelsContainer {
+  flex-direction: row;
+}
+
+.panelContainer {
+  flex: 1 1 50px;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.playerPanel {
+  box-sizing: border-box;
+  border-color: white;
+  border-width: 1px;
+  width: 95%;
+  height: 90%;
+  background-color: steelblue;
+  border-radius: 4px;
+  border-style: solid;
+  align-items: center;
+  display: flex;
+  justify-content: space-evenly;
+  cursor: default;
+}
+
+.panelContainer.initiative .playerPanel{
+  border-color: darkgray;
+}
+.panelContainer.initiativeCurrent .playerPanel{
+  border-color: white;
+  border-width: 2px;
+}
+
+.enemyTurnMarker {
+  width: 95%;
+  height: 3px;
+  background-color: white;
+}
+
+#trackerBlock[data-orientation="horizontal"] .enemyTurnMarker {
+  width: 3px;
+  height: 95%;
+}
+
+.headshotImg {
+  border-radius: 50%;
+  height: 90%;
+}
+
+.playerImage {
+  height: min(calc(41px * var(--heightMod, 1)), calc(41px * var(--widthMod, 1)));
+  text-align: center;
+}
+
+.headshotOverlay {
+  height: 100%; 
+  width: 100%; 
+  position: absolute; 
+  left: 0; 
+  border-radius: 50%;
+  display: none;
+  opacity: 70%;
+}
+
+.playerName {
+  position: relative;
+  top: -40%;
+  cursor: default;
+  font-size: min(calc(15px * var(--heightMod, 1)), calc(15px * var(--widthMod, 1)));
+}
+
+.hpNumber h1 {
+  font-size: min(calc(41px * var(--heightMod, 1)), calc(41px * var(--widthMod, 1)));
+}
+
+.hpNumber:has(> .tmpHp[data-visibility="visible"]) h1 {
+  font-size: min(calc(38px * var(--heightMod, 1)), calc(38px * var(--widthMod, 1)));
+  line-height: min(calc(32px * var(--heightMod, 1)), calc(32px * var(--widthMod, 1)));
+}
+
+.hpNumber .tmpHp {
+  font-size: min(calc(12px * var(--heightMod, 1)), calc(12px * var(--widthMod, 1)));
+  display: block;
+}
+
+.hpNumber .tmpHp[data-visibility="hidden"]{
+  display: none;
+}
+
+.slider {
+  height: 100%; 
+  position: absolute; 
+  top: -1px; /* -1px because border takes up 1px */
+  left: -1px;
+  border: 1px solid rgb(158, 154, 141);
+  border-radius: 3px
+}
+
+.hpSlider {
+  background-color: rgb(54 82 54);
+}
+
+.tmpHpSlider[style*="width: 0%;"] {
+    border: none;   
+}
+
+.playerPanel .barPlayerName {
+  font-size: min(calc(16px * var(--heightMod, 1)), calc(16px * var(--widthMod, 1)));
+}
+
+.playerPanel .barPanelHeader {
+  display: flex;
+  align-items: center;
+}
+
+.playerPanel .healthbarHpNum {
+  font-weight: 500;
+  position: absolute;
+  margin-left: calc( 2px * min(var(--heightMod, 1), var(--widthMod, 1)) );
+  font-size: calc( 15px * min(var(--heightMod, 1), var(--widthMod, 1)) );
+  display: flex;
+  align-items: center;
+  height: 100%;
+}
+
+.playerPanel .barDeathSaveGrid {
+  display: grid; 
+  height: 80%; 
+  width: 90%; 
+  grid-template: 50% 50% / repeat(3, 1fr) 5% repeat(3, 1fr);
+  grid-template-areas:
+      "header header header header header header header"
+      "succ1 succ2 succ3 . fail1 fail2 fail3";
+  row-gap: calc( 3px * min(var(--heightMod, 1), var(--widthMod, 1)) );
+}
+
+
+.chracterStatsPanel {
+  width: calc( 230px * min(var(--heightMod, 1), var(--widthMod, 1)) );
+  font-size: calc( 15px * min(var(--heightMod, 1), var(--widthMod, 1)) );
+  z-index: 1000;
+  display: none;
+  flex-direction: column;
+  background-color: dimgray;
+  color: #c5c3bc;
+  position: absolute;
+  top: 5%;
+  right: 100%;
+  border-color: black;
+  border-style: solid;
+  /*border-width: 0px;*/
+  border-width: 2px;
+  /*font-size: 0;*/
+  cursor: default;
+  border-radius: 3px;
+}
+
+#trackerBlock[data-orientation="horizontal"] .chracterStatsPanel {
+  right: unset;
+  top: 100%;
+  left: 0;
+
+}
+
+.charBasicInfo {
+  border-bottom: solid black 2px;
+  margin-bottom: calc( 3px * min(var(--heightMod, 1), var(--widthMod, 1)) );
+}
+
+.chracterStats {
+  margin-bottom: calc( 3px * min(var(--heightMod, 1), var(--widthMod, 1)) );
+  margin-left: calc( 3px * min(var(--heightMod, 1), var(--widthMod, 1)) );
+}
+
+.statsHeader {
+  border-bottom: solid #3c3c3c 1px;
+  font-size: calc( 20px * min(var(--heightMod, 1), var(--widthMod, 1)) );
+  font-weight: 500;
+  padding: calc( 2px * min(var(--heightMod, 1), var(--widthMod, 1)) ) calc( 5px * min(var(--heightMod, 1), var(--widthMod, 1)) );
+}
+
+.charLevel {
+  float: right;
+  line-height: calc( 25px * min(var(--heightMod, 1), var(--widthMod, 1)) );
+  font-size: calc( 25px * min(var(--heightMod, 1), var(--widthMod, 1)) );
+}
+
+.classLevel {
+  font-size: calc( 12px * min(var(--heightMod, 1), var(--widthMod, 1)) );
+  padding: 0 calc( 5px * min(var(--heightMod, 1), var(--widthMod, 1)) );
+}
+
+.separator{
+  width: 100%;
+  height: 2px;
+  margin: 2px 0 2px 0;
+  background-color: black;
+}
+
+.chracterStatsPanel .separator {
+  height: 2px;
+  margin: calc( 3px * min(var(--heightMod, 1), var(--widthMod, 1)) ) 0;
+}
+
+
+.EffectsBox:not(:has(*)) + .separator{
+  display: none;
+}
+
+.EffectsBox:not(:has(*)) {
+  display: none !important;
+}
+
+
+.statDiv {
+  padding: 2px;
+  cursor: default;
+  font-weight: bold;
+  font-size: calc( 18px * min(var(--heightMod, 1), var(--widthMod, 1)) );
+}
+
+.svgShape {
+  height: calc( 40px * min(var(--heightMod, 1), var(--widthMod, 1)) );
+}
+
+.statsTable {
+  table-layout: fixed;
+  width: 100%;
+}
+
+.statsTable,  
+.statsTable th,
+.statsTable td {
+  border: solid black 1px;
+  border-collapse: collapse;
+  background-color: #606060
+}
+
+.statsTable td,
+.statsTable th {
+  text-align: center;
+}
+
+.statsTable td {
+  border-left: solid rgb(82 82 82) 1px;
+  font-weight: bold;
+  width: 20%;
+}
+.statsTable th {
+  border-right: solid rgb(82 82 82) 1px;
+  font-weight: normal;
+  width: 30%;
+}
+
+.chracterStats {
+  align-content: center;
+  justify-content: flex-start;
+}
+
+.hp-ac .heart {
+  --size: calc( 33px * min(var(--heightMod, 1), var(--widthMod, 1)) ) !important;
+}
+
+.hp-ac .shield {
+  --size: calc( 25px * min(var(--heightMod, 1), var(--widthMod, 1)) ) !important;
+}
+
+.EffectsBox{
+  display: flex;
+  flex-wrap: wrap;
+  margin: 0 3px;
+  gap: 4px;
+}
+
+
+
+.effect {
+  padding: 1px;
+  border-radius: 3px;
+  /*font-size: calc( 15px * min(var(--heightMod, 1), var(--widthMod, 1)) );*/
+  cursor: default;
+  position: relative;
+  border: solid black 1px;
+}
+
+
+.tooltip {
+  display: none;
+  position: absolute;
+  width: max-content;
+  max-width: calc( 200px * min(var(--heightMod, 1), var(--widthMod, 1)) );
+  left: 0;
+  z-index: 1001;
+  border-color: black;
+  border-style: solid;
+  border-width: 2px;
+  background-color: dimgray;
+  box-shadow: 0px 8px 16px 8px rgba(0,0,0,0.2);
+  cursor: default;
+  color: #e1e1e1;
+  opacity: 0.9;
+  font-weight: lighter;
+  padding-left: 2px;
+  white-space: pre-line;
+}
+
+*:has(> .tooltip):hover .tooltip{ /* show tooltip when hover over direct parent  */
+  display: block;
+}
+
+
+.spellSlotsInfo {
+  display: flex;
+  justify-content: flex-start;
+  flex-flow: wrap;
+  column-gap: calc( 8px * min(var(--heightMod, 1), var(--widthMod, 1)) );
+  margin-left: calc( 3px * min(var(--heightMod, 1), var(--widthMod, 1)) );
+  margin-bottom: calc( 3px * min(var(--heightMod, 1), var(--widthMod, 1)) );
+  margin-right: calc( 3px * min(var(--heightMod, 1), var(--widthMod, 1)) );
+}
+
+.spellSlotLevel {
+  --color: steelblue;
+  --fillNum: 0;
+
+  display: flex;
+  margin: calc( 3px * min(var(--heightMod, 1), var(--widthMod, 1)) ) 0;
+}
+
+.spellSlotLevel > div {
+  height: calc( 20px * min(var(--heightMod, 1), var(--widthMod, 1)) );
+  border: solid black 1px;
+  background-color: #606060;
+}
+
+.levelLable{
+  width: calc( 15px * min(var(--heightMod, 1), var(--widthMod, 1)) );
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.slot {
+  width: calc( 10px * min(var(--heightMod, 1), var(--widthMod, 1)) );
+}
+
+/*
+.spellSlotLevel:nth-child(-n+2 of .slot){ /* select the first n slots /
+  background-color: var(--color);
+}
+*/
+
+
+
+#resizer {
+  position: absolute;
+  height: 10px;
+  width: 10px;
+  bottom: 1px;
+  left: 1px;
+  cursor: ne-resize;
+}
+
+
 
 
 @keyframes spin {
