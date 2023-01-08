@@ -515,12 +515,12 @@ class PlayerChracter {
     if(spell >= 0 && spell < this.spellslotsLeft.length){
       let diff = (amount != undefined) ? amount : 1;
       diff = (remove) ? -diff : diff;
-      this.spellslotsLeft[spell] += diff;
+      this.spellslotsLeft[spell] = Math.max(this.spellslotsLeft[spell] + diff, 0);
 
       let slots = this.statsPanel.getElementsByClassName("spellSlotLevel")[spell].getElementsByClassName("slot");
       this.statsPanel.getElementsByClassName("spellSlotLevel")[spell].title = "lvl " + (level) + ": " + this.spellslotsLeft[spell] + "/" + this.spellslots[spell];
       for(let i=0; i<slots.length; i++){
-        if(i<=this.spellslotsLeft[spell]-1){
+        if(i<this.spellslotsLeft[spell]){
           slots[i].style["background-color"] = this.characterColor;
         }else{
           slots[i].style["background-color"] = "";
@@ -1343,7 +1343,7 @@ function getEpisodeData(successCallback, failCallback){
     }
   });
 
-  xhr.open("GET", "https://testdb-2091.restdb.io/rest/combat-data?q={\"EpNum\": " + episodeNum + "}"); //q={\"EpNum\": " + episodeNum + "}
+  xhr.open("GET", "https://critrolehpdata-5227.restdb.io/rest/combat-data?q={\"EpNum\": " + episodeNum + "}"); //q={\"EpNum\": " + episodeNum + "}
   xhr.setRequestHeader("content-type", "application/json");
   xhr.setRequestHeader("x-apikey", apiKey);
   xhr.setRequestHeader("cache-control", "no-cache");
