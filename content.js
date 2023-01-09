@@ -710,6 +710,9 @@ function updateStats(){
 
   var videoPlayer = document.getElementsByTagName('video')[0];
   var currentTime = videoPlayer.currentTime;
+  if(host === "twitch"){
+    currentTime -= 900;
+  }
 
   if(!isInTimeSlot(currentTime, currentTimeSlot)){
 
