@@ -1276,7 +1276,7 @@ function makeReloadButton(status, message){
   var tbody = document.getElementById("hpPanelsContainer");
   tbody.replaceChildren();
 
-  console.warn("Unable to get data \t" + status + ": " + message);
+  console.warn("Unable to get data \t" + status + " : " + message);
 
   tbody.insertAdjacentHTML("beforeend", /*html*/`
                                         <div style="color: white; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center">
@@ -1303,7 +1303,7 @@ function makeReloadButton(status, message){
 
 
 
-//get get the episode data from the database
+//get the episode data from the database
 function getEpisodeData(successCallback, failCallback){
   var data = null;
 
@@ -1320,6 +1320,7 @@ function getEpisodeData(successCallback, failCallback){
 
         //console.log(this.responseText);
         console.log(this.status);
+        console.log(this);
 
         if(String(this.status)[0] === "2"){
 
@@ -1343,7 +1344,7 @@ function getEpisodeData(successCallback, failCallback){
     }
   });
 
-  xhr.open("GET", "https://critrolehpdata-5227.restdb.io/rest/combat-data?q={\"EpNum\": " + episodeNum + "}"); //q={\"EpNum\": " + episodeNum + "}
+  xhr.open("GET", "https://testdb-2091.restdb.io/rest/combat-data?q={\"EpNum\":" + episodeNum + "}"); //q={\"EpNum\": " + episodeNum + "}
   xhr.setRequestHeader("content-type", "application/json");
   xhr.setRequestHeader("x-apikey", apiKey);
   xhr.setRequestHeader("cache-control", "no-cache");
