@@ -196,6 +196,21 @@
   border-top: 2px solid black;
 }
 
+.spellInfoNotif {
+  width: 95%;
+  background-color: rgb(235, 235, 235);
+}
+
+.spellInfo{
+  display: none;
+  position: absolute;
+  z-index: 1;
+  background: rgb(235, 235, 235);
+  width: 500px;
+  right: 5%;
+  color: black;
+}
+
 #hpPanelsContainer {
   width: 98%;
   height: 98%;

@@ -784,6 +784,7 @@ function applyEvent(event, updateUI){
 
   }else if(event.type === "useSpell"){
     getPlayer(event.characterName).updateSpell(event.level, event.amount, true);
+    if(event.showInfo == undefined || event.showInfo === true) displaySpellInfo(event.spellName);
   }else if(event.type === "regainSpell"){
     getPlayer(event.characterName).updateSpell(event.level, event.amount, false);
 
@@ -820,6 +821,47 @@ function resetPlayers(playersToReset = players){
     player.restSpellslots();
   }
   endInitiative()
+}
+
+function displaySpellInfo(spellName){
+  console.log("show spell info");
+  let notifElem = document.createElement("div");
+  notifElem.className = "spellInfoNotif";
+  notifElem.innerHTML = /*html*/`
+                          <span>${spellName}</span>
+                          <button class="closeButton" style="height: 1.3em; width: 1.3em; float: right; background-image: url(${chrome.runtime.getURL("icons/exit.png")}); background-size: cover"></button>
+                          <div class="spellInfo" style="display: none">
+                            <div>Name: ${spellName}</div>
+                            <div>Level: 2</div>
+                            <div>Description: a spell that does a thing to a creature that has an effect to the creature of some sort and looks like cool magic stuff then the magic spell things are done.</div>
+                            <div>Camge: 2D10</div>
+                            <div>Components: V, S</div>
+                            <div>Attack/Save: Dex save</div>
+                            <div>Range: 60 ft</div>
+                            <div>Casting Time: 1 action</div>
+                          </div>
+                      `;
+  let parent = document.getElementById("hpPanelsContainer");
+  parent.insertBefore(notifElem, parent.firstElementChild);
+
+  notifElem.getElementsByClassName("closeButton")[0].addEventListener("click", (e) => e.currentTarget.parentElement.parentElement.removeChild(e.currentTarget.parentElement));
+  notifElem.addEventListener("click", (openEvent) => {
+    console.log("open notif");
+    console.log(openEvent.currentTarget);
+    console.log(openEvent.currentTarget.getElementsByClassName("spellInfo"));
+    openEvent.stopPropagation();
+    openEvent.currentTarget.getElementsByClassName("spellInfo")[0].style.display = "block";
+    document.addEventListener("click", (closeEvent) => {
+      notifElem.getElementsByClassName("spellInfo")[0].style.display = "none";
+    }, {once: true});
+  });
+
+  setTimeout((elem) => { //TODO use video time instead of real time or don't show notif at all when seeking insead of playing
+    if(elem.parentElement != null){
+      elem.parentElement.removeChild(elem);
+    }
+  }, 30000, notifElem);
+
 }
 
 function startInitiative(order){
