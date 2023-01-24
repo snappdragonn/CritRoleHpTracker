@@ -197,18 +197,60 @@
 }
 
 .spellInfoNotif {
-  width: 95%;
-  background-color: rgb(235, 235, 235);
+  width: 94%;
+  height: 1.4em;
+  position: relative;
+  background-color: #505050;
+  border: black solid 1px;
+  border-radius: 3px;
+  color: white;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+}
+
+.spellInfoNotif span {
+  margin-left: 0.15em;
+}
+
+.closeButton {
+  height: 1.3em;
+  width: 1.3em;
+  float: right;
+  background-size: cover;
+  border: none;
+  background-color: #505050;
+  margin-right: 0.15em;
+}
+
+.closeButton:hover {
+  height: 1.4em;
+  width: 1.4em;
+  background-color: #5c5c5c;
 }
 
 .spellInfo{
   display: none;
   position: absolute;
   z-index: 1;
-  background: rgb(235, 235, 235);
   width: 500px;
-  right: 5%;
-  color: black;
+  top: calc(100% - 1px);
+  right: -1px;
+  background-color: dimgray;
+  border: 2px solid black;
+  border-radius: 3px;
+  color: #c5c3bc;
+}
+
+.spellInfo table, th, td {
+  border: #484848 solid 1px;
+  border-collapse: collapse;
+  text-align: left;
+}
+
+.spellInfo th, td {
+  padding: 0 0.1em;
 }
 
 #hpPanelsContainer {

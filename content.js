@@ -567,21 +567,21 @@ class PlayerChracter {
 
                         <table class="statsTable">
                           <tr>
-                            <th>STR</td>
+                            <th>STR</th>
                             <td>${this.stats.str}</td>
-                            <th>INT</td>
+                            <th>INT</th>
                             <td>${this.stats.int}</td>
                           </tr>
                           <tr>
-                            <th>DEX</td>
+                            <th>DEX</th>
                             <td>${this.stats.dex}</td>
-                            <th>WIS</td>
+                            <th>WIS</th>
                             <td>${this.stats.wis}</td>
                           </tr>
                           <tr>
-                            <th>CON</td>
+                            <th>CON</th>
                             <td>${this.stats.con}</td>
-                            <th>CHA</td>
+                            <th>CHA</th>
                             <td>${this.stats.cha}</td>
                           </tr>
                         </table>
@@ -784,7 +784,7 @@ function applyEvent(event, updateUI){
 
   }else if(event.type === "useSpell"){
     getPlayer(event.characterName).updateSpell(event.level, event.amount, true);
-    if(event.showInfo == undefined || event.showInfo === true) displaySpellInfo(event.spellName);
+    if(event.spellInfo != undefined) displaySpellInfo(event.spellInfo);
   }else if(event.type === "regainSpell"){
     getPlayer(event.characterName).updateSpell(event.level, event.amount, false);
 
@@ -823,32 +823,30 @@ function resetPlayers(playersToReset = players){
   endInitiative()
 }
 
-function displaySpellInfo(spellName){
+function displaySpellInfo(spellInfo){
   console.log("show spell info");
   let notifElem = document.createElement("div");
   notifElem.className = "spellInfoNotif";
   notifElem.innerHTML = /*html*/`
-                          <span>${spellName}</span>
-                          <button class="closeButton" style="height: 1.3em; width: 1.3em; float: right; background-image: url(${chrome.runtime.getURL("icons/exit.png")}); background-size: cover"></button>
+                          <span>${spellInfo.name}</span>
+                          <button class="closeButton" style="background-image: url(${chrome.runtime.getURL("icons/cross_.png")});"></button>
                           <div class="spellInfo" style="display: none">
-                            <div>Name: ${spellName}</div>
-                            <div>Level: 2</div>
-                            <div>Description: a spell that does a thing to a creature that has an effect to the creature of some sort and looks like cool magic stuff then the magic spell things are done.</div>
-                            <div>Camge: 2D10</div>
-                            <div>Components: V, S</div>
-                            <div>Attack/Save: Dex save</div>
-                            <div>Range: 60 ft</div>
-                            <div>Casting Time: 1 action</div>
+                            <table>
+                              
+                            </table>
                           </div>
                       `;
   let parent = document.getElementById("hpPanelsContainer");
   parent.insertBefore(notifElem, parent.firstElementChild);
 
+  let table = notifElem.getElementsByTagName("table")[0];
+  console.log(spellInfo);
+  for(let key in spellInfo){
+    table.insertAdjacentHTML("beforeend", /*html*/`<tr> <th>${key}:</th> <td>${spellInfo[key]}</td> </tr>`);
+  }
+
   notifElem.getElementsByClassName("closeButton")[0].addEventListener("click", (e) => e.currentTarget.parentElement.parentElement.removeChild(e.currentTarget.parentElement));
   notifElem.addEventListener("click", (openEvent) => {
-    console.log("open notif");
-    console.log(openEvent.currentTarget);
-    console.log(openEvent.currentTarget.getElementsByClassName("spellInfo"));
     openEvent.stopPropagation();
     openEvent.currentTarget.getElementsByClassName("spellInfo")[0].style.display = "block";
     document.addEventListener("click", (closeEvent) => {
@@ -856,11 +854,11 @@ function displaySpellInfo(spellName){
     }, {once: true});
   });
 
-  setTimeout((elem) => { //TODO use video time instead of real time or don't show notif at all when seeking insead of playing
-    if(elem.parentElement != null){
-      elem.parentElement.removeChild(elem);
-    }
-  }, 30000, notifElem);
+  // setTimeout((elem) => { //TODO use video time instead of real time or don't show notif at all when seeking insead of playing
+  //   if(elem.parentElement != null){
+  //     elem.parentElement.removeChild(elem);
+  //   }
+  // }, 30000, notifElem);
 
 }
 
