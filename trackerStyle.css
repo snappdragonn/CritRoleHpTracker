@@ -38,6 +38,10 @@
   min-width: calc( var(--numPanels, 7) * 52px + 16px );
 }
 
+#trackerBody:has(.spellInfoNotif) {
+  height: calc(var(--defaultHeight, 430px) * var(--heightMod, 1) + 30px);
+}
+
 
 #expandButton {
   position: absolute;
@@ -51,6 +55,16 @@
   display: grid; 
   grid-template: calc( 22px * min(var(--heightMod, 1), var(--widthMod, 1)) ) 1fr / 1fr calc( 22px * min(var(--heightMod, 1), var(--widthMod, 1)) ); 
   grid-template-areas: 'title menuButton' 'content content';
+}
+
+#contentGrid:has(.spellInfoNotif) {
+  grid-template-rows: calc( 22px * min(var(--heightMod, 1), var(--widthMod, 1)) ) auto 1fr; 
+  grid-template-areas: 'title menuButton' 'notif notif' 'content content';
+}
+
+#trackerBlock[data-orientation="horizontal"] #contentGrid:has(.spellInfoNotif) {
+  grid-template-rows: calc( 22px * min(var(--heightMod, 1), var(--widthMod, 1)) ) 1fr auto; 
+  grid-template-areas: "content menuButton" "content title" "notif title";
 }
 
 #trackerBlock[data-orientation="horizontal"] #contentGrid {
@@ -196,8 +210,16 @@
   border-top: 2px solid black;
 }
 
+#notifContainer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  grid-area: notif;
+  flex-direction: column;
+}
+
 .spellInfoNotif {
-  width: 94%;
+  width: 98%;
   height: 1.4em;
   position: relative;
   background-color: #505050;
@@ -212,6 +234,10 @@
 
 .spellInfoNotif span {
   margin-left: 0.15em;
+  white-space: nowrap;
+  overflow: hidden;
+  width: 85%;
+  text-overflow: ellipsis;
 }
 
 .closeButton {
