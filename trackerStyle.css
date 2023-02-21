@@ -1,5 +1,6 @@
 #trackerBlock {
   --numPanels: 7;
+  --numNotifs: 0;
 
   --defaultWidth: 150px;
   --defaultHeight: calc( var(--numPanels, 7) * 60px + 10px );
@@ -39,7 +40,7 @@
 }
 
 #trackerBody:has(.spellInfoNotif) {
-  height: calc(var(--defaultHeight, 430px) * var(--heightMod, 1) + 30px);
+  height: calc(var(--defaultHeight, 430px) * var(--heightMod, 1) + var(--numNotifs)*22px + 6px);
 }
 
 
@@ -216,6 +217,13 @@
   justify-content: center;
   grid-area: notif;
   flex-direction: column;
+  border-bottom: solid black 2px;
+  padding-bottom: 1px;
+}
+
+#trackerBlock[data-orientation="horizontal"] #notifContainer {
+  border-bottom: none;
+  border-top: solid black 2px;
 }
 
 .spellInfoNotif {
@@ -230,6 +238,7 @@
   justify-content: space-between;
   align-items: center;
   cursor: pointer;
+  margin: 0.1em 0;
 }
 
 .spellInfoNotif span {
@@ -260,23 +269,58 @@
   display: none;
   position: absolute;
   z-index: 1;
-  width: 500px;
-  top: calc(100% - 1px);
-  right: -1px;
+  width: 200%;
+  top: 0;
+  right: 103%;
+  box-sizing: border-box;
   background-color: dimgray;
   border: 2px solid black;
   border-radius: 3px;
   color: #c5c3bc;
 }
 
-.spellInfo table, th, td {
-  border: #484848 solid 1px;
-  border-collapse: collapse;
-  text-align: left;
+#trackerBlock[data-orientation="horizontal"] .spellInfo {
+  width: 100%;
+  top: 130%;
+  right: -3px;
 }
 
-.spellInfo th, td {
-  padding: 0 0.1em;
+.spellInfo{
+  color: rgb(209 209 209);
+}
+
+.spellStatItem {
+  border: solid black 1px;
+  flex-grow: 1;
+  text-align: center;
+}
+
+.spellStatItem div:last-child {
+  font-size: calc(1em - 2px);
+}
+
+.spellStatItem div:first-child {
+  font-weight: bold;
+  font-size: calc(1em + 2px);
+}
+
+.spellStats {
+  margin: 0.25em;
+  display: flex;
+  flex-wrap: wrap;
+  border: solid black 1px;
+}
+
+.spellDesc {
+  margin: 0.25em;
+  white-space: pre-line;
+}
+
+.spellInfoNotif .spellName {
+  background-color: #505050;
+  border-bottom: black solid 1px;
+  padding-left: 0.25em;
+  font-weight: bold;
 }
 
 #hpPanelsContainer {

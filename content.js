@@ -793,6 +793,8 @@ function applyEvent(event, updateUI, isSeek){
     if(event.spellInfo != undefined && !isSeek) displaySpellInfo(event.spellInfo);
   }else if(event.type === "regainSpell"){
     getPlayer(event.characterName).updateSpell(event.level, event.amount, false);
+  } else if(event.type === "spellNotif"){ //TODO make this more general - for any type of notif?
+    if(!isSeek) displaySpellInfo(event.spellInfo);
 
   }else{
     console.warn("invalid event: " + event.type);
@@ -844,23 +846,33 @@ function displaySpellInfo(spellInfo){
                                                     <span>${spellInfo.name}</span>
                                                     <button class="closeButton" style="background-image: url(${chrome.runtime.getURL("icons/cross_.png")});"></button>
                                                     <div class="spellInfo" style="display: none">
-                                                      <table>
-                                                        
-                                                      </table>
+                                                      <div class="spellName">
+                                                        ${spellInfo.name}
+                                                      </div>
+                                                      <div class="spellStats" style="display: flex">
+                                                      </div>
+                                                      <div class="spellDesc">${spellInfo.desc}</div>
                                                     </div>
                                                   </div> `);
   //let parent = document.getElementById("hpPanelsContainer");
   document.getElementById("contentGrid").insertBefore(notifContainer, document.getElementById("hpPanelsContainer"));
 
+  document.getElementById("trackerBlock").style.setProperty("--numNotifs", notifContainer.children.length);  
+
   notifElem = notifContainer.lastElementChild;
 
-  let table = notifElem.getElementsByTagName("table")[0];
+  let table = notifElem.getElementsByClassName("spellStats")[0];
   console.log(spellInfo);
   for(let key in spellInfo){
-    table.insertAdjacentHTML("beforeend", /*html*/`<tr> <th>${key}:</th> <td>${spellInfo[key]}</td> </tr>`);
+    if(key != "desc" && key != "name"){
+      table.insertAdjacentHTML("beforeend", /*html*/`<div class="spellStatItem"> <div>${key}</div> <div>${spellInfo[key]}</div> </div>`);
+    }
   }
 
-  notifElem.getElementsByClassName("closeButton")[0].addEventListener("click", (e) => e.currentTarget.parentElement.parentElement.removeChild(e.currentTarget.parentElement));
+  notifElem.getElementsByClassName("closeButton")[0].addEventListener("click", (e) => {
+    e.currentTarget.parentElement.parentElement.removeChild(e.currentTarget.parentElement);
+    document.getElementById("trackerBlock").style.setProperty("--numNotifs", notifContainer.children.length);
+  });
   
   notifElem.addEventListener("click", (openEvent) => {  
     openEvent.stopPropagation();
@@ -1413,7 +1425,7 @@ function getEpisodeData(successCallback, failCallback){
     }
   });
 
-  xhr.open("GET", "https://testdb-2091.restdb.io/rest/combat-data?q={\"EpNum\":" + episodeNum + "}"); //q={\"EpNum\": " + episodeNum + "}
+  xhr.open("GET", "https://testdb-2091.restdb.io/rest/combat-data?q={\"EpNum\":" + episodeNum + "}"); //episodeNum
   xhr.setRequestHeader("content-type", "application/json");
   xhr.setRequestHeader("x-apikey", apiKey);
   xhr.setRequestHeader("cache-control", "no-cache");
