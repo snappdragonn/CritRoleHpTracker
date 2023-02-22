@@ -233,7 +233,7 @@
   background-color: #505050;
   border: black solid 1px;
   border-radius: 3px;
-  color: white;
+  color: rgb(227 227 227);
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -241,13 +241,19 @@
   margin: 0.1em 0;
 }
 
-.spellInfoNotif span {
+.spellInfoNotif > span {
   margin-left: 0.15em;
   white-space: nowrap;
   overflow: hidden;
   width: 85%;
   text-overflow: ellipsis;
+/*  color: #ededed;*/
 }
+
+/*.spellInfoNotif > span:hover {
+  color: white;
+  transform: scale(1.02);
+}*/
 
 .closeButton {
   height: 1.3em;

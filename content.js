@@ -841,6 +841,9 @@ function displaySpellInfo(spellInfo){
     return;
   }
 
+  //add bold and italic tags to description
+  let spellDesc = spellInfo.desc.replaceAll("*{", "<b>").replaceAll("}*", "</b>").replaceAll("-{", "<i>").replaceAll("}-", "</i>");
+
   notifContainer.insertAdjacentHTML("beforeend", /*html*/`
                                                   <div class="spellInfoNotif ${spellInfo.name.replace(/\s+/g, '')}">
                                                     <span>${spellInfo.name}</span>
@@ -851,7 +854,7 @@ function displaySpellInfo(spellInfo){
                                                       </div>
                                                       <div class="spellStats" style="display: flex">
                                                       </div>
-                                                      <div class="spellDesc">${spellInfo.desc}</div>
+                                                      <div class="spellDesc">${spellDesc}</div>
                                                     </div>
                                                   </div> `);
   //let parent = document.getElementById("hpPanelsContainer");
@@ -869,35 +872,54 @@ function displaySpellInfo(spellInfo){
     }
   }
 
+  //set timer to remove the notification after a time
+  let closeTimer = setTimeout((elem) => {
+    if(elem.parentElement != null){
+      elem.parentElement.removeChild(elem);
+    }
+  }, 30000, notifElem);
+
+  //add onclick listener to the close button to remove the notif
   notifElem.getElementsByClassName("closeButton")[0].addEventListener("click", (e) => {
     e.currentTarget.parentElement.parentElement.removeChild(e.currentTarget.parentElement);
     document.getElementById("trackerBlock").style.setProperty("--numNotifs", notifContainer.children.length);
   });
   
+  //add onclick listeners for opening and closing the spell info panel
   notifElem.addEventListener("click", (openEvent) => {  
     openEvent.stopPropagation();
 
     if(openEvent.currentTarget.getElementsByClassName("spellInfo")[0].style.display === "none"){
       openEvent.currentTarget.getElementsByClassName("spellInfo")[0].style.display = "block";
+
+      clearTimeout(closeTimer);
       
       document.addEventListener("click", (closeEvent) => {
         console.log("close");
         //notifElem.getElementsByClassName("spellInfo")[0].style.display = "none";
         for(notif of notifContainer.children){
           notif.getElementsByClassName("spellInfo")[0].style.display = "none";
+          //set timer to remove the notification after a time
+          closeTimer = setTimeout((elem) => {
+            if(elem.parentElement != null){
+              elem.parentElement.removeChild(elem);
+            }
+          }, 30000, notif);
         }
       }, {once: true});
 
     }else {
       openEvent.currentTarget.getElementsByClassName("spellInfo")[0].style.display = "none";
+      //set timer to remove the notification after a time
+      closeTimer = setTimeout((elem) => {
+        if(elem.parentElement != null){
+          elem.parentElement.removeChild(elem);
+        }
+      }, 30000, openEvent.currentTarget);
     }
   });
 
-  // setTimeout((elem) => { //TODO use video time instead of real time or don't show notif at all when seeking insead of playing
-  //   if(elem.parentElement != null){
-  //     elem.parentElement.removeChild(elem);
-  //   }
-  // }, 30000, notifElem);
+  
 
 }
 
