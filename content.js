@@ -268,8 +268,8 @@ class HeathbarPanel extends Panel {
                   <img src=${players[this.playerId].headShotImg} alt="headshot" referrerPolicy="no-referrer" crossorigin="anonymous" style="height: 100%; float: left; border-radius: 50%; margin: 0 3px 0 0;"></img>
                   <div class="barPlayerName" style="float: left; font-weight: bold;">${players[this.playerId].characterName}</div>
                 </div>
-                <div class="healthBar" style="flex: 1; height: 45%; width: 100%; position: relative; border: 1px solid #9e9a8d; border-radius: 3px; overflow: hidden;">
-                  <div class="barBackground" style="background-color: #723939; width: 100%; height: 100%; position: absolute; top: 0; left: 0; border-radius: 3px"></div>
+                <div class="healthBar">
+                  <div class="barBackground"></div>
                   <div class="slider hpSlider" style="width: ${Math.min(players[this.playerId].currentHp / charData[this.playerId].hp, 1) * 100}%;"></div>
                   <div class="slider tmpHpSlider" style="background-color: rgba(10, 100, 255, 0.4); width: ${Math.min(players[this.playerId].tmpHp / charData[this.playerId].hp, 1) * 100}%;"></div>
                   <div class="healthbarHpNum"><div>${players[this.playerId].currentHp + players[this.playerId].tmpHp}</div></div>
@@ -1345,6 +1345,10 @@ function InjectHTMLTwitch(){ //Inject popup html when of twitch (instead of yout
               makePanels();
               setOrientation(orientation);
 
+              console.log("first event");
+              console.log(episodeData[0].event);
+              applyEvent(episodeData[0].event, false, false);
+
               //check every few seconds for an update to the stats
               if(episodeData != null && episodeData.length > 0){ //check there is data stored for the episode
                 updateTimer = setInterval(updateStats, 1000);
@@ -1447,7 +1451,7 @@ function getEpisodeData(successCallback, failCallback){
     }
   });
 
-  xhr.open("GET", "https://testdb-2091.restdb.io/rest/combat-data?q={\"EpNum\":" + episodeNum + "}"); //episodeNum
+  xhr.open("GET", "https://testdb-2091.restdb.io/rest/combat-data?q={\"EpNum\":" + 36 + "}"); //episodeNum
   xhr.setRequestHeader("content-type", "application/json");
   xhr.setRequestHeader("x-apikey", apiKey);
   xhr.setRequestHeader("cache-control", "no-cache");

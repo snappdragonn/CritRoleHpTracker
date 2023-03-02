@@ -239,6 +239,7 @@
   align-items: center;
   cursor: pointer;
   margin: 0.1em 0;
+  font-size: calc( 16px * min(var(--heightMod, 1), var(--widthMod, 1)) );
 }
 
 .spellInfoNotif > span {
@@ -258,6 +259,7 @@
 .closeButton {
   height: 1.3em;
   width: 1.3em;
+  font-size: 1em;
   float: right;
   background-size: cover;
   border: none;
@@ -275,7 +277,7 @@
   display: none;
   position: absolute;
   z-index: 1;
-  width: 200%;
+  width: 20em;
   top: 0;
   right: 103%;
   box-sizing: border-box;
@@ -439,13 +441,35 @@
   display: none;
 }
 
+.healthBar {
+  flex: 1; 
+  height: 45%; 
+  width: 100%; 
+  position: relative;    
+  border-radius: 3px; 
+  overflow: hidden;
+}
+
+.healthBar .barBackground {
+  background-color: #723939; 
+  width: 100%; 
+  height: 100%; 
+  position: absolute; 
+  top: 0; 
+  left: 0; 
+  border-radius: 3px;
+  border: 1px solid #9e9a8d;
+  box-sizing: border-box;
+}
+
 .slider {
   height: 100%; 
   position: absolute; 
-  top: -1px; /* -1px because border takes up 1px */
-  left: -1px;
+  top: 0; /* -1px because border takes up 1px */
+  left: 0;
   border: 1px solid rgb(158, 154, 141);
-  border-radius: 3px
+  border-radius: 3px;
+  box-sizing: border-box;
 }
 
 .hpSlider {
