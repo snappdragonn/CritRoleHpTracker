@@ -514,7 +514,7 @@ class PlayerChracter {
   updateSpell(level, amount, remove){
     let spell = level-1;
     if(spell >= 0 && spell < this.spellslotsLeft.length){
-      let diff = (amount != undefined) ? amount : 1;
+      let diff = (amount != undefined) ? parseInt(amount) : 1;
       diff = (remove) ? -diff : diff;
       this.spellslotsLeft[spell] = Math.max(this.spellslotsLeft[spell] + diff, 0);
 
@@ -528,7 +528,7 @@ class PlayerChracter {
         }
       }
 
-    }else{
+    }else if (spell != -1){ //if spell is -1 (level 0) then not error - is just cantrip
       console.warn("updateSpell (" + this.characterName + "): spell level (" + level + ") invalid")
     }
   }
@@ -858,7 +858,7 @@ function displaySpellInfo(spellInfo){
                                                     </div>
                                                   </div> `);
   //let parent = document.getElementById("hpPanelsContainer");
-  document.getElementById("contentGrid").insertBefore(notifContainer, document.getElementById("hpPanelsContainer"));
+  //document.getElementById("contentGrid").insertBefore(notifContainer, document.getElementById("hpPanelsContainer"));
 
   document.getElementById("trackerBlock").style.setProperty("--numNotifs", notifContainer.children.length);  
 
@@ -955,7 +955,7 @@ function nextInitiativeTurn(event){
   removeEnemyTurnMarkers();
 
   //set next initiative (if is enemies turn don't change initiative)
-  if(!event.isEnemy && (nextInit = getCharacterInitiative(event.nextCharacter)) != undefined){
+  if(!event.isEnemy && (nextInit = getCharacterInitiative(event.characterName)) != undefined){
     currentInitiative = nextInit;
   }else if(!event.isEnemy){
     currentInitiative = (currentInitiative+1) % (initiativeOrder.length) //add one and at end loop back to start
@@ -1451,7 +1451,7 @@ function getEpisodeData(successCallback, failCallback){
     }
   });
 
-  xhr.open("GET", "https://testdb-2091.restdb.io/rest/combat-data?q={\"EpNum\":" + 36 + "}"); //episodeNum
+  xhr.open("GET", "https://critrolehpdata-5227.restdb.io/rest/combat-data?q={\"EpNum\":" + 50 + "}"); //episodeNum testdb-2091
   xhr.setRequestHeader("content-type", "application/json");
   xhr.setRequestHeader("x-apikey", apiKey);
   xhr.setRequestHeader("cache-control", "no-cache");
