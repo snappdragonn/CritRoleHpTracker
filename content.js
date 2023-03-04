@@ -933,6 +933,19 @@ function startInitiative(order){
     panel.classList.add("initiative");
     //if(i == currentInitiative){ panel.classList.add("initiativeCurrent"); }
   }
+
+  //move players not in combat to the bottom of the list and add a separator above them
+  if(initiativeOrder.length < players.length){
+    for(let player of players){
+      if(!initiativeOrder.includes(player.characterName)){ //if player is not in initiative
+        panel = panels[player.id].panel.parentElement;
+        panel.style.order = 99;
+      }
+    }
+    let container = document.getElementById("hpPanelsContainer");
+    container.insertAdjacentHTML("beforeend", /*html*/`<div class="separator initSeparator" style="order: 98;"></div>`);
+  }
+
 }
 
 function endInitiative(){
@@ -944,6 +957,11 @@ function endInitiative(){
   removeEnemyTurnMarkers();
   initiativeOrder = [];
   currentInitiative = -1;
+
+   container = document.getElementById("hpPanelsContainer");
+   for(let sep of container.getElementsByClassName("initSeparator")){
+    sep.remove();
+   }
 }
 
 
@@ -1345,10 +1363,6 @@ function InjectHTMLTwitch(){ //Inject popup html when of twitch (instead of yout
               makePanels();
               setOrientation(orientation);
 
-              console.log("first event");
-              console.log(episodeData[0].event);
-              applyEvent(episodeData[0].event, false, false);
-
               //check every few seconds for an update to the stats
               if(episodeData != null && episodeData.length > 0){ //check there is data stored for the episode
                 updateTimer = setInterval(updateStats, 1000);
@@ -1451,7 +1465,7 @@ function getEpisodeData(successCallback, failCallback){
     }
   });
 
-  xhr.open("GET", "https://critrolehpdata-5227.restdb.io/rest/combat-data?q={\"EpNum\":" + 50 + "}"); //episodeNum testdb-2091
+  xhr.open("GET", "https://critrolehpdata-5227.restdb.io/rest/combat-data?q={\"EpNum\":" + episodeNum + "}"); //episodeNum critrolehpdata-5227 testdb-2091
   xhr.setRequestHeader("content-type", "application/json");
   xhr.setRequestHeader("x-apikey", apiKey);
   xhr.setRequestHeader("cache-control", "no-cache");
