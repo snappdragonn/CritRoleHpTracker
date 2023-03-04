@@ -18,6 +18,7 @@ Features:
 - Displays spell slots
 - Displays temp hp of players
 - Displays conditions/effects on the players
+- Displays spell descriptions when a spell is cast
 - Player images become bloody when under half hp and grayed out when dead
 - Tracker is resizeable, draggable, and minimisable
 - Orientation can be set to vertical or horizontal
