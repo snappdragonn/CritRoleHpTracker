@@ -322,6 +322,30 @@
 .spellDesc {
   margin: 0.25em;
   white-space: pre-line;
+  overflow-y: auto;
+  max-height: 30em;
+}
+
+.spellDesc::-webkit-scrollbar {
+    width: 0.7em;
+    margin-left: 2px;
+
+}
+
+.spellDesc::-webkit-scrollbar-track {
+    background-color: #585858;
+    /*border-radius: 10px;*/
+    background-clip: content-box;
+    border: solid transparent;
+    border-width: 0 0 0 2px;
+}
+
+.spellDesc::-webkit-scrollbar-thumb {
+    background-color: #464646;
+    /*border-radius: 10px;*/
+    background-clip: content-box;
+    border: solid transparent;
+    border-width: 0 0 0 2px;
 }
 
 .spellInfoNotif .spellName {
