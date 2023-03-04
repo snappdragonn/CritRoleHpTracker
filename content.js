@@ -6,6 +6,7 @@ var episodeNum = 0;
 var episodeData;
 var charData;
 var currentTimeSlot = 0; //the index of the time at the end of a time slot
+var previousTime = 0;
 var updateTimer;
 const OrangeHp = 10;
 
@@ -267,8 +268,8 @@ class HeathbarPanel extends Panel {
                   <img src=${players[this.playerId].headShotImg} alt="headshot" referrerPolicy="no-referrer" crossorigin="anonymous" style="height: 100%; float: left; border-radius: 50%; margin: 0 3px 0 0;"></img>
                   <div class="barPlayerName" style="float: left; font-weight: bold;">${players[this.playerId].characterName}</div>
                 </div>
-                <div class="healthBar" style="flex: 1; height: 45%; width: 100%; position: relative; border: 1px solid #9e9a8d; border-radius: 3px; overflow: hidden;">
-                  <div class="barBackground" style="background-color: #723939; width: 100%; height: 100%; position: absolute; top: 0; left: 0; border-radius: 3px"></div>
+                <div class="healthBar">
+                  <div class="barBackground"></div>
                   <div class="slider hpSlider" style="width: ${Math.min(players[this.playerId].currentHp / charData[this.playerId].hp, 1) * 100}%;"></div>
                   <div class="slider tmpHpSlider" style="background-color: rgba(10, 100, 255, 0.4); width: ${Math.min(players[this.playerId].tmpHp / charData[this.playerId].hp, 1) * 100}%;"></div>
                   <div class="healthbarHpNum"><div>${players[this.playerId].currentHp + players[this.playerId].tmpHp}</div></div>
@@ -513,7 +514,7 @@ class PlayerChracter {
   updateSpell(level, amount, remove){
     let spell = level-1;
     if(spell >= 0 && spell < this.spellslotsLeft.length){
-      let diff = (amount != undefined) ? amount : 1;
+      let diff = (amount != undefined) ? parseInt(amount) : 1;
       diff = (remove) ? -diff : diff;
       this.spellslotsLeft[spell] = Math.max(this.spellslotsLeft[spell] + diff, 0);
 
@@ -527,7 +528,7 @@ class PlayerChracter {
         }
       }
 
-    }else{
+    }else if (spell != -1){ //if spell is -1 (level 0) then not error - is just cantrip
       console.warn("updateSpell (" + this.characterName + "): spell level (" + level + ") invalid")
     }
   }
@@ -567,21 +568,21 @@ class PlayerChracter {
 
                         <table class="statsTable">
                           <tr>
-                            <th>STR</td>
+                            <th>STR</th>
                             <td>${this.stats.str}</td>
-                            <th>INT</td>
+                            <th>INT</th>
                             <td>${this.stats.int}</td>
                           </tr>
                           <tr>
-                            <th>DEX</td>
+                            <th>DEX</th>
                             <td>${this.stats.dex}</td>
-                            <th>WIS</td>
+                            <th>WIS</th>
                             <td>${this.stats.wis}</td>
                           </tr>
                           <tr>
-                            <th>CON</td>
+                            <th>CON</th>
                             <td>${this.stats.con}</td>
-                            <th>CHA</td>
+                            <th>CHA</th>
                             <td>${this.stats.cha}</td>
                           </tr>
                         </table>
@@ -714,6 +715,11 @@ function updateStats(){
     currentTime -= 900;
   }
 
+  var isSeek = currentTime > previousTime+3 || currentTime < previousTime;
+  //console.log(previousTime + " -> " + currentTime + " " + isSeek);
+  previousTime = currentTime;
+
+
   if(!isInTimeSlot(currentTime, currentTimeSlot)){
 
     //console.log("new time slot");
@@ -729,14 +735,14 @@ function updateStats(){
     //update the players hp/deathsaves/etc
     if(currentTimeSlot > oldTimeSlot){ //moved forwards - apply all events from current time to the new time
       for(i=oldTimeSlot+1; i<=currentTimeSlot; i++){
-        applyEvent(episodeData[i-1].event, false);
+        applyEvent(episodeData[i-1].event, false, isSeek);
       }
       updateAllPanels();
 
     }else if(currentTimeSlot < oldTimeSlot){ //moved backwards - apply all events from the begining to the new time
       resetPlayers();
       for(i=1; i<=currentTimeSlot; i++){
-        applyEvent(episodeData[i-1].event, false);
+        applyEvent(episodeData[i-1].event, false, isSeek);
       }
       updateAllPanels(); //TODO either update panels here or within every event method on the player
     }
@@ -744,9 +750,11 @@ function updateStats(){
 
   }
 
+  
+
 }
 
-function applyEvent(event, updateUI){
+function applyEvent(event, updateUI, isSeek){
   console.log("event: " + event.type);
   if(event.type === "hpUpdate"){
     if(event.hasOwnProperty("tmp") && event.tmp == true){
@@ -776,8 +784,8 @@ function applyEvent(event, updateUI){
     nextInitiativeTurn(event);
   }else if(event.type === "pauseInitiative"){
     for(let panelObj of panels){
-    panelObj.panel.parentElement.classList.remove("initiativeCurrent");
-  }
+      panelObj.panel.parentElement.classList.remove("initiativeCurrent");
+    }
   removeEnemyTurnMarkers();
 
   }else if(event.type === "setHpDisplay"){
@@ -787,8 +795,11 @@ function applyEvent(event, updateUI){
 
   }else if(event.type === "useSpell"){
     getPlayer(event.characterName).updateSpell(event.level, event.amount, true);
+    if(event.spellInfo != undefined && !isSeek) displaySpellInfo(event.spellInfo);
   }else if(event.type === "regainSpell"){
     getPlayer(event.characterName).updateSpell(event.level, event.amount, false);
+  } else if(event.type === "spellNotif"){ //TODO make this more general - for any type of notif?
+    if(!isSeek) displaySpellInfo(event.spellInfo);
 
   }else{
     console.warn("invalid event: " + event.type);
@@ -825,6 +836,98 @@ function resetPlayers(playersToReset = players){
   endInitiative()
 }
 
+function displaySpellInfo(spellInfo){
+  console.log("show spell info");
+
+  let notifContainer = document.getElementById("notifContainer");
+
+  if(notifContainer.getElementsByClassName(spellInfo.name.replace(/\s+/g, '')).length > 0){
+    console.log("already showing spell");
+    return;
+  }
+
+  //add bold and italic tags to description
+  let spellDesc = spellInfo.desc.replaceAll("*{", "<b>").replaceAll("}*", "</b>").replaceAll("-{", "<i>").replaceAll("}-", "</i>");
+
+  notifContainer.insertAdjacentHTML("beforeend", /*html*/`
+                                                  <div class="spellInfoNotif ${spellInfo.name.replace(/\s+/g, '')}">
+                                                    <span>${spellInfo.name}</span>
+                                                    <button class="closeButton" style="background-image: url(${chrome.runtime.getURL("icons/cross_.png")});"></button>
+                                                    <div class="spellInfo" style="display: none">
+                                                      <div class="spellName">
+                                                        ${spellInfo.name}
+                                                      </div>
+                                                      <div class="spellStats" style="display: flex">
+                                                      </div>
+                                                      <div class="spellDesc">${spellDesc}</div>
+                                                    </div>
+                                                  </div> `);
+  //let parent = document.getElementById("hpPanelsContainer");
+  //document.getElementById("contentGrid").insertBefore(notifContainer, document.getElementById("hpPanelsContainer"));
+
+  document.getElementById("trackerBlock").style.setProperty("--numNotifs", notifContainer.children.length);  
+
+  notifElem = notifContainer.lastElementChild;
+
+  let table = notifElem.getElementsByClassName("spellStats")[0];
+  console.log(spellInfo);
+  for(let key in spellInfo){
+    if(key != "desc" && key != "name"){
+      table.insertAdjacentHTML("beforeend", /*html*/`<div class="spellStatItem"> <div>${key}</div> <div>${spellInfo[key]}</div> </div>`);
+    }
+  }
+
+  //set timer to remove the notification after a time
+  let closeTimer = setTimeout((elem) => {
+    if(elem.parentElement != null){
+      elem.parentElement.removeChild(elem);
+    }
+  }, 30000, notifElem);
+
+  //add onclick listener to the close button to remove the notif
+  notifElem.getElementsByClassName("closeButton")[0].addEventListener("click", (e) => {
+    e.currentTarget.parentElement.parentElement.removeChild(e.currentTarget.parentElement);
+    document.getElementById("trackerBlock").style.setProperty("--numNotifs", notifContainer.children.length);
+  });
+  
+  //add onclick listeners for opening and closing the spell info panel
+  notifElem.addEventListener("click", (openEvent) => {  
+    openEvent.stopPropagation();
+
+    if(openEvent.currentTarget.getElementsByClassName("spellInfo")[0].style.display === "none"){
+      openEvent.currentTarget.getElementsByClassName("spellInfo")[0].style.display = "block";
+
+      clearTimeout(closeTimer);
+      
+      document.addEventListener("click", (closeEvent) => {
+        console.log("close");
+        //notifElem.getElementsByClassName("spellInfo")[0].style.display = "none";
+        for(notif of notifContainer.children){
+          notif.getElementsByClassName("spellInfo")[0].style.display = "none";
+          //set timer to remove the notification after a time
+          closeTimer = setTimeout((elem) => {
+            if(elem.parentElement != null){
+              elem.parentElement.removeChild(elem);
+            }
+          }, 30000, notif);
+        }
+      }, {once: true});
+
+    }else {
+      openEvent.currentTarget.getElementsByClassName("spellInfo")[0].style.display = "none";
+      //set timer to remove the notification after a time
+      closeTimer = setTimeout((elem) => {
+        if(elem.parentElement != null){
+          elem.parentElement.removeChild(elem);
+        }
+      }, 30000, openEvent.currentTarget);
+    }
+  });
+
+  
+
+}
+
 function startInitiative(order){
   initiativeOrder = order;
   currentInitiative = -1;
@@ -835,6 +938,19 @@ function startInitiative(order){
     panel.classList.add("initiative");
     //if(i == currentInitiative){ panel.classList.add("initiativeCurrent"); }
   }
+
+  //move players not in combat to the bottom of the list and add a separator above them
+  if(initiativeOrder.length < players.length){
+    for(let player of players){
+      if(!initiativeOrder.includes(player.characterName)){ //if player is not in initiative
+        panel = panels[player.id].panel.parentElement;
+        panel.style.order = 99;
+      }
+    }
+    let container = document.getElementById("hpPanelsContainer");
+    container.insertAdjacentHTML("beforeend", /*html*/`<div class="separator initSeparator" style="order: 98;"></div>`);
+  }
+
 }
 
 function endInitiative(){
@@ -846,6 +962,11 @@ function endInitiative(){
   removeEnemyTurnMarkers();
   initiativeOrder = [];
   currentInitiative = -1;
+
+   container = document.getElementById("hpPanelsContainer");
+   for(let sep of container.getElementsByClassName("initSeparator")){
+    sep.remove();
+   }
 }
 
 
@@ -857,7 +978,7 @@ function nextInitiativeTurn(event){
   removeEnemyTurnMarkers();
 
   //set next initiative (if is enemies turn don't change initiative)
-  if(!event.isEnemy && (nextInit = getCharacterInitiative(event.nextCharacter)) != undefined){
+  if(!event.isEnemy && (nextInit = getCharacterInitiative(event.characterName)) != undefined){
     currentInitiative = nextInit;
   }else if(!event.isEnemy){
     currentInitiative = (currentInitiative+1) % (initiativeOrder.length) //add one and at end loop back to start
@@ -1037,6 +1158,8 @@ function makeTable(){
                               </div>
                               ${makeMenu()}
                             </div>
+
+                            <div id="notifContainer" style="grid-area: notif"></div>
 
                             <div id="hpPanelsContainer" style="grid-area: content"> </div>
 
@@ -1279,7 +1402,7 @@ function makeReloadButton(status, message){
   var tbody = document.getElementById("hpPanelsContainer");
   tbody.replaceChildren();
 
-  console.warn("Unable to get data \t" + status + ": " + message);
+  console.warn("Unable to get data \t" + status + " : " + message);
 
   tbody.insertAdjacentHTML("beforeend", /*html*/`
                                         <div style="color: white; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center">
@@ -1306,7 +1429,7 @@ function makeReloadButton(status, message){
 
 
 
-//get get the episode data from the database
+//get the episode data from the database
 function getEpisodeData(successCallback, failCallback){
   var data = null;
 
@@ -1323,6 +1446,7 @@ function getEpisodeData(successCallback, failCallback){
 
         //console.log(this.responseText);
         console.log(this.status);
+        console.log(this);
 
         if(String(this.status)[0] === "2"){
 
@@ -1346,7 +1470,7 @@ function getEpisodeData(successCallback, failCallback){
     }
   });
 
-  xhr.open("GET", "https://critrolehpdata-5227.restdb.io/rest/combat-data?q={\"EpNum\": " + episodeNum + "}"); //q={\"EpNum\": " + episodeNum + "}
+  xhr.open("GET", "https://critrolehpdata-5227.restdb.io/rest/combat-data?q={\"EpNum\":" + episodeNum + "}"); //episodeNum critrolehpdata-5227 testdb-2091
   xhr.setRequestHeader("content-type", "application/json");
   xhr.setRequestHeader("x-apikey", apiKey);
   xhr.setRequestHeader("cache-control", "no-cache");
