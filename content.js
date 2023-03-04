@@ -779,8 +779,8 @@ function applyEvent(event, updateUI, isSeek){
     nextInitiativeTurn(event);
   }else if(event.type === "pauseInitiative"){
     for(let panelObj of panels){
-    panelObj.panel.parentElement.classList.remove("initiativeCurrent");
-  }
+      panelObj.panel.parentElement.classList.remove("initiativeCurrent");
+    }
   removeEnemyTurnMarkers();
 
   }else if(event.type === "setHpDisplay"){
