@@ -25,6 +25,10 @@ Features:
 
 
 <br />
+
+The data for each new episode is uploaded by about 24 hours after the end of the stream (Friday 11:00pm PST). Depending on how much combat there is in the episode and how soon I start working on it it could be sooner but probably not later. 
+
+<br />
 <br />
 
 Install Instructions:
