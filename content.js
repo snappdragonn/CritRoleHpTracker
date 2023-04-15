@@ -3,6 +3,7 @@ var authorization = "";
 var host = ""   //Twitch or Youtube
 var minimised = false;  //if the popup is minimised
 var episodeNum = 0;
+var campaignNum = 0;
 var episodeData;  //json data of events in the episode
 var charData;   //json data of the player characters
 var currentTimeSlot = 0; //the index of the time at the end of a time slot (between events)
@@ -362,7 +363,7 @@ class HeathbarPanel extends Panel {
     }
 
     //update death save images
-    for(i=0; i<successHearts.length; i++){
+    for(let i=0; i<successHearts.length; i++){
       if(saves[0] >= i+1){ //successes
         successHearts[i].src = chrome.runtime.getURL("/hearts/successHeart.png"); //TODO get fail and success heart urls at start and set as global var
       }else{
@@ -785,7 +786,7 @@ function updateStats(){
 }
 
 function applyEvent(event, updateUI, isSeek){
-  console.log("event: " + event.type);
+  console.log("event: " + event);
   if(event.type === "hpUpdate"){
     if(event.hasOwnProperty("tmp") && event.tmp == true){
       getPlayer(event.characterName).addTmpHp(event.amount, updateUI);
@@ -1331,37 +1332,42 @@ function InjectHTML(){
   });
 
 
-  //check on the critical role channel
+  //check on the critical role or Geek & Sundry channel and if so get the campaing and episode number and add the tracker popup
   document.addEventListener("yt-page-data-updated", function(event){
     if(!navFinished){return;} //only execute directly after a yt-navigate-finish event
 
     var name = document.querySelector("#meta-contents #channel-name a").text;
     console.log(name);
 
-    if(name === "Critical Role"){
+    if(name === "Critical Role" || name === "Geek & Sundry"){ 
 
-      //check on a campaign 3 video
-      var videoTitle = document.getElementsByTagName("title")[0].textContent;
-      var campaignNum = ((c = videoTitle.match(/(?<=Campaign\s)\d/g)) !== null) ? c[0] : 0; //get the campaign number or 0 if it cannot be found
+      //get the campaign and episode numbers 
+      let videoTitle = document.getElementsByTagName("title")[0].textContent; 
+      campaignNum = ((c = videoTitle.match(/(?<=Campaign\s)\d/g)) !== null) ? c[0] : (videoTitle.includes("Critical Role: THE MIGHTY NEIN") ? 2 : 0); //get the campaign number or 0 if it cannot be found
       episodeNum = ((e = videoTitle.match(/(?<=Episode\s)\d+/g)) !== null) ? e[0] : 0; //get the episode number or 0 if it cannot be found
 
-      if(campaignNum == 3 && episodeNum > 0){
+      console.log("campaignNum = " + campaignNum);
+      console.log("episodeNum = " + episodeNum);
 
-        makeTable();
-        getEpisodeData(() => {
-            document.getElementById("hpPanelsContainer").innerHTML = "";
-            makePanels();
-            setOrientation(orientation);
+      //if watching a campaign 2 or 3 episode get the data for that episode and add the tracker
+      if((campaignNum == 3 || campaignNum == 2) && episodeNum > 0){
 
-            //check every few seconds for an update to the stats
-            if(episodeData != null && episodeData.length > 0){ //check there is data stored for the episode
-              updateTimer = setInterval(updateStats, 1000);
-            }
+          makeTable();
+          getEpisodeData(() => {
+              document.getElementById("hpPanelsContainer").innerHTML = "";
+              makePanels();
+              setOrientation(orientation);
 
-          }, makeReloadButton);
+              //check every few seconds for an update to the stats
+              if(episodeData != null && episodeData.length > 0){ //check there is data stored for the episode
+                updateTimer = setInterval(updateStats, 1000);
+              }
 
-      }
+            }, makeReloadButton);
+
+        }
     }
+    
 
     navFinished = false;
 
@@ -1500,7 +1506,8 @@ function getEpisodeData(successCallback, failCallback){
     }
   });
 
-  xhr.open("GET", "https://critrolehpdata-5227.restdb.io/rest/combat-data?q={\"EpNum\":" + episodeNum + "}"); //episodeNum critrolehpdata-5227 testdb-2091
+  let documentName = (campaignNum == 3) ? "combat-data" : "C2-combat-data"
+  xhr.open("GET", `https://testdb-2091.restdb.io/rest/${documentName}?q={\"EpNum\":${episodeNum}}`); //episodeNum critrolehpdata-5227 testdb-2091
   xhr.setRequestHeader("content-type", "application/json");
   xhr.setRequestHeader("x-apikey", apiKey);
   xhr.setRequestHeader("cache-control", "no-cache");
