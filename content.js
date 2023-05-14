@@ -786,7 +786,7 @@ function updateStats(){
 }
 
 function applyEvent(event, updateUI, isSeek){
-  console.log("event: " + event);
+  console.log("event: " + event.type);
   if(event.type === "hpUpdate"){
     if(event.hasOwnProperty("tmp") && event.tmp == true){
       getPlayer(event.characterName).addTmpHp(event.amount, updateUI);
@@ -1506,8 +1506,8 @@ function getEpisodeData(successCallback, failCallback){
     }
   });
 
-  let documentName = (campaignNum == 3) ? "combat-data" : "C2-combat-data"
-  xhr.open("GET", `https://testdb-2091.restdb.io/rest/${documentName}?q={\"EpNum\":${episodeNum}}`); //episodeNum critrolehpdata-5227 testdb-2091
+  let documentName = (campaignNum == 3) ? "combat-data" : "combat-data-c2"
+  xhr.open("GET", `https://critrolehpdata-5227.restdb.io/rest/${documentName}?q={\"EpNum\":${episodeNum}}`); //episodeNum critrolehpdata-5227 testdb-2091
   xhr.setRequestHeader("content-type", "application/json");
   xhr.setRequestHeader("x-apikey", apiKey);
   xhr.setRequestHeader("cache-control", "no-cache");
