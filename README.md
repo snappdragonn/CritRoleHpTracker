@@ -1,9 +1,9 @@
 ### A fan-made hp/combat tracker for Critical Role
-campaign 3 only
+For campaigns 2 & 3
 
 <br />
 
-A google chrome extension that creates a popup on critical role campaign 3 episodes on youtube and VODs on Twitch.
+A google chrome extension that creates a popup on critical role campaign 2 & 3 episodes on youtube and VODs on Twitch.
 
 ![image](https://user-images.githubusercontent.com/109569193/211224761-8c414b76-4586-4d2f-9483-8e42439c5367.png)
 
