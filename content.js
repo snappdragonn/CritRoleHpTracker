@@ -1,25 +1,27 @@
 var apiKey = "";
 var authorization = "";
-var host = ""
-var minimised = false;
+var host = ""   //Twitch or Youtube
+var minimised = false;  //if the popup is minimised
 var episodeNum = 0;
-var episodeData;
-var charData;
-var currentTimeSlot = 0; //the index of the time at the end of a time slot
-var previousTime = 0;
-var updateTimer;
-const OrangeHp = 10;
+var campaignNum = 0;
+var episodeData;  //json data of events in the episode
+var charData;   //json data of the player characters
+var currentTimeSlot = 0; //the index of the time at the end of a time slot (between events)
+var previousTime = 0;   //the time in the video when lasted checked of events (used to determine if the used has jumped to a differenet point in the video)
+var updateTimer;  //timer for checking for new events (every second)
 
-var displayType = "number";
-var orientation = "vertical";
+var displayType = "number";   //what type of player panels to use (number or healthbar)
+var orientation = "vertical";   
 
+//used to change to size of headshots and hp text - should change this to be less bad.
 var hpSize = {"h": 0.8, "w": 0.4};
 var imgSize = {"h": 0.8, "w": 0.3};
 var nameSize = {"h": 0.3, "w": 0.125};
 
-
+//stores the players and panels. The player at index i corresponds to the panel at index i
 var panels = [];
 var players = [];
+
 
 var initiativeOrder = [];
 var currentInitiative = -1;
@@ -35,15 +37,18 @@ var currentInitiative = -1;
 // Panel Classes
 //------------------------------------------------------------------------------
 
+//parent panal class - displays hp info of a player.
+//Makes the panel and adds it to the DOM, stores the state of the panel (death save or not), swaps panal type when hit 0 hp.
 class Panel{
-  panel;
+  panel;  //panel element in the DOM
 
-  playerId;
+  playerId;   //index of this panel and corresponding player in the panel and player arrays
 
   isDeathSave = false;
 
   pauseUpdate = false;
 
+  //Makes the panal for a player and adds it to the DOM. the player object must aleady be in the player array
   constructor(playerId, parentDiv){
     this.playerId = playerId;
 
@@ -55,7 +60,7 @@ class Panel{
 
     parentDiv.appendChild(this.panel);
 
-    if(parentDiv.getElementsByClassName("chracterStatsPanel").length <= 0 && players[playerId] != null){ //if does not contain characterStatsPanel add it
+    if(parentDiv.getElementsByClassName("chracterStatsPanel").length <= 0 && players[playerId] != null){ //if parent does not contain characterStatsPanel add it
       parentDiv.appendChild(players[playerId].statsPanel);
 
       this.panel.addEventListener("mouseenter", (e) => onPanelHover(e, players[playerId].statsPanel));
@@ -67,6 +72,7 @@ class Panel{
 
   makeDeathSavePanel(){}
 
+  //update this panel to reflect changes to the player (e.g hp change) and swap to death save panel type if at 0 hp
   update(){
     if(this.pauseUpdate) return;
     var newHp = players[this.playerId].currentHp;
@@ -78,6 +84,7 @@ class Panel{
     }
   }
 
+  //swap to death save panel type
   swapType(newHp, deathSaves){
     if(newHp <= 0  && !this.isDeathSave){
       this.makeDeathSavePanel();
@@ -94,9 +101,11 @@ class Panel{
 
   updatePanel(newHp){}
 
+  //set the hp/healthbar display ignoring the actual hp of the player
   setHpDisplay(value, color, sliderWidth, bloody){}
   unsetHpDisplay(){}
 
+  //take html for the panel as a string and turn it into a DOM element
   setPanel(string){
     var tmp = document.createElement("div");
     tmp.innerHTML = string;
@@ -119,9 +128,10 @@ class Panel{
 
 
 
-
+//A player panel that displays hp as a number
 class NumberPanel extends Panel {
 
+  //make the panel html element
   makePanel(){
     var htmlstring = /*html*/`
                       <div id=${"player"+this.playerId} class="playerPanel" data-deathSaves="false" style="background-color: ${players[this.playerId].characterColor}; display: grid; grid-template: 1fr / 1fr 1fr">
@@ -141,7 +151,7 @@ class NumberPanel extends Panel {
 
     this.isDeathSave = false;
     let panel = this.setPanel(htmlstring);
-    if(players[this.playerId] != undefined && players[this.playerId].displaySet.length > 0){
+    if(players[this.playerId] != undefined && players[this.playerId].displaySet.length > 0){  //if setHpDisplay event was used to set the hp/healthbar to a different value
       let displaySet = players[this.playerId].displaySet;
       this.setHpDisplay(displaySet[0], displaySet[1], displaySet[2], displaySet[3])
     }
@@ -149,7 +159,7 @@ class NumberPanel extends Panel {
     return panel;
   }
 
-
+  //make the death save panel html element
   makeDeathSavePanel(){
     var emptySuccessImgscr = chrome.runtime.getURL("/hearts/emptySuccessHeart.png");
     var emptyFailImgscr = chrome.runtime.getURL("/hearts/emptyFailHeart.png");
@@ -182,16 +192,19 @@ class NumberPanel extends Panel {
     return this.panel;
   }
 
+  //saves = [total num success, total num fail]
   updateDeathSavePanel(saves){
     var successHearts = this.panel.getElementsByClassName("SuccessHeart");
     var failHearts = this.panel.getElementsByClassName("FailHeart");
 
+    //gray out player image when dead
     if(players[this.playerId].isDead()){
       this.panel.getElementsByClassName("playerImage")[0].style.filter = "grayscale(1) brightness(0.5)";
     }else{
       this.panel.getElementsByClassName("playerImage")[0].style.filter = "unset";
     }
 
+    //update deathsave images
     for(i=0; i<successHearts.length; i++){
       if(saves[0] >= i+1){ //successes
         successHearts[i].src = chrome.runtime.getURL("/hearts/successHeart.png");
@@ -199,7 +212,7 @@ class NumberPanel extends Panel {
         successHearts[i].src = chrome.runtime.getURL("/hearts/emptySuccessHeart.png");
       }
 
-      if(saves[1] >= i+1){
+      if(saves[1] >= i+1){ //fails
         failHearts[i].src = chrome.runtime.getURL("/hearts/failHeart.png");
       }else{
         failHearts[i].src = chrome.runtime.getURL("/hearts/emptyFailHeart.png");
@@ -208,15 +221,18 @@ class NumberPanel extends Panel {
   }
 
   updatePanel(newHp){
+    //the hp number
     var playerPanel = this.panel.getElementsByTagName("h1")[0];
     playerPanel.innerText = newHp;
 
+    //make player image bloody if bellow half hp
     if(newHp < (players[this.playerId].maxHp/2)){
       this.panel.getElementsByClassName("headshotOverlay")[0].style.display = "inline";
     }else{
       this.panel.getElementsByClassName("headshotOverlay")[0].style.display = "none";
     }
 
+    //if player has tmp hp display it bellow normal hp
     var hpNum = this.panel.getElementsByClassName("hpNumber")[0];
     if(players[this.playerId].tmpHp > 0){ //add tmp hp number
       hpNum.lastElementChild.style.display = "block";
@@ -229,6 +245,7 @@ class NumberPanel extends Panel {
     }
   }
 
+  //set the hp independent of the players real hp - more flexable
   setHpDisplay(value, color, sliderWidth, bloody){
     if(!this.isDeathSave){
       var playerPanel = this.panel.getElementsByTagName("h1")[0];
@@ -240,12 +257,13 @@ class NumberPanel extends Panel {
         this.panel.getElementsByClassName("headshotOverlay")[0].style.display = "none";
       }
 
-      this.pauseUpdate = true;
+      this.pauseUpdate = true; //stop updating planel when player hp changes
       players[this.playerId].displaySet = [value, color, sliderWidth, bloody];
 
     }   
   }
 
+  //go back to displaying the real player hp
   unsetHpDisplay(){
     this.pauseUpdate = false;
     players[this.playerId].displaySet = [];
@@ -257,9 +275,10 @@ class NumberPanel extends Panel {
 
 
 
-
+//A player panel that displays hp as a health bar
 class HeathbarPanel extends Panel {
 
+  //make the panel html element
   makePanel(){
     var htmlstring = /*html*/`
             <div id=${"player"+this.playerId} class="playerPanel" data-deathSaves="false" style="background-color: ${players[this.playerId].characterColor}; justify-content: center;">
@@ -280,14 +299,14 @@ class HeathbarPanel extends Panel {
 
     this.isDeathSave = false;
     let panel = this.setPanel(htmlstring);
-    if(players[this.playerId] != undefined && players[this.playerId].displaySet.length > 0){
+    if(players[this.playerId] != undefined && players[this.playerId].displaySet.length > 0){  //if setHpDisplay event was used to set the hp/healthbar to a different value
       let displaySet = players[this.playerId].displaySet;
       this.setHpDisplay(displaySet[0], displaySet[1], displaySet[2], displaySet[3])
     }
     return panel;
   }
 
-
+  //make the death save panel html element
   makeDeathSavePanel(){
     var emptySuccessImgscr = chrome.runtime.getURL("/hearts/emptySuccessHeart.png");
     var emptyFailImgscr = chrome.runtime.getURL("/hearts/emptyFailHeart.png");
@@ -318,34 +337,40 @@ class HeathbarPanel extends Panel {
   }
 
   updatePanel(newHp){
+    //set slider with
     var slider = this.panel.getElementsByClassName("slider")[0];
     slider.style.width = (Math.min(newHp / charData[this.playerId].hp, 1) * 100) + "%";
 
+    //set hp number on health bar
     var hpNum = this.panel.getElementsByClassName("healthbarHpNum")[0];
     hpNum.firstElementChild.innerHTML = newHp + players[this.playerId].tmpHp;
 
+    //set tmp hp slider width
     var tmpHpSlider = this.panel.getElementsByClassName("tmpHpSlider")[0];
     tmpHpSlider.style.width = (Math.min(players[this.playerId].tmpHp / charData[this.playerId].hp, 1) * 100) + "%";
   }
 
+  //saves = [num success, num fail]
   updateDeathSavePanel(saves){
     var successHearts = this.panel.getElementsByClassName("SuccessHeart");
     var failHearts = this.panel.getElementsByClassName("FailHeart");
 
+    //gray out player image when dead
     if(players[this.playerId].isDead()){
       this.panel.getElementsByClassName("barPlayerImg")[0].style.filter = "grayscale(1) brightness(0.5)";
     }else{
       this.panel.getElementsByClassName("barPlayerImg")[0].style.filter = "unset";
     }
 
-    for(i=0; i<successHearts.length; i++){
+    //update death save images
+    for(let i=0; i<successHearts.length; i++){
       if(saves[0] >= i+1){ //successes
         successHearts[i].src = chrome.runtime.getURL("/hearts/successHeart.png"); //TODO get fail and success heart urls at start and set as global var
       }else{
         successHearts[i].src = chrome.runtime.getURL("/hearts/emptySuccessHeart.png");
       }
 
-      if(saves[1] >= i+1){
+      if(saves[1] >= i+1){ //fails
         failHearts[i].src = chrome.runtime.getURL("/hearts/failHeart.png");
       }else{
         failHearts[i].src = chrome.runtime.getURL("/hearts/emptyFailHeart.png");
@@ -354,6 +379,7 @@ class HeathbarPanel extends Panel {
 
   }
 
+  //set the hp independent of the players real hp - more flexable
   setHpDisplay(value, color, sliderWidth, bloody){
     if(!this.isDeathSave){
       var slider = this.panel.getElementsByClassName("slider")[0];
@@ -363,14 +389,13 @@ class HeathbarPanel extends Panel {
       var hpNum = this.panel.getElementsByClassName("healthbarHpNum")[0];
       hpNum.firstElementChild.innerHTML = value;
 
-      this.pauseUpdate = true;
-      //console.log(players[this.playerId]);
-      //console.log(players[this.playerId].displaySet);
+      this.pauseUpdate = true; //stop updating the panel when the player hp changes
       players[this.playerId].displaySet = [value, color, sliderWidth, bloody];
 
     }
   }
 
+  //go back to displaying the real player hp
   unsetHpDisplay(){
     this.pauseUpdate = false;
     this.panel.getElementsByClassName("slider")[0].style["background-color"] = "";
@@ -382,7 +407,7 @@ class HeathbarPanel extends Panel {
 }
 
 
-
+//stores the current state of the player (hp, death saves, spell slots), player info (stats, color, image), and the player stats panel
 class PlayerChracter {
   id;
   characterName = "Name";
@@ -402,10 +427,11 @@ class PlayerChracter {
   tmpHp = 0;
   deathSaves = [0,0]; //[numSuccess, numFailed]
 
-  displaySet = [];
+  displaySet = []; //used for setting the panel display independent of the real hp
 
   statsPanel;
 
+  // makes player and stats panel
   constructor(id, name, lvl, charClass, classLevels, ac, hp, stats, spellslots, color, imgURL){
     this.id = id;
     this.characterName = name;
@@ -435,6 +461,7 @@ class PlayerChracter {
     panels[this.id].update();
   }
 
+  //add to hp - amount can be negative to subtract hp
   updateHp(amount, updatePanel){
     if(amount < 0 ){ //remove temp hp before normal hp
       if(Math.abs(amount) <= this.tmpHp){
@@ -446,6 +473,7 @@ class PlayerChracter {
       }
     }
 
+    //update normal hp - cant go bellow 0 of above the players max
     this.currentHp = Math.min(Math.max(this.currentHp + amount, 0), this.maxHp);
     if(this.currentHp > 0){
       this.deathSaves = [0,0]
@@ -470,8 +498,8 @@ class PlayerChracter {
   }
 
   addEffect(effectName, effectDesc, level){
-    if(this.statsPanel.getElementsByClassName(effectName.replace(/\s+/g, '')).length == 0){
-      this.statsPanel.getElementsByClassName("EffectsBox")[0].insertAdjacentHTML("beforeend", /*html*/`
+    if(this.statsPanel.getElementsByClassName(effectName.replace(/\s+/g, '')).length == 0){ //if an effect with the same name does not exist make it and add to the stats panel
+      this.statsPanel.getElementsByClassName("EffectsBox")[0].insertAdjacentHTML("beforeend", /*html*/` 
                                                                   <div class="effect ${effectName.replace(/\s+/g, '')}" style="background-color: ${this.characterColor};">
                                                                     <div class="effectInner" style="background-color: #606060; border: solid black 1px; padding: 0 2px">
                                                                       ${effectName}${level ? ": " + level : ""} 
@@ -479,7 +507,7 @@ class PlayerChracter {
                                                                     <div class="tooltip">${effectDesc}</div>
                                                                   </div>
                                                                 `);
-    }else{
+    }else{ //if an effect with the same name (html class) already exists update its level and/or description
       let effectElem = this.statsPanel.getElementsByClassName(effectName.replace(/\s+/g, ''))[0];
       if(effectDesc){
         effectElem.lastElementChild.innerHTML = effectDesc;
@@ -490,6 +518,7 @@ class PlayerChracter {
     }
   }
 
+  //remove an effect with a given name
   removeEffect(effectName){
     if(this.statsPanel.getElementsByClassName(effectName.replace(/\s+/g, '')).length == 0){
       console.warn("Effect to remove does not exist: " + effectName);
@@ -511,13 +540,17 @@ class PlayerChracter {
     }
   }
 
+  //update the spell slots of this player
+  //remove = if the spell slot is being used or gained back
+  //amount = the amount of spell slots at the level to use of gain back
   updateSpell(level, amount, remove){
-    let spell = level-1;
-    if(spell >= 0 && spell < this.spellslotsLeft.length){
-      let diff = (amount != undefined) ? parseInt(amount) : 1;
+    let spell = level-1; //level is the level of the spell, 'spell' is the index of the spell slots at that level that the player had left (level starts at 1, spell starts at 0)
+    if(spell >= 0 && spell < this.spellslotsLeft.length){ //if the spell is not a cantrip (uses a spell slot) and is of a level the player can cast remove the spell slots used
+      let diff = (amount != undefined) ? parseInt(amount) : 1; // if amount not set default to 1
       diff = (remove) ? -diff : diff;
-      this.spellslotsLeft[spell] = Math.max(this.spellslotsLeft[spell] + diff, 0);
+      this.spellslotsLeft[spell] = Math.max(this.spellslotsLeft[spell] + diff, 0); //add or remove the spell slots
 
+      //update the stats panel to show the new amount of spell slots the player has left
       let slots = this.statsPanel.getElementsByClassName("spellSlotLevel")[spell].getElementsByClassName("slot");
       this.statsPanel.getElementsByClassName("spellSlotLevel")[spell].title = "lvl " + (level) + ": " + this.spellslotsLeft[spell] + "/" + this.spellslots[spell];
       for(let i=0; i<slots.length; i++){
@@ -533,9 +566,11 @@ class PlayerChracter {
     }
   }
 
+  //set spell slots back to full
   restSpellslots(){
-    this.spellslotsLeft = [...this.spellslots];
+    this.spellslotsLeft = [...this.spellslots]; //copy the spellslots array
 
+    //update the stats panel
     for(let lvl=0; lvl<this.spellslots.length; lvl++){
       let slots = this.statsPanel.getElementsByClassName("spellSlotLevel")[lvl].getElementsByClassName("slot");
       this.statsPanel.getElementsByClassName("spellSlotLevel")[lvl].title = "lvl " + (lvl+1) + ": " + this.spellslotsLeft[lvl] + "/" + this.spellslots[lvl];
@@ -546,7 +581,7 @@ class PlayerChracter {
   }
 
   
-
+  //Make the stats panel of this player - return the stats panel html element
   makePanel(){
     var panelStr = /*html*/`
                     <div class="chracterStatsPanel">
@@ -637,7 +672,7 @@ class PlayerChracter {
     return this.statsPanel;
   }
 
-
+  //make the spell slots display (as an html string) for the stats panel
   makeSpellslotsDisplay(){
 
     console.log(this.spellslotsLeft);
@@ -662,6 +697,7 @@ class PlayerChracter {
   }
 
 
+  // get the classes and levels in each class as a string (used when making the stats panel)
   getClassLevelString(){
     if(this.classLevels == undefined || Object.keys(this.classLevels).length === 0){
       return this.chracterClass + ": " + this.level;
@@ -1301,37 +1337,42 @@ function InjectHTML(){
   });
 
 
-  //check on the critical role channel
+  //check on the critical role or Geek & Sundry channel and if so get the campaing and episode number and add the tracker popup
   document.addEventListener("yt-page-data-updated", function(event){
     if(!navFinished){return;} //only execute directly after a yt-navigate-finish event
 
     var name = document.querySelector("#meta-contents #channel-name a").text;
     console.log(name);
 
-    if(name === "Critical Role"){
+    if(name === "Critical Role" || name === "Geek & Sundry"){ 
 
-      //check on a campaign 3 video
-      var videoTitle = document.getElementsByTagName("title")[0].textContent;
-      var campaignNum = ((c = videoTitle.match(/(?<=Campaign\s)\d/g)) !== null) ? c[0] : 0; //get the campaign number or 0 if it cannot be found
+      //get the campaign and episode numbers 
+      let videoTitle = document.getElementsByTagName("title")[0].textContent; 
+      campaignNum = ((c = videoTitle.match(/(?<=Campaign\s)\d/g)) !== null) ? c[0] : (videoTitle.includes("Critical Role: THE MIGHTY NEIN") ? 2 : 0); //get the campaign number or 0 if it cannot be found
       episodeNum = ((e = videoTitle.match(/(?<=Episode\s)\d+/g)) !== null) ? e[0] : 0; //get the episode number or 0 if it cannot be found
 
-      if(campaignNum == 3 && episodeNum > 0){
+      console.log("campaignNum = " + campaignNum);
+      console.log("episodeNum = " + episodeNum);
 
-        makeTable();
-        getEpisodeData(() => {
-            document.getElementById("hpPanelsContainer").innerHTML = "";
-            makePanels();
-            setOrientation(orientation);
+      //if watching a campaign 2 or 3 episode get the data for that episode and add the tracker
+      if((campaignNum == 3 || campaignNum == 2) && episodeNum > 0){
 
-            //check every few seconds for an update to the stats
-            if(episodeData != null && episodeData.length > 0){ //check there is data stored for the episode
-              updateTimer = setInterval(updateStats, 1000);
-            }
+          makeTable();
+          getEpisodeData(() => {
+              document.getElementById("hpPanelsContainer").innerHTML = "";
+              makePanels();
+              setOrientation(orientation);
 
-          }, makeReloadButton);
+              //check every few seconds for an update to the stats
+              if(episodeData != null && episodeData.length > 0){ //check there is data stored for the episode
+                updateTimer = setInterval(updateStats, 1000);
+              }
 
-      }
+            }, makeReloadButton);
+
+        }
     }
+    
 
     navFinished = false;
 
@@ -1470,7 +1511,8 @@ function getEpisodeData(successCallback, failCallback){
     }
   });
 
-  xhr.open("GET", "https://critrolehpdata-5227.restdb.io/rest/combat-data?q={\"EpNum\":" + episodeNum + "}"); //episodeNum critrolehpdata-5227 testdb-2091
+  let documentName = (campaignNum == 3) ? "combat-data" : "combat-data-c2"
+  xhr.open("GET", `https://critrolehpdata-5227.restdb.io/rest/${documentName}?q={\"EpNum\":${episodeNum}}`); //episodeNum critrolehpdata-5227 testdb-2091
   xhr.setRequestHeader("content-type", "application/json");
   xhr.setRequestHeader("x-apikey", apiKey);
   xhr.setRequestHeader("cache-control", "no-cache");
