@@ -1,6 +1,6 @@
 {
     "name": "Critrole HP Tracker",
-    "version": "0.3.1",
+    "version": "0.3.2",
     "description": "Track current health of players during combats",
     "manifest_version": 3,
     "icons":  { "128": "icons/CombatTrackerIcon.png" },
