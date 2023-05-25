@@ -836,6 +836,11 @@ function applyEvent(event, updateUI, isSeek){
   } else if(event.type === "spellNotif"){ //TODO make this more general - for any type of notif?
     if(!isSeek) displaySpellInfo(event.spellInfo);
 
+  }else if(event.type === "addPlayer"){
+    addPanel(event.playerData, event.playerIndex);
+  }else if(event.type === "removePlayer"){
+    removePlayer(event.playerName); //TODO implement this
+
   }else{
     console.warn("invalid event: " + event.type);
   }
@@ -1320,6 +1325,46 @@ function makePanels(){
 
 
   }
+}
+
+//Make a new player panel and add it to the tracker at a given position (index)
+function addPanel(playerData, index){
+  console.log(playerData);
+
+  //make player and add to list
+  players.splice(index, 0, new PlayerChracter(index,
+                                              playerData.name,
+                                              playerData.level,
+                                              playerData.charClass,
+                                              playerData.classLevels,
+                                              playerData.ac,
+                                              playerData.hp,
+                                              playerData.stats,
+                                              playerData.spellslots,
+                                              playerData.color,
+                                              playerData.imageURL));
+
+  //make the player panel and add to list and DOM
+
+  var panelContainer = document.createElement("div");
+  panelContainer.className = "panelContainer";
+
+  if(displayType == "healthBar"){
+    panels.splice(index, 0, new HeathbarPanel(index, panelContainer));
+  }else{
+    panels.splice(index, 0, new NumberPanel(index, panelContainer));
+  }
+
+  var trackerBody = document.getElementById("hpPanelsContainer");
+  trackerBody.insertBefore(panelContainer, trackerBody.childNodes[index]);  //add panel to tracker at index (in list of child panel elements)
+
+
+  //set the ids (index) of players and panels to their new index (pushed along 1 place)
+  for(let i=index; i<players.length; i++){
+    players[i].id = i;
+    panels[i].playerId = i;
+  }
+
 }
 
 
