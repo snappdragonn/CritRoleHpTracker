@@ -828,7 +828,6 @@ function applyEvent(event, updateUI, isSeek){
     panels[getPlayer(event.characterName).id].unsetHpDisplay();
 
   }else if(event.type === "useSpell"){
-    console.log(event.spellInfo.name)
     getPlayer(event.characterName).updateSpell(event.level, event.amount, true);
     if(event.spellInfo != undefined && !isSeek) displaySpellInfo(event.spellInfo);
   }else if(event.type === "regainSpell"){
@@ -837,7 +836,7 @@ function applyEvent(event, updateUI, isSeek){
     if(!isSeek) displaySpellInfo(event.spellInfo);
 
   }else if(event.type === "addPlayer"){
-    addPanel(event.playerData, event.playerIndex);
+    addPlayer(event.playerData, event.playerIndex);
   }else if(event.type === "removePlayer"){
     removePlayer(event.playerName); //TODO implement this
 
@@ -1328,7 +1327,7 @@ function makePanels(){
 }
 
 //Make a new player panel and add it to the tracker at a given position (index)
-function addPanel(playerData, index){
+function addPlayer(playerData, index){
   console.log(playerData);
 
   //make player and add to list
@@ -1360,6 +1359,27 @@ function addPanel(playerData, index){
 
 
   //set the ids (index) of players and panels to their new index (pushed along 1 place)
+  for(let i=index; i<players.length; i++){
+    players[i].id = i;
+    panels[i].playerId = i;
+  }
+
+}
+
+function removePlayer(name){
+  console.log(playerData);
+
+  //remove player from list
+  let index = players.findIndex(player => {
+    return player.characterName == name;
+  });
+  players.splice(index, 1);
+
+  //remove panel from DOM and list
+  panels[index].parentElement.remove();
+  panels.splice(index, 1);
+
+  //set the ids (index) of players a panels to their new index (moved back one place)
   for(let i=index; i<players.length; i++){
     players[i].id = i;
     panels[i].playerId = i;
