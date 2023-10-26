@@ -1330,6 +1330,12 @@ function makePanels(){
 function addPlayer(playerData, index){
   console.log(playerData);
 
+
+  //TODO get player data from db
+  //  reset/redo events after get data and add player (so don't miss events on new player if getting data takes a while)
+  //  
+
+
   //make player and add to list
   players.splice(index, 0, new PlayerChracter(index,
                                               playerData.name,
@@ -1411,7 +1417,12 @@ function InjectHTML(){
   document.addEventListener("yt-page-data-updated", function(event){
     if(!navFinished){return;} //only execute directly after a yt-navigate-finish event
 
-    var name = document.querySelector("#meta-contents #channel-name a").text;
+    var authorNameElem = document.querySelectorAll('[itemprop="author"] [itemprop="name"]');
+    if(authorNameElem.length > 0 ){ //if the element exists
+      var name = authorNameElem[0].getAttribute('content');
+    }else {
+      var name = document.querySelector("#meta-contents #channel-name a").text;
+    }
     console.log(name);
 
     if(name === "Critical Role" || name === "Geek & Sundry"){ 
