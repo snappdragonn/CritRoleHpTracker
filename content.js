@@ -544,6 +544,7 @@ class PlayerChracter {
   //remove = if the spell slot is being used or gained back
   //amount = the amount of spell slots at the level to use of gain back
   updateSpell(level, amount, remove){
+    console.log("level = " + level);
     let spell = level-1; //level is the level of the spell, 'spell' is the index of the spell slots at that level that the player had left (level starts at 1, spell starts at 0)
     if(spell >= 0 && spell < this.spellslotsLeft.length){ //if the spell is not a cantrip (uses a spell slot) and is of a level the player can cast remove the spell slots used
       let diff = (amount != undefined) ? parseInt(amount) : 1; // if amount not set default to 1
@@ -551,8 +552,8 @@ class PlayerChracter {
       this.spellslotsLeft[spell] = Math.max(this.spellslotsLeft[spell] + diff, 0); //add or remove the spell slots
 
       //update the stats panel to show the new amount of spell slots the player has left
-      let slots = this.statsPanel.getElementsByClassName("spellSlotLevel")[spell].getElementsByClassName("slot");
-      this.statsPanel.getElementsByClassName("spellSlotLevel")[spell].title = "lvl " + (level) + ": " + this.spellslotsLeft[spell] + "/" + this.spellslots[spell];
+      let slots = this.statsPanel.getElementsByClassName("level-" + level)[0].getElementsByClassName("slot");
+      this.statsPanel.getElementsByClassName("level-" + level)[0].title = "lvl " + (level) + ": " + this.spellslotsLeft[spell] + "/" + this.spellslots[spell];
       for(let i=0; i<slots.length; i++){
         if(i<this.spellslotsLeft[spell]){
           slots[i].style["background-color"] = this.characterColor;
@@ -567,13 +568,14 @@ class PlayerChracter {
   }
 
   //set spell slots back to full
-  restSpellslots(){
+  resetSpellslots(){
     this.spellslotsLeft = [...this.spellslots]; //copy the spellslots array
 
     //update the stats panel
     for(let lvl=0; lvl<this.spellslots.length; lvl++){
-      let slots = this.statsPanel.getElementsByClassName("spellSlotLevel")[lvl].getElementsByClassName("slot");
-      this.statsPanel.getElementsByClassName("spellSlotLevel")[lvl].title = "lvl " + (lvl+1) + ": " + this.spellslotsLeft[lvl] + "/" + this.spellslots[lvl];
+      if(this.spellslots[lvl] <= 0){continue;};
+      let slots = this.statsPanel.getElementsByClassName("level-" + (lvl+1))[0].getElementsByClassName("slot");
+      this.statsPanel.getElementsByClassName("level-" + (lvl+1))[0].title = "lvl " + (lvl+1) + ": " + this.spellslotsLeft[lvl] + "/" + this.spellslots[lvl];
       for(let i=0; i<slots.length; i++){
         slots[i].style["background-color"] = this.characterColor;
       }
@@ -681,6 +683,7 @@ class PlayerChracter {
                       <div class="spellSlotsInfo">`;
 
     for(let level=0; level<this.spellslots.length; level++){
+      if(this.spellslots[level] <= 0){continue;};
       displayStr += ` <div class="spellSlotLevel level-${level+1}" title="lvl ${level+1}: ${this.spellslotsLeft[level]}/${this.spellslots[level]}">
                         <div class="levelLable">${level+1}</div>`
 
@@ -837,6 +840,11 @@ function applyEvent(event, updateUI, isSeek){
   } else if(event.type === "spellNotif"){ //TODO make this more general - for any type of notif?
     if(!isSeek) displaySpellInfo(event.spellInfo);
 
+  }else if(event.type === "addPlayer"){
+    addPlayer(event.playerData, event.playerIndex);
+  }else if(event.type === "removePlayer"){
+    removePlayer(event.playerName); //TODO implement this
+
   }else{
     console.warn("invalid event: " + event.type);
   }
@@ -867,7 +875,7 @@ function resetPlayers(playersToReset = players){
     player.tmpHp = 0;
     player.removeAllEffects();
     panels[player.id].pauseUpdate = false;
-    player.restSpellslots();
+    player.resetSpellslots();
   }
   endInitiative()
 }
@@ -907,10 +915,16 @@ function displaySpellInfo(spellInfo){
 
   let table = notifElem.getElementsByClassName("spellStats")[0];
   console.log(spellInfo);
+  let hasSpellStats = false;
   for(let key in spellInfo){
     if(key != "desc" && key != "name"){
       table.insertAdjacentHTML("beforeend", /*html*/`<div class="spellStatItem"> <div>${key}</div> <div>${spellInfo[key]}</div> </div>`);
+      hasSpellStats = true;
     }
+  }
+
+  if(!hasSpellStats){
+    notifElem.getElementsByClassName("spellStats")[0].remove();
   }
 
   //set timer to remove the notification after a time
@@ -1317,6 +1331,73 @@ function makePanels(){
   }
 }
 
+//Make a new player panel and add it to the tracker at a given position (index)
+function addPlayer(playerData, index){
+  console.log(playerData);
+
+
+  //TODO get player data from db
+  //  reset/redo events after get data and add player (so don't miss events on new player if getting data takes a while)
+  //  
+
+
+  //make player and add to list
+  players.splice(index, 0, new PlayerChracter(index,
+                                              playerData.name,
+                                              playerData.level,
+                                              playerData.charClass,
+                                              playerData.classLevels,
+                                              playerData.ac,
+                                              playerData.hp,
+                                              playerData.stats,
+                                              playerData.spellslots,
+                                              playerData.color,
+                                              playerData.imageURL));
+
+  //make the player panel and add to list and DOM
+
+  var panelContainer = document.createElement("div");
+  panelContainer.className = "panelContainer";
+
+  if(displayType == "healthBar"){
+    panels.splice(index, 0, new HeathbarPanel(index, panelContainer));
+  }else{
+    panels.splice(index, 0, new NumberPanel(index, panelContainer));
+  }
+
+  var trackerBody = document.getElementById("hpPanelsContainer");
+  trackerBody.insertBefore(panelContainer, trackerBody.childNodes[index]);  //add panel to tracker at index (in list of child panel elements)
+
+
+  //set the ids (index) of players and panels to their new index (pushed along 1 place)
+  for(let i=index; i<players.length; i++){
+    players[i].id = i;
+    panels[i].playerId = i;
+  }
+
+}
+
+function removePlayer(name){
+  console.log(playerData);
+
+  //remove player from list
+  let index = players.findIndex(player => {
+    return player.characterName == name;
+  });
+  players.splice(index, 1);
+
+  //remove panel from DOM and list
+  panels[index].parentElement.remove();
+  panels.splice(index, 1);
+
+  //set the ids (index) of players a panels to their new index (moved back one place)
+  for(let i=index; i<players.length; i++){
+    players[i].id = i;
+    panels[i].playerId = i;
+  }
+
+}
+
 
 
 
@@ -1341,7 +1422,12 @@ function InjectHTML(){
   document.addEventListener("yt-page-data-updated", function(event){
     if(!navFinished){return;} //only execute directly after a yt-navigate-finish event
 
-    var name = document.querySelector("#meta-contents #channel-name a").text;
+    var authorNameElem = document.querySelectorAll('[itemprop="author"] [itemprop="name"]');
+    if(authorNameElem.length > 0 ){ //if the element exists
+      var name = authorNameElem[0].getAttribute('content');
+    }else {
+      var name = document.querySelector("#meta-contents #channel-name a").text;
+    }
     console.log(name);
 
     if(name === "Critical Role" || name === "Geek & Sundry"){ 
