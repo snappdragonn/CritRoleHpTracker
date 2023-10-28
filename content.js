@@ -1483,6 +1483,7 @@ function InjectHTMLTwitch(){ //Inject popup html when of twitch (instead of yout
         console.log(videoTitle);
         removeTrackerPopup();
         if(videoTitle.startsWith("Critical Role Campaign 3") && location.pathname.startsWith("/videos")){ //watching vod
+          campaignNum = 3;
           console.log("is critical role c3 ep");
           
           //Add popup
