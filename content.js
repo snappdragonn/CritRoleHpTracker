@@ -1703,10 +1703,19 @@ chrome.storage.sync.get({
   console.log(orientation);
 });
 
+
 fetch(chrome.runtime.getURL("/apiKey.txt"))
   .then(response => response.json())
   .then(json => {apiKey = json.apikey; authorization = json.authorization});
 
+
+
+chrome.runtime.sendMessage("GetFanArt").then((response) => {
+  console.log(Date.now() + " got response from service worker: " + response);
+
+});
+
+console.log("sent get fan art message...");
 
 
 console.log(location.hostname);
