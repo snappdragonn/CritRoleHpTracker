@@ -1402,6 +1402,75 @@ function removePlayer(name){
 
 
 
+
+
+
+
+//------------------------------------------------------------------------------
+// Make Fan Art Gallery
+//------------------------------------------------------------------------------
+
+
+ async function GetGalleryImages(galleryName){
+
+  galleryText = await chrome.runtime.sendMessage({"request": "GetFanArtGallery", "galleryName": galleryName}); //.then((galleryText) => {
+
+  console.log("got response from service worker");
+
+  //convert gallery from string to html element
+  galleryDiv = document.createElement("div");
+  galleryDiv.innerHTML = galleryText;
+  console.log(galleryDiv);
+
+  //get fan art image urls and artist names
+  GalleryList = galleryDiv.getElementsByClassName("wonderplugin-gridgallery-list")[0];
+  galleryImages = {"galleryName": galleryName, "images": []};
+
+  for(galleryItem of GalleryList.children){
+    imgElement = galleryItem.getElementsByTagName("img")[0];
+    if(imgElement == null){ continue; }
+    imgURL = imgElement.getAttribute("src");
+    artist = imgElement.getAttribute("alt");
+
+    galleryImages["images"].push({"url": imgURL, "artist": artist});
+  }
+
+  console.log(galleryImages);
+
+  return galleryImages; //{"galleryname": name, "images": [{"url": url, "artist": artistName}] };
+  //});
+}
+
+
+async function MakeGalleryPopup(){
+
+  galleryDiv = document.createElement("div");
+  galleryDiv.className = "fan-art-gallery";
+  galleryDiv.innerHTML =  /*html*/`
+                          <div>
+                          </div>
+                        ` //TODO Add loading wheel here
+
+  //document.body.insertAdjacentHTML("beforeend", galleryDiv);
+
+  var galleryData = await GetGalleryImages("enkindled");
+
+}
+
+
+
+
+
+
+
+
+
+
+//------------------------------------------------------------------------------
+// Add Tracker Popup to DOM
+//------------------------------------------------------------------------------
+
+
 function InjectHTML(){
 
   var navFinished = false;
@@ -1692,6 +1761,13 @@ function clamp(n, min, max){
 
 
 
+
+
+
+
+
+
+
 chrome.storage.sync.get({
   displayType: 'number',
   orientation: 'vertical'
@@ -1709,13 +1785,7 @@ fetch(chrome.runtime.getURL("/apiKey.txt"))
   .then(json => {apiKey = json.apikey; authorization = json.authorization});
 
 
-
-chrome.runtime.sendMessage("GetFanArt").then((response) => {
-  console.log(Date.now() + " got response from service worker: " + response);
-
-});
-
-console.log("sent get fan art message...");
+MakeGalleryPopup();
 
 
 console.log(location.hostname);

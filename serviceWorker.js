@@ -1,26 +1,25 @@
 
-//Fetch fan art images from Critical Role fan art gallery and return them to the content script
-chrome.runtime.onMessage.addListener(
-  function(message, sender, sendResponse) {
-    if(message == "GetFanArt"){
-      //sendResponse("test response");
+chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+  getFanArt(message, sender, sendResponse);
+  return true; //indicate that it will respond asynchronously
+});
 
-      fetch("https://critrole.com/fan-art-gallery-from-zwei-to-nein/")
-        .then((response) => {
-          console.log(response.ok); 
-          response.text().then((text) => console.log(text));
 
-          response = {"status": response.status, "statusText": response.statusText};
-          console.log(response);
-          console.log(Date.now());
-          sendResponse(response);
-      });
+//Fetch fan art gallery from Critical Role website and return it to the content script
+async function getFanArt(message, sender, sendResponse) {
+  if(message["request"] == "GetFanArtGallery"){
+    //sendResponse("test response");
 
-    console.log("response sent...")
+    //get fan art gallery page from critrole website
+    fetchResponse = await fetch("https://critrole.com/fan-art-gallery-" + message["galleryName"] + "/")
+    console.log("fetch status: " + fetchResponse.status); 
 
-    return true; //indicate that it will respond asynchronously
+    fetchResponseText = await fetchResponse.text();
+    console.log(fetchResponseText);
+    sendResponse(fetchResponseText);
 
-    }
+    console.log("response sent...");
 
   }
-);
+
+}
