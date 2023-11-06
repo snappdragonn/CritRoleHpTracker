@@ -9,6 +9,7 @@ var charData;   //json data of the player characters
 var currentTimeSlot = 0; //the index of the time at the end of a time slot (between events)
 var previousTime = 0;   //the time in the video when lasted checked of events (used to determine if the used has jumped to a differenet point in the video)
 var updateTimer;  //timer for checking for new events (every second)
+var galleryTimer;
 
 var displayType = "number";   //what type of player panels to use (number or healthbar)
 var orientation = "vertical";   
@@ -896,7 +897,7 @@ function displaySpellInfo(spellInfo){
   notifContainer.insertAdjacentHTML("beforeend", /*html*/`
                                                   <div class="spellInfoNotif ${spellInfo.name.replace(/\s+/g, '')}">
                                                     <span>${spellInfo.name}</span>
-                                                    <button class="closeButton" style="background-image: url(${chrome.runtime.getURL("icons/cross_.png")});"></button>
+                                                    <button class="closeButton notifCloseButton" style="background-image: url(${chrome.runtime.getURL("icons/cross_.png")});"></button>
                                                     <div class="spellInfo" style="display: none">
                                                       <div class="spellName">
                                                         ${spellInfo.name}
@@ -935,7 +936,7 @@ function displaySpellInfo(spellInfo){
   }, 30000, notifElem);
 
   //add onclick listener to the close button to remove the notif
-  notifElem.getElementsByClassName("closeButton")[0].addEventListener("click", (e) => {
+  notifElem.getElementsByClassName("notifCloseButton")[0].addEventListener("click", (e) => {
     e.currentTarget.parentElement.parentElement.removeChild(e.currentTarget.parentElement);
     document.getElementById("trackerBlock").style.setProperty("--numNotifs", notifContainer.children.length);
   });
@@ -1236,6 +1237,8 @@ function makeTable(){
   document.getElementById("expandButton").addEventListener("click", expand, false);
   document.getElementById("minButton").addEventListener("click", minimise, false);
 
+  document.getElementById("openGalleryButton").addEventListener("click", OpenGalleryPopup, false);
+
 
   addDragListeners();
 
@@ -1281,6 +1284,10 @@ function makeMenu(){
                   <img src="${chrome.runtime.getURL("icons/tick-white.png")}" style="display: ${(displayType === 'healthBar') ? 'block' : 'none'};">
                 </div>
               </div>
+            </div>
+
+            <div id="openGalleryButton" class="menuItem menuButton">
+              <h4> Open Gallery </h4>
             </div>
 
           </div>
@@ -1444,17 +1451,82 @@ function removePlayer(name){
 
 async function MakeGalleryPopup(){
 
-  galleryDiv = document.createElement("div");
-  galleryDiv.className = "fan-art-gallery";
-  galleryDiv.innerHTML =  /*html*/`
-                          <div>
-                          </div>
-                        ` //TODO Add loading wheel here
+  //Make gallery popup with loading spinner and add to DOM 
+  document.body.insertAdjacentHTML("beforeend", 
+    `<div id="fan-art-gallery-popup">
+        <h4>Fan Art Gallery</h4>
+        <div style="border-bottom: black solid 3px; width: 100%; height: 100%;">
+          <button id="galleryCloseButton">
+            <img src="${chrome.runtime.getURL("icons/cross_.png")}" alt="close icon">
+          </button>
+        </div>
+        <div id="fan-art-gallery" style="grid-area: Gallery">
+          <div class="spinner" style="width: 40px; height: 40px"></div>
+        </div>
+      <div>
+    `);
 
-  //document.body.insertAdjacentHTML("beforeend", galleryDiv);
+  document.getElementById("galleryCloseButton").addEventListener("click", () => {
+    document.getElementById("fan-art-gallery-popup").style.display = "none";
+  });
 
+  //Get fan art urls and artist names
   var galleryData = await GetGalleryImages("enkindled");
 
+  //Add fan art to gallery popup
+  galleryElem = document.getElementById("fan-art-gallery");
+  galleryElem.innerHTML = ""; //remove loading spinner icon
+
+  for(image of galleryData["images"]){
+    galleryElem.insertAdjacentHTML("beforeend", `<img src="${image["url"]}" alt="${image["artist"]}" style="display: none" /> `);
+  }
+
+  galleryElem.firstElementChild.style.display = "block";
+
+  StartGalleryTimer();
+
+}
+
+function StartGalleryTimer(){
+  if(galleryTimer != null) return;
+
+  document.getElementById("fan-art-gallery").firstElementChild.style.display = "block";
+  let currentImage = 0;
+  galleryTimer = setInterval(() => {
+    galleryElem.children[currentImage].style.display = "none";
+    currentImage++;
+    if(currentImage >= galleryElem.childElementCount){
+      currentImage = 0;
+    }
+    console.log(galleryTimer + " current image = " + currentImage);
+    galleryElem.children[currentImage].style.display = "block";
+  }, 5000)
+
+  document.getElementById("galleryCloseButton").addEventListener("click", () => {
+    StopGalleryTimer();
+  });
+}
+
+function StopGalleryTimer(){
+  if(galleryTimer != null){
+    clearInterval(galleryTimer);
+    galleryTimer = null;
+    if(document.getElementById("fan-art-gallery") != null){
+      for(imageElem of document.getElementById("fan-art-gallery").children){
+        imageElem.style.display = "none";
+      }
+    }
+  }
+}
+
+function OpenGalleryPopup(){
+  gallery = document.getElementById("fan-art-gallery-popup");
+  if(gallery != null){
+    gallery.style.display = "grid";
+    StartGalleryTimer();
+  }else {
+    MakeGalleryPopup();
+  }
 }
 
 
@@ -1581,7 +1653,9 @@ function InjectHTMLTwitch(){ //Inject popup html when of twitch (instead of yout
 
 function removeTrackerPopup(){
   if((tracker = document.getElementById("trackerBlock")) !== null) tracker.remove();
+  if((gallery = document.getElementById("fan-art-gallery-popup")) != null) gallery.remove();
   if(updateTimer !== null) clearInterval(updateTimer);
+  StopGalleryTimer();
 
   minimised = false;
   episodeNum = 0;
@@ -1783,9 +1857,6 @@ chrome.storage.sync.get({
 fetch(chrome.runtime.getURL("/apiKey.txt"))
   .then(response => response.json())
   .then(json => {apiKey = json.apikey; authorization = json.authorization});
-
-
-MakeGalleryPopup();
 
 
 console.log(location.hostname);

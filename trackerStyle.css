@@ -773,6 +773,75 @@
 
 
 
+#fan-art-gallery-popup {
+    width: 40em;
+    height: 30em;
+    background-color: dimgray;
+    color: white;
+    border: black solid 3px;
+    border-radius: 3px;
+    position: absolute;
+    top: calc(50vh - 15em);
+    left: calc(50vw - 20em);
+    z-index: 3100;
+    display: grid;
+    grid-template: 2em 1fr / 1fr 2em;
+    grid-template-areas: "Title CloseButton" 
+                         "Gallery Gallery";
+
+}
+
+#fan-art-gallery-popup > h4 {
+  height: 100%;
+  border-bottom: black solid 3px;
+  border-right: black solid 3px;
+  font-weight: bold;
+  font-size: 1.5em;
+  padding-left: 0.2em;
+}
+
+#galleryCloseButton {
+  width: 100%;
+  height: 100%;
+  background-color: inherit;
+  border: none;
+  padding: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+#galleryCloseButton:hover {
+  background-color: gray;
+}
+
+#galleryCloseButton img {
+  width: 90%;
+  height: 90%;
+}
+
+#galleryCloseButton:hover img {
+  width: 103%;
+  height: 103%;
+}
+
+#fan-art-gallery {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 1em;
+  overflow: hidden;
+}
+
+#fan-art-gallery img {
+  max-height: 100%;
+  max-width: 100%;
+}
+
+
+
+
+
 #resizer {
   position: absolute;
   height: 10px;
