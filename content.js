@@ -1436,7 +1436,7 @@ function removePlayer(name){
   for(galleryItem of GalleryList.children){
     imgElement = galleryItem.getElementsByTagName("img")[0];
     if(imgElement == null){ continue; }
-    imgURL = imgElement.getAttribute("src");
+    imgURL = imgElement.getAttribute("src").replace(/-\d+x\d+(?=\.\w+)/, ""); //get the url and remove the image size (e.g. 300x200) to get the full size image
     artist = imgElement.getAttribute("alt");
 
     galleryImages["images"].push({"url": imgURL, "artist": artist});
@@ -1480,7 +1480,7 @@ async function MakeGalleryPopup(){
   for(image of galleryData["images"]){
     galleryElem.insertAdjacentHTML("beforeend", `<img src="${image["url"]}" alt="${image["artist"]}" style="display: none" /> `);
   }
-
+  
   galleryElem.firstElementChild.style.display = "block";
 
   StartGalleryTimer();
