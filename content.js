@@ -1454,7 +1454,7 @@ async function MakeGalleryPopup(){
   //Make gallery popup with loading spinner and add to DOM 
   document.body.insertAdjacentHTML("beforeend", 
     `<div id="fan-art-gallery-popup">
-        <h4>Fan Art Gallery</h4>
+        <h4 id="galleryHeader">Fan Art Gallery</h4>
         <div style="border-bottom: black solid 3px; width: 100%; height: 100%;">
           <button id="galleryCloseButton">
             <img src="${chrome.runtime.getURL("icons/cross_.png")}" alt="close icon">
@@ -1469,6 +1469,8 @@ async function MakeGalleryPopup(){
   document.getElementById("galleryCloseButton").addEventListener("click", () => {
     document.getElementById("fan-art-gallery-popup").style.display = "none";
   });
+
+  document.getElementById("galleryHeader").addEventListener("mousedown", (e) => StartDrag(e, document.getElementById("fan-art-gallery-popup")));
 
   //Get fan art urls and artist names
   var galleryData = await GetGalleryImages("enkindled");
@@ -1567,7 +1569,7 @@ function InjectHTML(){
     if(authorNameElem.length > 0 ){ //if the element exists
       var name = authorNameElem[0].getAttribute('content');
     }else {
-      var name = document.querySelector("#meta-contents #channel-name a").text;
+      var name = document.querySelector("#channel-name a").text;
     }
     console.log(name);
 
@@ -1832,6 +1834,39 @@ function divResize(e){
 function clamp(n, min, max){
   return Math.max(Math.min(n, max), min);
 }
+
+
+
+
+
+
+
+
+//-------------------
+//Drag and Drop
+//-------------------
+
+function StartDrag(event, dragElem){
+  console.log("start drag");
+  event.preventDefault();
+  moveFunc = (moveEvent) => OnDrag(moveEvent, dragElem);
+  document.addEventListener('mousemove', moveFunc);
+
+  document.addEventListener('mouseup', () => {
+    console.log("mouseup");
+    document.removeEventListener('mousemove', moveFunc)
+    //TODO remove this listener too?
+  }, {once: true});
+}
+
+function OnDrag(event, dragElem){
+  console.log("on drag");
+  event.preventDefault();
+  dragElem.style.top = event.y + "px";
+  dragElem.style.left = event.x + "px";
+}
+
+
 
 
 
