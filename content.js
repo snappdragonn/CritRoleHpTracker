@@ -1426,7 +1426,7 @@ function InjectHTML(){
     if(authorNameElem.length > 0 ){ //if the element exists
       var name = authorNameElem[0].getAttribute('content');
     }else {
-      var name = document.querySelector("#meta-contents #channel-name a").text;
+      var name = document.querySelector("#channel-name a").text;
     }
     console.log(name);
 
