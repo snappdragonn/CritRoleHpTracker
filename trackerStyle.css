@@ -782,7 +782,7 @@
     border-radius: 3px;
     position: absolute;
     top: calc(50vh - 15em);
-    left: calc(50vw - 20em);
+    right: calc(50vw - 20em);
     z-index: 3100;
     display: grid;
     grid-template: 2em 1fr / 1fr 2em;
@@ -798,6 +798,7 @@
   font-weight: bold;
   font-size: 1.5em;
   padding-left: 0.2em;
+  cursor: move;
 }
 
 #galleryCloseButton {
