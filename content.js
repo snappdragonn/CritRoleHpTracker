@@ -795,59 +795,64 @@ function updateStats(){
 }
 
 function applyEvent(event, updateUI, isSeek){
-  console.log("event: " + event.type);
-  if(event.type === "hpUpdate"){
-    if(event.hasOwnProperty("tmp") && event.tmp == true){
-      getPlayer(event.characterName).addTmpHp(event.amount, updateUI);
+  try{
+    console.log("event: " + event.type);
+    if(event.type === "hpUpdate"){
+      if(event.hasOwnProperty("tmp") && event.tmp == true){
+        getPlayer(event.characterName).addTmpHp(event.amount, updateUI);
+      }else{
+        getPlayer(event.characterName).updateHp(event.amount, updateUI);
+      }
+    }else if(event.type === "deathsave"){
+      getPlayer(event.characterName).addDeathSave((event.saveType === "succeed"), (("amount" in event) ? event.amount : 1), updateUI);
+    }else if(event.type === "longRest"){
+      if(event.players != null){
+        resetPlayers(event.players.map(name => getPlayer(name)));
+      }else{
+        resetPlayers();
+      }
+
+    }else if(event.type === "addEffect"){
+      getPlayer(event.characterName).addEffect(event.effectName, event.effectDesc, event.level);
+    }else if(event.type === "removeEffect"){
+      getPlayer(event.characterName).removeEffect(event.effectName);
+
+    }else if(event.type === "initiativeStart"){
+      startInitiative(event.order);
+    }else if(event.type === "initiativeEnd"){
+      endInitiative();
+    }else if(event.type === "nextInitiativeTurn"){
+      nextInitiativeTurn(event);
+    }else if(event.type === "pauseInitiative"){
+      for(let panelObj of panels){
+        panelObj.panel.parentElement.classList.remove("initiativeCurrent");
+      }
+    removeEnemyTurnMarkers();
+
+    }else if(event.type === "setHpDisplay"){
+      panels[getPlayer(event.characterName).id].setHpDisplay(event.value, event.color, event.sliderWidth, event.bloody);
+    }else if(event.type === "unsetHpDisplay"){
+      panels[getPlayer(event.characterName).id].unsetHpDisplay();
+
+    }else if(event.type === "useSpell"){
+      if(event.characterName != "Enemy") getPlayer(event.characterName).updateSpell(event.level, event.amount, true); 
+      if(event.spellInfo != undefined && !isSeek) displaySpellInfo(event.spellInfo);
+    }else if(event.type === "regainSpell"){
+      getPlayer(event.characterName).updateSpell(event.level, event.amount, false);
+    } else if(event.type === "spellNotif"){ //TODO make this more general - for any type of notif?
+      if(!isSeek) displaySpellInfo(event.spellInfo);
+
+    }else if(event.type === "addPlayer"){
+      addPlayer(event.playerData, event.playerIndex);
+    }else if(event.type === "removePlayer"){
+      removePlayer(event.playerName); //TODO implement this
+
     }else{
-      getPlayer(event.characterName).updateHp(event.amount, updateUI);
+      console.warn("invalid event: " + event.type);
     }
-  }else if(event.type === "deathsave"){
-    getPlayer(event.characterName).addDeathSave((event.saveType === "succeed"), (("amount" in event) ? event.amount : 1), updateUI);
-  }else if(event.type === "longRest"){
-    if(event.players != null){
-      resetPlayers(event.players.map(name => getPlayer(name)));
-    }else{
-      resetPlayers();
-    }
-
-  }else if(event.type === "addEffect"){
-    getPlayer(event.characterName).addEffect(event.effectName, event.effectDesc, event.level);
-  }else if(event.type === "removeEffect"){
-    getPlayer(event.characterName).removeEffect(event.effectName);
-
-  }else if(event.type === "initiativeStart"){
-    startInitiative(event.order);
-  }else if(event.type === "initiativeEnd"){
-    endInitiative();
-  }else if(event.type === "nextInitiativeTurn"){
-    nextInitiativeTurn(event);
-  }else if(event.type === "pauseInitiative"){
-    for(let panelObj of panels){
-      panelObj.panel.parentElement.classList.remove("initiativeCurrent");
-    }
-  removeEnemyTurnMarkers();
-
-  }else if(event.type === "setHpDisplay"){
-    panels[getPlayer(event.characterName).id].setHpDisplay(event.value, event.color, event.sliderWidth, event.bloody);
-  }else if(event.type === "unsetHpDisplay"){
-    panels[getPlayer(event.characterName).id].unsetHpDisplay();
-
-  }else if(event.type === "useSpell"){
-    getPlayer(event.characterName).updateSpell(event.level, event.amount, true);
-    if(event.spellInfo != undefined && !isSeek) displaySpellInfo(event.spellInfo);
-  }else if(event.type === "regainSpell"){
-    getPlayer(event.characterName).updateSpell(event.level, event.amount, false);
-  } else if(event.type === "spellNotif"){ //TODO make this more general - for any type of notif?
-    if(!isSeek) displaySpellInfo(event.spellInfo);
-
-  }else if(event.type === "addPlayer"){
-    addPlayer(event.playerData, event.playerIndex);
-  }else if(event.type === "removePlayer"){
-    removePlayer(event.playerName); //TODO implement this
-
-  }else{
-    console.warn("invalid event: " + event.type);
+  }catch (e) {
+    console.error("Error Processing Event: " + e.name + ": " + e.message);
+    console.error(e);
   }
 
   //TODO update UI here
@@ -1789,7 +1794,7 @@ function addDragListeners(){
 }
 
 function mouseUp(){
-  window.removeEventListener('mousemove', divMove, true);
+  //window.removeEventListener('mousemove', divMove, true);
   window.removeEventListener('mousemove', divResize, true);
 }
 
@@ -1802,10 +1807,10 @@ function mouseUp(){
 //   mouseTrackerDiffPos = (document.body.clientWidth - e.clientX) - divRight;
 // }
 
-// function mouseDownResize(e){
-//   e.preventDefault()
-//   window.addEventListener('mousemove', divResize, true);
-// }
+function mouseDownResize(e){
+  e.preventDefault()
+  window.addEventListener('mousemove', divResize, true);
+}
 
 // function divMove(e){
 //   e.preventDefault()
@@ -1845,7 +1850,7 @@ function clamp(n, min, max){
 
 
 //-------------------
-//Drag and Drop
+// Drag and Drop
 //-------------------
 
 function StartDrag(event, dragElem){
@@ -1874,6 +1879,37 @@ function OnDrag(event, dragElem, mouseOffset){
 }
 
 
+
+
+
+//-------------------
+// Resize
+//-------------------
+function StartResize(event, resizeElem){
+  console.log("start resize");
+  event.preventDefault();
+
+  resizeFunc = (moveEvent) => OnResize(moveEvent, dragElem);
+  document.addEventListener('mousemove', resizeFunc);
+
+  //End resizing
+  document.addEventListener('mouseup', () => {
+    console.log("mouseup");
+    document.removeEventListener('mousemove', resizeFunc)
+  }, {once: true});
+}
+
+function OnResize(event, resizeElem){
+  console.log("on resize");
+  event.preventDefault()
+
+  //change popup size
+  var newWidth = Math.max( (parseInt(style.getPropertyValue("width")) + (-e.movementX)), parseInt(style.getPropertyValue("min-width")) )
+  var newHeight = Math.max( (parseInt(style.getPropertyValue("height")) + e.movementY), parseInt(style.getPropertyValue("min-height")) )
+
+  //change font size
+  //(parseInt(style.getPropertyValue("--font-size-percent "))
+}
 
 
 
