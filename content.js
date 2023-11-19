@@ -835,7 +835,7 @@ function applyEvent(event, updateUI, isSeek){
       panels[getPlayer(event.characterName).id].unsetHpDisplay();
 
     }else if(event.type === "useSpell"){
-      if(event.characterName != "Enemy") getPlayer(event.characterName).updateSpell(event.level, event.amount, true); 
+      if(event.characterName != "Enemy") getPlayer(event.characterName).updateSpell(event.level, event.amount, true);
       if(event.spellInfo != undefined && !isSeek) displaySpellInfo(event.spellInfo);
     }else if(event.type === "regainSpell"){
       getPlayer(event.characterName).updateSpell(event.level, event.amount, false);
@@ -1219,7 +1219,7 @@ function makeTable(){
 
                             <div id="hpPanelsContainer" style="grid-area: content"> </div>
 
-                            <div id="resizer">
+                            <div id="resizer" class="resizer">
                               <img src=${chrome.runtime.getURL("icons/dragSymbol.png")} style="width: 100%; vertical-align: top;">
                             </div>
 
@@ -1231,7 +1231,8 @@ function makeTable(){
 
   document.body.insertAdjacentHTML("beforeend", trackerHTML);
 
-   document.getElementById("trackerTitle").addEventListener("mousedown", (e) => StartDrag(e, document.getElementById("trackerBlock")));
+  document.getElementById("trackerTitle").addEventListener("mousedown", (e) => StartDrag(e, document.getElementById("trackerBlock")));
+  document.getElementById("resizer").addEventListener("mousedown", (e) => StartResize(e, document.getElementById("trackerBody")));
 
   document.getElementById("menuButton").addEventListener("click", openMainMenu, false);
 
@@ -1247,7 +1248,7 @@ function makeTable(){
   document.getElementById("openGalleryButton").addEventListener("click", OpenGalleryPopup, false);
 
 
-  addDragListeners();
+  //addDragListeners();
 
 }
 
@@ -1470,6 +1471,9 @@ async function MakeGalleryPopup(){
         <div id="fan-art-gallery" style="grid-area: Gallery">
           <div class="spinner" style="width: 40px; height: 40px"></div>
         </div>
+        <div class="resizer">
+          <img src=${chrome.runtime.getURL("icons/dragSymbol.png")} style="width: 100%; vertical-align: top;">
+        </div>
       <div>
     `);
 
@@ -1478,6 +1482,7 @@ async function MakeGalleryPopup(){
   });
 
   document.getElementById("galleryHeader").addEventListener("mousedown", (e) => StartDrag(e, document.getElementById("fan-art-gallery-popup")));
+  document.getElementById("fan-art-gallery-popup").getElementsByClassName("resizer")[0].addEventListener("mousedown", (e) => StartResize(e, document.getElementById("fan-art-gallery-popup")));
 
   //Get fan art urls and artist names
   var galleryData = await GetGalleryImages("enkindled");
@@ -1787,16 +1792,16 @@ function openStatsPanel(statsPanel){
 }
 
 
-function addDragListeners(){
-  //document.getElementById('trackerTitle').addEventListener('mousedown', mouseDownDrag, false); //drag listener
-  document.getElementById("resizer").addEventListener("mousedown", mouseDownResize, false); //resize listener
-  window.addEventListener('mouseup', mouseUp, false);
-}
+// function addDragListeners(){
+//   document.getElementById('trackerTitle').addEventListener('mousedown', mouseDownDrag, false); //drag listener
+//   document.getElementById("resizer").addEventListener("mousedown", mouseDownResize, false); //resize listener
+//   window.addEventListener('mouseup', mouseUp, false);
+// }
 
-function mouseUp(){
-  //window.removeEventListener('mousemove', divMove, true);
-  window.removeEventListener('mousemove', divResize, true);
-}
+// function mouseUp(){
+//   window.removeEventListener('mousemove', divMove, true);
+//   window.removeEventListener('mousemove', divResize, true);
+// }
 
 // var mouseTrackerDiffPos
 // function mouseDownDrag(e){
@@ -1807,10 +1812,10 @@ function mouseUp(){
 //   mouseTrackerDiffPos = (document.body.clientWidth - e.clientX) - divRight;
 // }
 
-function mouseDownResize(e){
-  e.preventDefault()
-  window.addEventListener('mousemove', divResize, true);
-}
+// function mouseDownResize(e){
+//   e.preventDefault()
+//   window.addEventListener('mousemove', divResize, true);
+// }
 
 // function divMove(e){
 //   e.preventDefault()
@@ -1819,23 +1824,23 @@ function mouseDownResize(e){
 //   div.style.right = clamp(document.body.clientWidth - e.clientX - mouseTrackerDiffPos, 0, document.body.clientWidth - div.offsetWidth) + "px"; //move popup to mouse position offest on x so that mouse is in same place relative to popup as was when first mouse down
 // }
 
-function divResize(e){
-  e.preventDefault()
-  let root = document.getElementById("trackerBlock");
-  let rootStyle = window.getComputedStyle(root);
-  let style = window.getComputedStyle(document.getElementById("trackerBody"));
+// function divResize(e){
+//   e.preventDefault()
+//   let root = document.getElementById("trackerBlock");
+//   let rootStyle = window.getComputedStyle(root);
+//   let style = window.getComputedStyle(document.getElementById("trackerBody"));
 
-  let newWidth = Math.max( (parseInt(style.getPropertyValue("width")) + (-e.movementX)), parseInt(style.getPropertyValue("min-width")) )
-  let newHeight = Math.max( (parseInt(style.getPropertyValue("height")) + e.movementY), parseInt(style.getPropertyValue("min-height")) )
+//   let newWidth = Math.max( (parseInt(style.getPropertyValue("width")) + (-e.movementX)), parseInt(style.getPropertyValue("min-width")) )
+//   let newHeight = Math.max( (parseInt(style.getPropertyValue("height")) + e.movementY), parseInt(style.getPropertyValue("min-height")) )
 
-  let defaultH = Math.round( parseFloat(style.height) / parseFloat(rootStyle.getPropertyValue("--heightMod")) );
-  let defaultW = Math.round( parseFloat(style.width) / parseFloat(rootStyle.getPropertyValue("--widthMod")) );
-  let widthMod = newWidth / defaultW;
-  let heightMod = newHeight / defaultH;
+//   let defaultH = Math.round( parseFloat(style.height) / parseFloat(rootStyle.getPropertyValue("--heightMod")) );
+//   let defaultW = Math.round( parseFloat(style.width) / parseFloat(rootStyle.getPropertyValue("--widthMod")) );
+//   let widthMod = newWidth / defaultW;
+//   let heightMod = newHeight / defaultH;
  
-  root.style.setProperty("--widthMod", widthMod);
-  root.style.setProperty("--heightMod", heightMod);
-}
+//   root.style.setProperty("--widthMod", widthMod);
+//   root.style.setProperty("--heightMod", heightMod);
+// }
 
 
 function clamp(n, min, max){
@@ -1858,7 +1863,7 @@ function StartDrag(event, dragElem){
   event.preventDefault();
 
   //calc mouse offset from dragElem top right corner
-  elemRight = parseInt((window.getComputedStyle(dragElem).getPropertyValue("right")).slice(0, -2));
+  let elemRight = parseInt((window.getComputedStyle(dragElem).getPropertyValue("right")).slice(0, -2));
   let offset = (document.body.clientWidth - event.clientX) - elemRight;
 
   moveFunc = (moveEvent) => OnDrag(moveEvent, dragElem, offset);
@@ -1885,11 +1890,12 @@ function OnDrag(event, dragElem, mouseOffset){
 //-------------------
 // Resize
 //-------------------
+
 function StartResize(event, resizeElem){
   console.log("start resize");
   event.preventDefault();
 
-  resizeFunc = (moveEvent) => OnResize(moveEvent, dragElem);
+  resizeFunc = (moveEvent) => OnResize(moveEvent, resizeElem);
   document.addEventListener('mousemove', resizeFunc);
 
   //End resizing
@@ -1903,12 +1909,19 @@ function OnResize(event, resizeElem){
   console.log("on resize");
   event.preventDefault()
 
-  //change popup size
-  var newWidth = Math.max( (parseInt(style.getPropertyValue("width")) + (-e.movementX)), parseInt(style.getPropertyValue("min-width")) )
-  var newHeight = Math.max( (parseInt(style.getPropertyValue("height")) + e.movementY), parseInt(style.getPropertyValue("min-height")) )
+  let style = window.getComputedStyle(resizeElem);
 
-  //change font size
-  //(parseInt(style.getPropertyValue("--font-size-percent "))
+  //change popup size
+  let newWidth = Math.max( (parseInt(style.getPropertyValue("width")) + (-event.movementX)), parseInt(style.getPropertyValue("min-width")) )
+  let newHeight = Math.max( (parseInt(style.getPropertyValue("height")) + event.movementY), parseInt(style.getPropertyValue("min-height")) )
+
+  let defaultH = Math.round( parseFloat(style.height) / parseFloat(style.getPropertyValue("--heightMod")) );
+  let defaultW = Math.round( parseFloat(style.width) / parseFloat(style.getPropertyValue("--widthMod")) );
+  let widthMod = newWidth / defaultW;
+  let heightMod = newHeight / defaultH;
+
+  resizeElem.style.setProperty("--widthMod", widthMod);
+  resizeElem.style.setProperty("--heightMod", heightMod);
 }
 
 
