@@ -785,22 +785,22 @@
 
   background-color: dimgray;
   color: white;
-  border: black solid 3px;
+  border: black solid 2px;
   border-radius: 3px;
   position: absolute;
   top: calc(50vh - 300px);
   right: calc(50vw - 240px);
   z-index: 3100;
   display: grid;
-  grid-template: 2em 1fr / 1fr 2em;
+  grid-template: 1.2em 1fr / 1fr 1.2em;
   grid-template-areas: "Title CloseButton" 
                        "Gallery Gallery";
 }
 
 #fan-art-gallery-popup > h4 {
   height: 100%;
-  border-bottom: black solid 3px;
-  border-right: black solid 3px;
+  border-bottom: black solid 2px;
+  border-right: black solid 2px;
   font-weight: bold;
   font-size: 1em;
   padding-left: 0.2em;

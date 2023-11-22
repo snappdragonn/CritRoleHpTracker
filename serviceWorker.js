@@ -14,6 +14,8 @@ async function getFanArt(message, sender, sendResponse) {
     fetchResponse = await fetch("https://critrole.com/fan-art-gallery-" + message["galleryName"] + "/")
     console.log("fetch status: " + fetchResponse.status); 
 
+    //TODO if doesn't work try without the 'fan-art-gallery-' part
+
     fetchResponseText = await fetchResponse.text();
     console.log(fetchResponseText);
     sendResponse(fetchResponseText);

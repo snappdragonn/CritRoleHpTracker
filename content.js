@@ -6,6 +6,7 @@ var episodeNum = 0;
 var campaignNum = 0;
 var episodeData;  //json data of events in the episode
 var charData;   //json data of the player characters
+var galleryName; //the name of the fan art gallery for this episode
 var currentTimeSlot = 0; //the index of the time at the end of a time slot (between events)
 var previousTime = 0;   //the time in the video when lasted checked of events (used to determine if the used has jumped to a differenet point in the video)
 var updateTimer;  //timer for checking for new events (every second)
@@ -1428,6 +1429,10 @@ function removePlayer(name){
 
  async function GetGalleryImages(galleryName){
 
+  if(galleryName == undefined){
+    return null;
+  }
+
   galleryText = await chrome.runtime.sendMessage({"request": "GetFanArtGallery", "galleryName": galleryName}); //.then((galleryText) => {
 
   console.log("got response from service worker");
@@ -1463,7 +1468,7 @@ async function MakeGalleryPopup(){
   document.body.insertAdjacentHTML("beforeend", 
     `<div id="fan-art-gallery-popup">
         <h4 id="galleryHeader">Fan Art Gallery</h4>
-        <div style="border-bottom: black solid 3px; width: 100%; height: 100%;">
+        <div style="border-bottom: black solid 2px; width: 100%; height: 100%;">
           <button id="galleryCloseButton">
             <img src="${chrome.runtime.getURL("icons/cross_.png")}" alt="close icon">
           </button>
@@ -1485,7 +1490,9 @@ async function MakeGalleryPopup(){
   document.getElementById("fan-art-gallery-popup").getElementsByClassName("resizer")[0].addEventListener("mousedown", (e) => StartResize(e, document.getElementById("fan-art-gallery-popup")));
 
   //Get fan art urls and artist names
-  var galleryData = await GetGalleryImages("enkindled");
+  var galleryData = await GetGalleryImages(galleryName);
+
+  if(galleryData == null) return;
 
   //Add fan art to gallery popup
   galleryElem = document.getElementById("fan-art-gallery");
@@ -1735,9 +1742,10 @@ function getEpisodeData(successCallback, failCallback){
 
         if(String(this.status)[0] === "2"){
 
-          var reponseJson = JSON.parse(this.responseText);
-          episodeData = (reponseJson.length <= 0) ? null : reponseJson[0].data;
-          charData = (reponseJson.length <= 0) ? null : reponseJson[0].characterData;
+          var responseJson = JSON.parse(this.responseText);
+          episodeData = (responseJson.length <= 0) ? null : responseJson[0].data;
+          charData = (responseJson.length <= 0) ? null : responseJson[0].characterData;
+          galleryName = (responseJson.length <= 0) ? null : responseJson[0].galleryName;
           console.log(episodeData);
           console.log(charData);
 
