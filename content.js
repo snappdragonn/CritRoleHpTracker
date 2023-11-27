@@ -1481,14 +1481,14 @@ async function MakeGalleryPopup(){
           <div class="spinner" style="width: 40px; height: 40px"></div>
         </div>
         <div id="galleryInfo" style="grid-area: Controls">
-          <div class="resizer" style="float: left">
+          <div class="resizer" style="grid-area: resizer">
             <img src=${chrome.runtime.getURL("icons/dragSymbol.png")} style="width: 100%; vertical-align: top;">
           </div>
-          <span id="galleryImageCount" style="float: left">1/0</span>
-          <div id="galleryControls">
+          <span id="galleryImageCount" style="grid-area: imageCounter"><span>1</span><span>/0</span></span>
+          <div id="galleryControls" style="grid-area: Controls">
             Play
           </div>
-          <span id="galleryArtistCredit">@artistName</span>
+          <span id="galleryArtistCredit" style="grid-area: ArtistCredit">@artistName</span>
         </div>
       <div>
     `);
@@ -1520,8 +1520,9 @@ async function MakeGalleryPopup(){
   galleryElem.firstElementChild.style.display = "block";
 
 
-  document.getElementById("galleryImageCount").innerHTML = "1/" + galleryData["images"].length;
+  document.getElementById("galleryImageCount").lastElementChild.innerHTML = "/" + galleryData["images"].length;
   document.getElementById("galleryArtistCredit").innerText = galleryElem.firstElementChild.alt;
+  document.getElementById("galleryArtistCredit").title = galleryElem.firstElementChild.alt;
 
   StartGalleryTimer();
 
@@ -1534,6 +1535,10 @@ function StartGalleryTimer(){
   document.getElementById("fan-art-gallery").firstElementChild.style.display = "block";
   let currentImage = 0;
   let galleryElem = document.getElementById("fan-art-gallery");
+  document.getElementById("galleryArtistCredit").innerText = galleryElem.children[currentImage].alt;
+  document.getElementById("galleryArtistCredit").title = galleryElem.firstElementChild.alt;
+  document.getElementById("galleryImageCount").firstElementChild.innerText = currentImage+1;
+
   galleryTimer = setInterval(() => {
     galleryElem.children[currentImage].style.display = "none";
     currentImage++;
@@ -1544,6 +1549,8 @@ function StartGalleryTimer(){
 
     galleryElem.children[currentImage].style.display = "block";
     document.getElementById("galleryArtistCredit").innerText = galleryElem.children[currentImage].alt;
+    document.getElementById("galleryArtistCredit").title = galleryElem.firstElementChild.alt;
+    document.getElementById("galleryImageCount").firstElementChild.innerText = currentImage+1;
   }, 5000)
 
   document.getElementById("galleryCloseButton").addEventListener("click", () => {
