@@ -1430,27 +1430,31 @@ function removePlayer(name){
  async function GetGalleryImages(galleryName){
 
   if(galleryName == undefined){
-    return null;
+    return {"error": "No Gallery"};
   }
 
-  galleryText = await chrome.runtime.sendMessage({"request": "GetFanArtGallery", "galleryName": galleryName}); //.then((galleryText) => {
+  let response = await chrome.runtime.sendMessage({"request": "GetFanArtGallery", "galleryName": galleryName});
+  if(response["error"] != undefined){
+    return {"error": response[error]};
+  }
+  galleryText = response.text;
 
   console.log("got response from service worker");
 
   //convert gallery from string to html element
-  galleryDiv = document.createElement("div");
+  let galleryDiv = document.createElement("div");
   galleryDiv.innerHTML = galleryText;
   console.log(galleryDiv);
 
   //get fan art image urls and artist names
-  GalleryList = galleryDiv.getElementsByClassName("wonderplugin-gridgallery-list")[0];
-  galleryImages = {"galleryName": galleryName, "images": []};
+  let GalleryList = galleryDiv.getElementsByClassName("wonderplugin-gridgallery-list")[0];
+  let galleryImages = {"galleryName": galleryName, "images": []};
 
   for(galleryItem of GalleryList.children){
-    imgElement = galleryItem.getElementsByTagName("img")[0];
+    let imgElement = galleryItem.getElementsByTagName("img")[0];
     if(imgElement == null){ continue; }
-    imgURL = imgElement.getAttribute("src").replace(/-\d+x\d+(?=\.\w+)/, ""); //get the url and remove the image size (e.g. 300x200) to get the full size image
-    artist = imgElement.getAttribute("alt");
+    let imgURL = imgElement.getAttribute("src").replace(/-\d+x\d+(?=\.\w+)/, ""); //get the url and remove the image size (e.g. 300x200) to get the full size image
+    let artist = imgElement.getAttribute("alt");
 
     galleryImages["images"].push({"url": imgURL, "artist": artist});
   }
@@ -1476,8 +1480,15 @@ async function MakeGalleryPopup(){
         <div id="fan-art-gallery" style="grid-area: Gallery">
           <div class="spinner" style="width: 40px; height: 40px"></div>
         </div>
-        <div class="resizer">
-          <img src=${chrome.runtime.getURL("icons/dragSymbol.png")} style="width: 100%; vertical-align: top;">
+        <div id="galleryInfo" style="grid-area: Controls">
+          <div class="resizer" style="float: left">
+            <img src=${chrome.runtime.getURL("icons/dragSymbol.png")} style="width: 100%; vertical-align: top;">
+          </div>
+          <span id="galleryImageCount" style="float: left">1/0</span>
+          <div id="galleryControls">
+            Play
+          </div>
+          <span id="galleryArtistCredit">@artistName</span>
         </div>
       <div>
     `);
@@ -1489,30 +1500,40 @@ async function MakeGalleryPopup(){
   document.getElementById("galleryHeader").addEventListener("mousedown", (e) => StartDrag(e, document.getElementById("fan-art-gallery-popup")));
   document.getElementById("fan-art-gallery-popup").getElementsByClassName("resizer")[0].addEventListener("mousedown", (e) => StartResize(e, document.getElementById("fan-art-gallery-popup")));
 
-  //Get fan art urls and artist names
-  var galleryData = await GetGalleryImages(galleryName);
 
-  if(galleryData == null) return;
+  //Get fan art urls and artist names
+  let galleryData = await GetGalleryImages(galleryName);
+
+  if(galleryData["error"] != undefined){
+    console.warn("Gallery Error: " + galleryData["error"]);
+    document.getElementById("fan-art-gallery").innerHTML = `<h1>${galleryData["error"]}</h1>`;
+    return;
+  }
 
   //Add fan art to gallery popup
-  galleryElem = document.getElementById("fan-art-gallery");
+  let galleryElem = document.getElementById("fan-art-gallery");
   galleryElem.innerHTML = ""; //remove loading spinner icon
 
   for(image of galleryData["images"]){
     galleryElem.insertAdjacentHTML("beforeend", `<img src="${image["url"]}" alt="${image["artist"]}" style="display: none" /> `);
   }
-  
   galleryElem.firstElementChild.style.display = "block";
+
+
+  document.getElementById("galleryImageCount").innerHTML = "1/" + galleryData["images"].length;
+  document.getElementById("galleryArtistCredit").innerText = galleryElem.firstElementChild.alt;
 
   StartGalleryTimer();
 
 }
+
 
 function StartGalleryTimer(){
   if(galleryTimer != null) return;
 
   document.getElementById("fan-art-gallery").firstElementChild.style.display = "block";
   let currentImage = 0;
+  let galleryElem = document.getElementById("fan-art-gallery");
   galleryTimer = setInterval(() => {
     galleryElem.children[currentImage].style.display = "none";
     currentImage++;
@@ -1520,7 +1541,9 @@ function StartGalleryTimer(){
       currentImage = 0;
     }
     console.log(galleryTimer + " current image = " + currentImage);
+
     galleryElem.children[currentImage].style.display = "block";
+    document.getElementById("galleryArtistCredit").innerText = galleryElem.children[currentImage].alt;
   }, 5000)
 
   document.getElementById("galleryCloseButton").addEventListener("click", () => {
@@ -1541,7 +1564,7 @@ function StopGalleryTimer(){
 }
 
 function OpenGalleryPopup(){
-  gallery = document.getElementById("fan-art-gallery-popup");
+  let gallery = document.getElementById("fan-art-gallery-popup");
   if(gallery != null){
     gallery.style.display = "grid";
     StartGalleryTimer();
@@ -1549,6 +1572,8 @@ function OpenGalleryPopup(){
     MakeGalleryPopup();
   }
 }
+
+
 
 
 

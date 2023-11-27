@@ -792,9 +792,10 @@
   right: calc(50vw - 240px);
   z-index: 3100;
   display: grid;
-  grid-template: 1.2em 1fr / 1fr 1.2em;
+  grid-template: 1.2em 1fr 1.2em / 1fr 1.2em;
   grid-template-areas: "Title CloseButton" 
-                       "Gallery Gallery";
+                       "Gallery Gallery"
+                       "Controls Controls";
 }
 
 #fan-art-gallery-popup > h4 {
@@ -846,6 +847,17 @@
   object-fit: contain;
 }
 
+#galleryInfo {
+  border-top: 2px solid black;
+}
+
+#galleryControls {
+  display: inline;
+}
+
+#galleryArtistCredit {
+  float: right;
+}
 
 
 
