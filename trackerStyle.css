@@ -861,6 +861,26 @@
 #galleryControls {
   display: inline;
   text-align: center;
+  display: flex;
+  width: 100%;
+  justify-content: space-around;
+}
+
+#galleryControls button {
+  color: inherit;
+  flex: 1;
+  border: black solid;
+  border-width: 0 0 0 2px;
+  background-color: inherit;
+  padding: 0px;
+}
+
+#galleryControls button:hover {
+  background-color: gray;
+}
+
+#galleryControls button:last-child {
+  border-right: 2px solid black;
 }
 
 #galleryArtistCredit {

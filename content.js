@@ -1486,7 +1486,9 @@ async function MakeGalleryPopup(){
           </div>
           <span id="galleryImageCount" style="grid-area: imageCounter"><span>1</span><span>/0</span></span>
           <div id="galleryControls" style="grid-area: Controls">
-            Play
+            <button><<</button>
+            <button>||</button>
+            <button>>></button>
           </div>
           <span id="galleryArtistCredit" style="grid-area: ArtistCredit">@artistName</span>
         </div>
