@@ -1503,6 +1503,8 @@ async function MakeGalleryPopup(){
   document.getElementById("galleryHeader").addEventListener("mousedown", (e) => StartDrag(e, document.getElementById("fan-art-gallery-popup")));
   document.getElementById("fan-art-gallery-popup").getElementsByClassName("resizer")[0].addEventListener("mousedown", (e) => StartResize(e, document.getElementById("fan-art-gallery-popup")));
   document.getElementById("galleryPlayPauseButton").addEventListener("click", toggleGalleryTimer);
+  document.getElementById("galleryBackButton").addEventListener("click", () => jumpToNextImage(-1));
+  document.getElementById("galleryForwardButton").addEventListener("click", () => jumpToNextImage(1));
 
   //Get fan art urls and artist names
   let galleryData = await GetGalleryImages(galleryName);
@@ -1552,7 +1554,7 @@ function StartGalleryTimer(){
 
     galleryElem.children[currentGalleryImage].style.display = "block";
     document.getElementById("galleryArtistCredit").innerText = galleryElem.children[currentGalleryImage].alt;
-    document.getElementById("galleryArtistCredit").title = galleryElem.firstElementChild.alt;
+    document.getElementById("galleryArtistCredit").title = galleryElem.children[currentGalleryImage].alt;
     document.getElementById("galleryImageCount").firstElementChild.innerText = currentGalleryImage+1;
   }, 5000)
 
@@ -1581,6 +1583,25 @@ function toggleGalleryTimer(){
     StartGalleryTimer();
     document.getElementById("galleryPlayPauseButton").innerText = "||";
   }
+}
+
+function jumpToNextImage(direction){
+  console.log("jump to next image: " + direction);
+  StopGalleryTimer();
+  let galleryElem = document.getElementById("fan-art-gallery");
+  galleryElem.children[currentGalleryImage].style.display = "none";
+
+  currentGalleryImage += direction;
+  let numImages = document.getElementById("fan-art-gallery").childElementCount;
+  if(currentGalleryImage < 0) currentGalleryImage = numImages-1;
+  if(currentGalleryImage >= numImages) currentGalleryImage = 0; 
+
+  galleryElem.children[currentGalleryImage].style.display = "block";
+  document.getElementById("galleryArtistCredit").innerText = galleryElem.children[currentGalleryImage].alt;
+  document.getElementById("galleryArtistCredit").title = galleryElem.children[currentGalleryImage].alt;
+  document.getElementById("galleryImageCount").firstElementChild.innerText = currentGalleryImage+1;
+
+  StartGalleryTimer();
 }
 
 function OpenGalleryPopup(){
