@@ -11,6 +11,7 @@ var currentTimeSlot = 0; //the index of the time at the end of a time slot (betw
 var previousTime = 0;   //the time in the video when lasted checked of events (used to determine if the used has jumped to a differenet point in the video)
 var updateTimer;  //timer for checking for new events (every second)
 var galleryTimer;
+var currentGalleryImage = 0;
 
 var displayType = "number";   //what type of player panels to use (number or healthbar)
 var orientation = "vertical";   
@@ -1486,9 +1487,9 @@ async function MakeGalleryPopup(){
           </div>
           <span id="galleryImageCount" style="grid-area: imageCounter"><span>1</span><span>/0</span></span>
           <div id="galleryControls" style="grid-area: Controls">
-            <button><<</button>
-            <button>||</button>
-            <button>>></button>
+            <button id="galleryBackButton"><<</button>
+            <button id="galleryPlayPauseButton">||</button>
+            <button id="galleryForwardButton">>></button>
           </div>
           <span id="galleryArtistCredit" style="grid-area: ArtistCredit">@artistName</span>
         </div>
@@ -1501,7 +1502,7 @@ async function MakeGalleryPopup(){
 
   document.getElementById("galleryHeader").addEventListener("mousedown", (e) => StartDrag(e, document.getElementById("fan-art-gallery-popup")));
   document.getElementById("fan-art-gallery-popup").getElementsByClassName("resizer")[0].addEventListener("mousedown", (e) => StartResize(e, document.getElementById("fan-art-gallery-popup")));
-
+  document.getElementById("galleryPlayPauseButton").addEventListener("click", toggleGalleryTimer);
 
   //Get fan art urls and artist names
   let galleryData = await GetGalleryImages(galleryName);
@@ -1534,25 +1535,25 @@ async function MakeGalleryPopup(){
 function StartGalleryTimer(){
   if(galleryTimer != null) return;
 
-  document.getElementById("fan-art-gallery").firstElementChild.style.display = "block";
-  let currentImage = 0;
+  //document.getElementById("fan-art-gallery").firstElementChild.style.display = "block";
+  //let currentImage = 0;
   let galleryElem = document.getElementById("fan-art-gallery");
-  document.getElementById("galleryArtistCredit").innerText = galleryElem.children[currentImage].alt;
-  document.getElementById("galleryArtistCredit").title = galleryElem.firstElementChild.alt;
-  document.getElementById("galleryImageCount").firstElementChild.innerText = currentImage+1;
+  // document.getElementById("galleryArtistCredit").innerText = galleryElem.children[currentGalleryImage].alt;
+  // document.getElementById("galleryArtistCredit").title = galleryElem.firstElementChild.alt;
+  // document.getElementById("galleryImageCount").firstElementChild.innerText = currentGalleryImage+1;
 
   galleryTimer = setInterval(() => {
-    galleryElem.children[currentImage].style.display = "none";
-    currentImage++;
-    if(currentImage >= galleryElem.childElementCount){
-      currentImage = 0;
+    galleryElem.children[currentGalleryImage].style.display = "none";
+    currentGalleryImage++;
+    if(currentGalleryImage >= galleryElem.childElementCount){
+      currentGalleryImage = 0;
     }
-    console.log(galleryTimer + " current image = " + currentImage);
+    console.log(galleryTimer + " current image = " + currentGalleryImage);
 
-    galleryElem.children[currentImage].style.display = "block";
-    document.getElementById("galleryArtistCredit").innerText = galleryElem.children[currentImage].alt;
+    galleryElem.children[currentGalleryImage].style.display = "block";
+    document.getElementById("galleryArtistCredit").innerText = galleryElem.children[currentGalleryImage].alt;
     document.getElementById("galleryArtistCredit").title = galleryElem.firstElementChild.alt;
-    document.getElementById("galleryImageCount").firstElementChild.innerText = currentImage+1;
+    document.getElementById("galleryImageCount").firstElementChild.innerText = currentGalleryImage+1;
   }, 5000)
 
   document.getElementById("galleryCloseButton").addEventListener("click", () => {
@@ -1564,11 +1565,21 @@ function StopGalleryTimer(){
   if(galleryTimer != null){
     clearInterval(galleryTimer);
     galleryTimer = null;
-    if(document.getElementById("fan-art-gallery") != null){
-      for(imageElem of document.getElementById("fan-art-gallery").children){
-        imageElem.style.display = "none";
-      }
-    }
+    // if(document.getElementById("fan-art-gallery") != null){
+    //   for(imageElem of document.getElementById("fan-art-gallery").children){
+    //     imageElem.style.display = "none";
+    //   }
+    // }
+  }
+}
+
+function toggleGalleryTimer(){
+  if(galleryTimer != null){ //gallery is playing
+    StopGalleryTimer();
+    document.getElementById("galleryPlayPauseButton").innerText = "I>";
+  }else {
+    StartGalleryTimer();
+    document.getElementById("galleryPlayPauseButton").innerText = "||";
   }
 }
 
