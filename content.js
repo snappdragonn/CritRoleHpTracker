@@ -1427,8 +1427,46 @@ function removePlayer(name){
 // Make Fan Art Gallery
 //------------------------------------------------------------------------------
 
+  
+async function FindLatestGallery(){
+  console.log("Find latest gallery");
+  let response = await chrome.runtime.sendMessage({"request": "GetWebPage", "webpage": "https://critrole.com/tag/fan-art/"});
 
- async function GetGalleryImages(galleryName){
+  //convert gallery from string to html element
+  let fanArtPage = document.createElement("div");
+  fanArtPage.innerHTML = response.text;
+  console.log(fanArtPage);
+
+  let latestGalleryLink = fanArtPage.querySelector(".qt-part-archive-item.format-gallery .qt-readmore");
+  console.log(latestGalleryLink);
+  let galleryResponse = await chrome.runtime.sendMessage({"request": "GetWebPage", "webpage": latestGalleryLink.href});
+
+  //convert gallery from string to html element
+  let galleryDiv = document.createElement("div");
+  galleryDiv.innerHTML = galleryResponse.text;
+  console.log(galleryDiv);
+
+  //get fan art image urls and artist names
+  let GalleryList = galleryDiv.getElementsByClassName("wonderplugin-gridgallery-list")[0];
+  let galleryImages = {"galleryName": galleryName, "images": []};
+
+  for(galleryItem of GalleryList.children){
+    let imgElement = galleryItem.getElementsByTagName("img")[0];
+    if(imgElement == null){ continue; }
+    let imgURL = imgElement.getAttribute("src").replace(/-\d+x\d+(?=\.\w+)/, ""); //get the url and remove the image size (e.g. 300x200) to get the full size image
+    let artist = imgElement.getAttribute("alt");
+
+    galleryImages["images"].push({"url": imgURL, "artist": artist});
+  }
+
+  console.log(galleryImages);
+
+  return galleryImages; //{"galleryname": name, "images": [{"url": url, "artist": artistName}] };
+
+}
+
+
+async function GetGalleryImages(galleryName){
 
   if(galleryName == undefined){
     return {"error": "No Gallery"};
@@ -1487,9 +1525,15 @@ async function MakeGalleryPopup(){
           </div>
           <span id="galleryImageCount" style="grid-area: imageCounter"><span>1</span><span>/0</span></span>
           <div id="galleryControls" style="grid-area: Controls">
-            <button id="galleryBackButton"><<</button>
-            <button id="galleryPlayPauseButton">||</button>
-            <button id="galleryForwardButton">>></button>
+            <button id="galleryBackButton">
+              <img src=${chrome.runtime.getURL("icons/backIcon.png")} style="width: 100%" />
+            </button>
+            <button id="galleryPlayPauseButton">
+              <img src=${chrome.runtime.getURL("icons/pauseIcon.png")} style="width: 100%" />
+            </button>
+            <button id="galleryForwardButton">
+              <img src=${chrome.runtime.getURL("icons/forwardIcon.png")} style="width: 100%" />
+            </button>
           </div>
           <span id="galleryArtistCredit" style="grid-area: ArtistCredit">@artistName</span>
         </div>
@@ -1507,7 +1551,8 @@ async function MakeGalleryPopup(){
   document.getElementById("galleryForwardButton").addEventListener("click", () => jumpToNextImage(1));
 
   //Get fan art urls and artist names
-  let galleryData = await GetGalleryImages(galleryName);
+  //let galleryData = await GetGalleryImages(galleryName);
+  let galleryData = await FindLatestGallery();
 
   if(galleryData["error"] != undefined){
     console.warn("Gallery Error: " + galleryData["error"]);
@@ -1537,12 +1582,7 @@ async function MakeGalleryPopup(){
 function StartGalleryTimer(){
   if(galleryTimer != null) return;
 
-  //document.getElementById("fan-art-gallery").firstElementChild.style.display = "block";
-  //let currentImage = 0;
   let galleryElem = document.getElementById("fan-art-gallery");
-  // document.getElementById("galleryArtistCredit").innerText = galleryElem.children[currentGalleryImage].alt;
-  // document.getElementById("galleryArtistCredit").title = galleryElem.firstElementChild.alt;
-  // document.getElementById("galleryImageCount").firstElementChild.innerText = currentGalleryImage+1;
 
   galleryTimer = setInterval(() => {
     galleryElem.children[currentGalleryImage].style.display = "none";
@@ -1556,7 +1596,7 @@ function StartGalleryTimer(){
     document.getElementById("galleryArtistCredit").innerText = galleryElem.children[currentGalleryImage].alt;
     document.getElementById("galleryArtistCredit").title = galleryElem.children[currentGalleryImage].alt;
     document.getElementById("galleryImageCount").firstElementChild.innerText = currentGalleryImage+1;
-  }, 5000)
+  }, 10000)
 
   document.getElementById("galleryCloseButton").addEventListener("click", () => {
     StopGalleryTimer();
@@ -1567,21 +1607,16 @@ function StopGalleryTimer(){
   if(galleryTimer != null){
     clearInterval(galleryTimer);
     galleryTimer = null;
-    // if(document.getElementById("fan-art-gallery") != null){
-    //   for(imageElem of document.getElementById("fan-art-gallery").children){
-    //     imageElem.style.display = "none";
-    //   }
-    // }
   }
 }
 
 function toggleGalleryTimer(){
   if(galleryTimer != null){ //gallery is playing
     StopGalleryTimer();
-    document.getElementById("galleryPlayPauseButton").innerText = "I>";
+    document.querySelector("#galleryPlayPauseButton img").src = chrome.runtime.getURL("icons/playIcon.png");
   }else {
     StartGalleryTimer();
-    document.getElementById("galleryPlayPauseButton").innerText = "||";
+    document.querySelector("#galleryPlayPauseButton img").src = chrome.runtime.getURL("icons/pauseIcon.png");
   }
 }
 
