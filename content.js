@@ -1427,8 +1427,66 @@ function removePlayer(name){
 // Make Fan Art Gallery
 //------------------------------------------------------------------------------
 
+
+//Find the fan art gallery from the same week as the episode
+function GetGalleryForEpisode(){
+
+  //---- Calculate which page the fan art gallery for this episode is on -----
+  
+  //get episode upload date
+  if(host == "youtube"){ //TODO make more resistant to changes to the DOM
+    let publishDateStr = document.querySelector('[itemprop="datePublished"]').getAttribute("content");
+    var publishDate = Date.parse(publishDateStr);
+    console.log(publishDate);
+  }else if(host == "twitch"){
+
+  }
+  
+  //calc weeks since episode upload
+  let milliSecInWeek = 1000 * 60 * 60 * 24 * 7;
+  let weeksSincePublish = (Date.now() - publishDate) / milliSecInWeek;
+
+  //calc page num of gallery for this episode
+  let numGalleriesPerPage = 10; //TODO check how many items per page (may change at some point)
+  let pageNum = Math.floor(weeksSincePublish / numGalleriesPerPage);
+
+
+  //---- Get the fan art page and find the gallery for the date of the episode ----
+
+  //Get the fan art page from critrole website
+  let response = await chrome.runtime.sendMessage({"request": "GetWebPage", "webpage": `https://critrole.com/tag/fan-art/page/${pageNum}/`});
+  //TODO deal with errors getting page
+
+  //convert webpage from string to html
+  let fanArtPage = document.createElement("div");
+  fanArtPage.innerHTML = response.text;
+  console.log(fanArtPage);
+
+  //find the fan art gallery coresponding to this episode
+  let allGalleries = fanArtPage.querySelectorAll(".post.category-fan-art");
+  //TODO check year is correct (should only be a problem at start/end of year)
+  let targetDate = ; //the thursday prior to the youtube episode publish upload date (for twitch its the same as the date streamed)
+  //TODO convert targetDate to same timezone as gallery date and remove hours/mins
+  let targetGallery = ;
+  for(galleryPost of allGalleries){ //find the gallery closest to and before the target date
+    //get the date of the gallery
+    let dateStr = galleryPost.querySelector(".qt-date");//.textContent.split(/,? /g);
+    let galleryDate = Date(dateStr)  //TODO check time zones aren't breaking anything (this date in local time but ep publish date is not)
+
+    if(galleryData - targetDate <= 0){ //if galleryDate is before targetDate
+      targetGalleryIndex = galleryPost;
+    }
+  }
+  //TODO deal with if target gallery not on this page (check how far off dates are and then check page before or after or work out which page to look on next)
+
+  //get the images from the gallery and display them
+
+}
+
   
 async function FindLatestGallery(){
+  CalcGalleryPageNum();
+
   console.log("Find latest gallery");
   let response = await chrome.runtime.sendMessage({"request": "GetWebPage", "webpage": "https://critrole.com/tag/fan-art/"});
 
@@ -1865,7 +1923,7 @@ function getEpisodeData(successCallback, failCallback){
   });
 
   let documentName = (campaignNum == 3) ? "combat-data" : "combat-data-c2"
-  xhr.open("GET", `https://critrolehpdata-5227.restdb.io/rest/${documentName}?q={\"EpNum\":${episodeNum}}`); //episodeNum critrolehpdata-5227 testdb-2091
+  xhr.open("GET", `https://critrolehpdata-5227.restdb.io/rest/${documentName}?q={\"EpNum\":${81}}`); //episodeNum critrolehpdata-5227 testdb-2091
   xhr.setRequestHeader("content-type", "application/json");
   xhr.setRequestHeader("x-apikey", apiKey);
   xhr.setRequestHeader("cache-control", "no-cache");
