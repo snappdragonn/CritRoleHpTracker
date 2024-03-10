@@ -1428,75 +1428,7 @@ function removePlayer(name){
 //------------------------------------------------------------------------------
 
 
-//Find the fan art gallery from the same week as the episode
-async function GetGalleryForEpisode(){
 
-  //TODO fix for navigating between episodes (get this episode not previous episode watched)
-
-  console.log("find gallery for episode");
-
-  //---- Calculate which page the fan art gallery for this episode is on -----
-  
-  //get episode upload date
-  if(host == "youtube"){ //TODO make more resistant to changes to the DOM
-    let publishDateStr = JSON.parse(document.querySelector('#content script[type="application/ld+json"]').textContent).uploadDate;
-    var publishDate = new Date()
-    publishDate.setTime(Date.parse(publishDateStr) - (4 * 24 * 60 * 60 * 1000)); // subtract 4 days from upload date to get stream date (uploaded on Monday, streamed on Thursday)
-    console.log(typeof publishDate);
-    console.log(publishDateStr);
-  }else if(host == "twitch"){
-    //TODO get time from twitch
-  }
-
-  console.log("upload date: " + publishDate.toLocaleDateString());
-  
-  //calc weeks since episode upload
-  let milliSecInWeek = 1000 * 60 * 60 * 24 * 7;
-  let weeksSincePublish = (Date.now() - publishDate) / milliSecInWeek;
-
-  console.log("weeks past: " + weeksSincePublish);
-
-  //calc page num of gallery for this episode
-  let numGalleriesPerPage = 10; //TODO check how many items per page (may change at some point)
-  let pageNum = Math.floor(weeksSincePublish / numGalleriesPerPage) + 1;
-
-  console.log("pageNum: " + pageNum);
-
-
-  //---- Get the fan art page and find the gallery for the date of the episode ----
-
-  // //Get the fan art page from critrole website
-  // let response = await chrome.runtime.sendMessage({"request": "GetWebPage", "webpage": `https://critrole.com/tag/fan-art/page/${pageNum}/`});
-  // //TODO deal with errors getting page
-
-  // //convert webpage from string to html
-  // let fanArtPage = document.createElement("div");
-  // fanArtPage.innerHTML = response.text;
-  // console.log(fanArtPage);
-
-  // //find the fan art gallery coresponding to this episode
-  // let allGalleries = fanArtPage.querySelectorAll(".post.category-fan-art");
-  // //TODO check year is correct (should only be a problem at start/end of year)
-  // let targetDate = 0; //the thursday prior to the youtube episode publish upload date (for twitch its the same as the date streamed)
-  // //TODO convert targetDate to same timezone as gallery date and remove hours/mins
-  // let targetGalleryIndex = 0;
-  // for(galleryPost of allGalleries){ //find the gallery closest to and before the target date
-  //   //get the date of the gallery
-  //   let dateStr = galleryPost.querySelector(".qt-date");//.textContent.split(/,? /g);
-  //   let galleryDate = Date(dateStr)  //TODO check time zones aren't breaking anything (this date in local time but ep publish date is not)
-
-  //   if(galleryData - targetDate <= 0){ //if galleryDate is before targetDate
-  //     targetGalleryIndex = galleryPost;
-  //     break;                                                                                                                                                                                                                                                              
-  //   }
-  // }
-  //TODO deal with if target gallery not on this page (check how far off dates are and then check page before or after or work out which page to look on next)
-
-  //get the images from the gallery and display them
-
-}
-
-  
 async function FindLatestGallery(){
 
   console.log("Find latest gallery");
@@ -1536,13 +1468,13 @@ async function FindLatestGallery(){
 }
 
 
-async function GetGalleryImages(galleryName){
+async function GetGalleryImages(galleryLink){
 
-  if(galleryName == undefined){
+  if(galleryLink == undefined){
     return {"error": "No Gallery"};
   }
 
-  let response = await chrome.runtime.sendMessage({"request": "GetFanArtGallery", "galleryName": galleryName});
+  let response = await chrome.runtime.sendMessage({"request": "GetWebPage", "webpage": galleryLink});
   if(response["error"] != undefined){
     return {"error": response[error]};
   }
@@ -1557,7 +1489,7 @@ async function GetGalleryImages(galleryName){
 
   //get fan art image urls and artist names
   let GalleryList = galleryDiv.getElementsByClassName("wonderplugin-gridgallery-list")[0];
-  let galleryImages = {"galleryName": galleryName, "images": []};
+  let galleryImages = {"galleryName": galleryName, "images": []}; //TODO extract gallery name from the link
 
   for(galleryItem of GalleryList.children){
     let imgElement = galleryItem.getElementsByTagName("img")[0];
@@ -1621,8 +1553,8 @@ async function MakeGalleryPopup(){
   document.getElementById("galleryForwardButton").addEventListener("click", () => jumpToNextImage(1));
 
   //Get fan art urls and artist names
-  //let galleryData = await GetGalleryImages(galleryName);
-  let galleryData = await GetGalleryForEpisode(); //FindLatestGallery();
+  let galleryData = await GetGalleryImages(galleryName);
+  //let galleryData = await GetGalleryForEpisode(); //FindLatestGallery();
 
   if(galleryData["error"] != undefined){
     console.warn("Gallery Error: " + galleryData["error"]);
