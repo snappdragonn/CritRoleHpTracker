@@ -1687,16 +1687,22 @@ function InjectHTML(){
   document.addEventListener("yt-page-data-updated", function(event){
     if(!navFinished){return;} //only execute directly after a yt-navigate-finish event
 
-    var authorNameElem = document.querySelectorAll('[itemprop="author"] [itemprop="name"]');
-    if(authorNameElem.length > 0 ){ //if the element exists
-      var name = authorNameElem[0].getAttribute('content');
+    //var authorNameElem = document.querySelector('[itemprop="author"] [itemprop="name"]');
+    if((elem = document.querySelector('[itemprop="author"] [itemprop="name"]')) != null){ //if the element exists
+      var channelName = elem.getAttribute('content');
+    }else if ((elem = document.querySelector("#channel-name a")) != null){
+      var channelName = elem.text;
     }else {
-      var name = document.querySelector("#channel-name a").text;
+      let videoTitle = document.querySelector("head meta[name='title']").content;
+      if(/[\w\s]+\| Critical Role \| Campaign \d. Episode \d+$/.test(videoTitle)
+      || /[\w\s]+\| Critical Role: THE MIGHTY NEIN \| Episode \d+$/.test(videoTitle)){
+        var channelName = "Critical Role"
+      }else {var channelName = ""}
     }
     //TODO could also get chanel name with JSON.parse(document.querySelector('#content script[type="application/ld+json"]').textContent).author
-    console.log(name);
+    console.log(channelName);
 
-    if(name === "Critical Role" || name === "Geek & Sundry"){ 
+    if(channelName === "Critical Role" || channelName === "Geek & Sundry"){ 
 
       //get the campaign and episode numbers 
       let videoTitle = document.getElementsByTagName("title")[0].textContent; 
