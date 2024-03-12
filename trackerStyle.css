@@ -439,6 +439,10 @@
   text-align: center;
 }
 
+.playerImage img{
+  aspect-ratio: 1 / 1;
+}
+
 .headshotOverlay {
   height: 100%; 
   width: 100%; 

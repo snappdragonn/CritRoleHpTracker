@@ -1,5 +1,9 @@
 
+console.log("HPTracker service worker started");
+
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+  console.log("received message.");
+  console.log(message);
   getFanArt(message, sender, sendResponse);
   return true; //indicate that it will respond asynchronously
 });

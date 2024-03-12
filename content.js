@@ -137,9 +137,9 @@ class NumberPanel extends Panel {
   //make the panel html element
   makePanel(){
     var htmlstring = /*html*/`
-                      <div id=${"player"+this.playerId} class="playerPanel" data-deathSaves="false" style="background-color: ${players[this.playerId].characterColor}; display: grid; grid-template: 1fr / 1fr 1fr">
+                      <div id=${"player"+this.playerId} class="playerPanel" data-deathSaves="false" style="background-color: ${players[this.playerId].characterColor}; display: grid; grid-template: 1fr / 45% 55%">
                         <div class="playerImage" style="display: flex; justify-content: center;">
-                          <div style="position: relative;">
+                          <div style="position: relative; height: 100%;">
                             <img class="headshotImg" src=${players[this.playerId].headShotImg} alt="headshot" referrerPolicy="no-referrer" crossorigin="anonymous" style="height: 100%;">
                             <img class="headshotOverlay" src="${chrome.runtime.getURL("/icons/bloodSpatter.png")}" style="display: ${(players[this.playerId].currentHp < (players[this.playerId].maxHp/2)) ? "inline" : "none"}">
                           </div>
@@ -2047,7 +2047,7 @@ function OnResize(event, resizeElem){
 
 
 
-
+console.log("HPTracker Running");
 
 
 
