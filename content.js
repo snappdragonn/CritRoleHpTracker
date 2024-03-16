@@ -1553,7 +1553,17 @@ async function MakeGalleryPopup(){
   document.getElementById("galleryForwardButton").addEventListener("click", () => jumpToNextImage(1));
 
   //Get fan art urls and artist names
-  let galleryData = await GetGalleryImages(galleryName);
+  if(galleryName != null){
+    var galleryData = await GetGalleryImages(galleryName);
+  }else if (campaignNum == 3){
+    var galleryData = await FindLatestGallery();
+  }else {
+    document.getElementById("fan-art-gallery").innerHTML = `<div style="text-align: center;">
+                                                              <h3>No Gallery</h3>
+                                                              <h5>Fan Art Gallery Only Available For Campagin 3</h5>
+                                                            </div>`;
+    return;
+  }
   //let galleryData = await GetGalleryForEpisode(); //FindLatestGallery();
 
   if(galleryData["error"] != undefined){
@@ -1795,6 +1805,7 @@ function removeTrackerPopup(){
   currentTimeSlot = 0;
   // panels = [];
   players = [];
+  galleryName = null;
 }
 
 
