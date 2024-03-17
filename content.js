@@ -450,6 +450,8 @@ class PlayerChracter {
     this.characterColor = color;
     this.headShotImg = imgURL
 
+    console.log(stats);
+
     this.makePanel();
   }
 
@@ -845,7 +847,7 @@ function applyEvent(event, updateUI, isSeek){
       if(!isSeek) displaySpellInfo(event.spellInfo);
 
     }else if(event.type === "addPlayer"){
-      addPlayer(event.playerData, event.playerIndex);
+      addPlayer(event.playerRecordId, event.playerIndex);
     }else if(event.type === "removePlayer"){
       removePlayer(event.playerName); //TODO implement this
 
@@ -1349,30 +1351,47 @@ function makePanels(){
 }
 
 //Make a new player panel and add it to the tracker at a given position (index)
-function addPlayer(playerData, index){
-  console.log(playerData);
+async function addPlayer(playerRecordId, index){
+  console.log("add player " + playerRecordId);
+
+  //TODO check if already fetched the player
 
 
   //TODO get player data from db
-  //  reset/redo events after get data and add player (so don't miss events on new player if getting data takes a while)
-  //  
+  let documentName = (campaignNum == 3) ? "characters" : "characters-c2"
+  let requestInit = {
+    "headers": {
+      "x-apikey": apiKey,
+      "content-type": "application/json"
+    }
+  };
+  let response = await fetch(`https://critrolehpdata-5227.restdb.io/rest/${documentName}?q={"_id":"${playerRecordId}"}`, requestInit);
+  console.log(response);
+  if(!response.ok){
+    console.warn(`Could not fetch new character ${playerRecordId}     status: ${response.status} ${response.statusText}`);
+  }
+  let newPlayerData = (await response.json())[0];
+  console.log(newPlayerData);
+  console.log(newPlayerData.stats);
+
+
+  //TODO reset/redo events after get data and add player (so don't miss events on new player if getting data takes a while)
 
 
   //make player and add to list
   players.splice(index, 0, new PlayerChracter(index,
-                                              playerData.name,
-                                              playerData.level,
-                                              playerData.charClass,
-                                              playerData.classLevels,
-                                              playerData.ac,
-                                              playerData.hp,
-                                              playerData.stats,
-                                              playerData.spellslots,
-                                              playerData.color,
-                                              playerData.imageURL));
+                                              newPlayerData.name,
+                                              newPlayerData.level,
+                                              newPlayerData.charClass,
+                                              newPlayerData.classLevels,
+                                              newPlayerData.ac,
+                                              newPlayerData.hp,
+                                              newPlayerData.stats,
+                                              newPlayerData.spellslots, 
+                                              newPlayerData.color,
+                                              newPlayerData.imageURL));
 
   //make the player panel and add to list and DOM
-
   var panelContainer = document.createElement("div");
   panelContainer.className = "panelContainer";
 
@@ -1385,6 +1404,8 @@ function addPlayer(playerData, index){
   var trackerBody = document.getElementById("hpPanelsContainer");
   trackerBody.insertBefore(panelContainer, trackerBody.childNodes[index]);  //add panel to tracker at index (in list of child panel elements)
 
+  //TODO make tracker taller so can fit new panel
+
 
   //set the ids (index) of players and panels to their new index (pushed along 1 place)
   for(let i=index; i<players.length; i++){
@@ -1392,7 +1413,11 @@ function addPlayer(playerData, index){
     panels[i].playerId = i;
   }
 
+  //TODO store player data json (with the id)
+  charData.splice(index, 0, newPlayerData);
+
 }
+
 
 function removePlayer(name){
   console.log(playerData);
@@ -1921,63 +1946,11 @@ function openStatsPanel(statsPanel){
 }
 
 
-// function addDragListeners(){
-//   document.getElementById('trackerTitle').addEventListener('mousedown', mouseDownDrag, false); //drag listener
-//   document.getElementById("resizer").addEventListener("mousedown", mouseDownResize, false); //resize listener
-//   window.addEventListener('mouseup', mouseUp, false);
-// }
-
-// function mouseUp(){
-//   window.removeEventListener('mousemove', divMove, true);
-//   window.removeEventListener('mousemove', divResize, true);
-// }
-
-// var mouseTrackerDiffPos
-// function mouseDownDrag(e){
-//   e.preventDefault()
-//   window.addEventListener('mousemove', divMove, true);
-
-//   divRight = parseInt((document.getElementById("trackerBlock").style.right).slice(0, -2));
-//   mouseTrackerDiffPos = (document.body.clientWidth - e.clientX) - divRight;
-// }
-
-// function mouseDownResize(e){
-//   e.preventDefault()
-//   window.addEventListener('mousemove', divResize, true);
-// }
-
-// function divMove(e){
-//   e.preventDefault()
-//   var div = document.getElementById("trackerBlock");
-//   div.style.top = clamp(e.clientY - 10, 0, window.innerHeight - div.offsetHeight) + "px";
-//   div.style.right = clamp(document.body.clientWidth - e.clientX - mouseTrackerDiffPos, 0, document.body.clientWidth - div.offsetWidth) + "px"; //move popup to mouse position offest on x so that mouse is in same place relative to popup as was when first mouse down
-// }
-
-// function divResize(e){
-//   e.preventDefault()
-//   let root = document.getElementById("trackerBlock");
-//   let rootStyle = window.getComputedStyle(root);
-//   let style = window.getComputedStyle(document.getElementById("trackerBody"));
-
-//   let newWidth = Math.max( (parseInt(style.getPropertyValue("width")) + (-e.movementX)), parseInt(style.getPropertyValue("min-width")) )
-//   let newHeight = Math.max( (parseInt(style.getPropertyValue("height")) + e.movementY), parseInt(style.getPropertyValue("min-height")) )
-
-//   let defaultH = Math.round( parseFloat(style.height) / parseFloat(rootStyle.getPropertyValue("--heightMod")) );
-//   let defaultW = Math.round( parseFloat(style.width) / parseFloat(rootStyle.getPropertyValue("--widthMod")) );
-//   let widthMod = newWidth / defaultW;
-//   let heightMod = newHeight / defaultH;
- 
-//   root.style.setProperty("--widthMod", widthMod);
-//   root.style.setProperty("--heightMod", heightMod);
-// }
 
 
 function clamp(n, min, max){
   return Math.max(Math.min(n, max), min);
 }
-
-
-
 
 
 
@@ -2052,6 +2025,9 @@ function OnResize(event, resizeElem){
   resizeElem.style.setProperty("--widthMod", widthMod);
   resizeElem.style.setProperty("--heightMod", heightMod);
 }
+
+
+
 
 
 
