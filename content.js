@@ -432,6 +432,8 @@ class PlayerChracter {
 
   displaySet = []; //used for setting the panel display independent of the real hp
 
+  isHidden = false;
+
   statsPanel;
 
   // makes player and stats panel
@@ -850,6 +852,10 @@ function applyEvent(event, updateUI, isSeek){
       addPlayer(event.playerRecordId, event.playerIndex);
     }else if(event.type === "removePlayer"){
       removePlayer(event.playerName); //TODO implement this
+    }else if(event.type === "hidePlayer"){
+      hideCharacter(event.playerName);
+    }else if(event.type === "showPlayer"){
+      showCharacter(event.playerName);
 
     }else{
       console.warn("invalid event: " + event.type);
@@ -888,6 +894,24 @@ function resetPlayers(playersToReset = players){
     player.resetSpellslots();
   }
   endInitiative()
+}
+
+function hideCharacter(charName){
+  let player = getPlayer(charName);
+  console.log(panels[player.id].panel);
+  panels[player.id].panel.parentElement.style.setProperty("display", "none");
+  player.isHidden = true;
+  SetDefaultPopupHeight();
+
+}
+
+function showCharacter(charName){
+  let player = getPlayer(charName);
+  panels[player.id].panel.parentElement.style.display = "flex";
+  player.isHidden = false;
+  SetDefaultPopupHeight();
+
+  //TODO set height/width when orientation is chanaged too
 }
 
 function displaySpellInfo(spellInfo){
@@ -1001,14 +1025,18 @@ function startInitiative(order){
 
   //move players not in combat to the bottom of the list and add a separator above them
   if(initiativeOrder.length < players.length){
+    let areExtraVisiblePlayers = false;
     for(let player of players){
-      if(!initiativeOrder.includes(player.characterName)){ //if player is not in initiative
+      if(!initiativeOrder.includes(player.characterName) && !player.isHidden){ //if player is not in initiative
         panel = panels[player.id].panel.parentElement;
         panel.style.order = 99;
+        areExtraVisiblePlayers = true;
       }
     }
-    let container = document.getElementById("hpPanelsContainer");
-    container.insertAdjacentHTML("beforeend", /*html*/`<div class="separator initSeparator" style="order: 98;"></div>`);
+    if(areExtraVisiblePlayers){
+      let container = document.getElementById("hpPanelsContainer");
+      container.insertAdjacentHTML("beforeend", /*html*/`<div class="separator initSeparator" style="order: 98;"></div>`);
+    }
   }
 
 }
@@ -1153,7 +1181,7 @@ function setOrientation(newOrientation){
   root.style.setProperty("--widthMod", 1);
   root.style.setProperty("--heightMod", 1);
 
-  root.style.setProperty("--numPanels", container.childElementCount);
+  //root.style.setProperty("--numPanels", container.childElementCount);
 
 
   if(newOrientation === "vertical"){
@@ -1339,16 +1367,28 @@ function makePanels(){
       tbody.appendChild(panelContainer);
     }
 
+    SetDefaultPopupHeight();
+
   }else{
     tbody.insertAdjacentHTML("beforeend", /*html*/`
                                           <div style="color: white; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center">
                                             <h3>NO DATA</h3>
                                           </div>
                                         `);
-
-
   }
 }
+
+//Set the default height of the tracker popup (with no resizing) to fit the number of visible player panels in it.
+function SetDefaultPopupHeight(){
+  let numPanels = 0;
+  for(player of players){
+    if(!player.isHidden){
+      numPanels++;
+    }
+  }
+  document.getElementById("trackerBlock").style.setProperty("--numPanels", numPanels);
+} 
+
 
 //Make a new player panel and add it to the tracker at a given position (index)
 async function addPlayer(playerRecordId, index){
