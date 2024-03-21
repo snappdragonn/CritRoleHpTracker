@@ -848,10 +848,10 @@ function applyEvent(event, updateUI, isSeek){
     } else if(event.type === "spellNotif"){ //TODO make this more general - for any type of notif?
       if(!isSeek) displaySpellInfo(event.spellInfo);
 
-    }else if(event.type === "addPlayer"){
-      addPlayer(event.playerRecordId, event.playerIndex);
-    }else if(event.type === "removePlayer"){
-      removePlayer(event.playerName); //TODO implement this
+    // }else if(event.type === "addPlayer"){
+    //   addPlayer(event.playerRecordId, event.playerIndex);
+    // }else if(event.type === "removePlayer"){
+    //   removePlayer(event.playerName); //TODO implement this
     }else if(event.type === "hidePlayer"){
       hideCharacter(event.playerName);
     }else if(event.type === "showPlayer"){
@@ -1390,95 +1390,95 @@ function SetDefaultPopupHeight(){
 } 
 
 
-//Make a new player panel and add it to the tracker at a given position (index)
-async function addPlayer(playerRecordId, index){
-  console.log("add player " + playerRecordId);
+// //Make a new player panel and add it to the tracker at a given position (index)
+// async function addPlayer(playerRecordId, index){
+//   console.log("add player " + playerRecordId);
 
-  //TODO check if already fetched the player
-
-
-  //TODO get player data from db
-  let documentName = (campaignNum == 3) ? "characters" : "characters-c2"
-  let requestInit = {
-    "headers": {
-      "x-apikey": apiKey,
-      "content-type": "application/json"
-    }
-  };
-  let response = await fetch(`https://critrolehpdata-5227.restdb.io/rest/${documentName}?q={"_id":"${playerRecordId}"}`, requestInit);
-  console.log(response);
-  if(!response.ok){
-    console.warn(`Could not fetch new character ${playerRecordId}     status: ${response.status} ${response.statusText}`);
-  }
-  let newPlayerData = (await response.json())[0];
-  console.log(newPlayerData);
-  console.log(newPlayerData.stats);
+//   //TODO check if already fetched the player
 
 
-  //TODO reset/redo events after get data and add player (so don't miss events on new player if getting data takes a while)
+//   //TODO get player data from db
+//   let documentName = (campaignNum == 3) ? "characters" : "characters-c2"
+//   let requestInit = {
+//     "headers": {
+//       "x-apikey": apiKey,
+//       "content-type": "application/json"
+//     }
+//   };
+//   let response = await fetch(`https://critrolehpdata-5227.restdb.io/rest/${documentName}?q={"_id":"${playerRecordId}"}`, requestInit);
+//   console.log(response);
+//   if(!response.ok){
+//     console.warn(`Could not fetch new character ${playerRecordId}     status: ${response.status} ${response.statusText}`);
+//   }
+//   let newPlayerData = (await response.json())[0];
+//   console.log(newPlayerData);
+//   console.log(newPlayerData.stats);
 
 
-  //make player and add to list
-  players.splice(index, 0, new PlayerChracter(index,
-                                              newPlayerData.name,
-                                              newPlayerData.level,
-                                              newPlayerData.charClass,
-                                              newPlayerData.classLevels,
-                                              newPlayerData.ac,
-                                              newPlayerData.hp,
-                                              newPlayerData.stats,
-                                              newPlayerData.spellslots, 
-                                              newPlayerData.color,
-                                              newPlayerData.imageURL));
-
-  //make the player panel and add to list and DOM
-  var panelContainer = document.createElement("div");
-  panelContainer.className = "panelContainer";
-
-  if(displayType == "healthBar"){
-    panels.splice(index, 0, new HeathbarPanel(index, panelContainer));
-  }else{
-    panels.splice(index, 0, new NumberPanel(index, panelContainer));
-  }
-
-  var trackerBody = document.getElementById("hpPanelsContainer");
-  trackerBody.insertBefore(panelContainer, trackerBody.childNodes[index]);  //add panel to tracker at index (in list of child panel elements)
-
-  //TODO make tracker taller so can fit new panel
+//   //TODO reset/redo events after get data and add player (so don't miss events on new player if getting data takes a while)
 
 
-  //set the ids (index) of players and panels to their new index (pushed along 1 place)
-  for(let i=index; i<players.length; i++){
-    players[i].id = i;
-    panels[i].playerId = i;
-  }
+//   //make player and add to list
+//   players.splice(index, 0, new PlayerChracter(index,
+//                                               newPlayerData.name,
+//                                               newPlayerData.level,
+//                                               newPlayerData.charClass,
+//                                               newPlayerData.classLevels,
+//                                               newPlayerData.ac,
+//                                               newPlayerData.hp,
+//                                               newPlayerData.stats,
+//                                               newPlayerData.spellslots, 
+//                                               newPlayerData.color,
+//                                               newPlayerData.imageURL));
 
-  //TODO store player data json (with the id)
-  charData.splice(index, 0, newPlayerData);
+//   //make the player panel and add to list and DOM
+//   var panelContainer = document.createElement("div");
+//   panelContainer.className = "panelContainer";
 
-}
+//   if(displayType == "healthBar"){
+//     panels.splice(index, 0, new HeathbarPanel(index, panelContainer));
+//   }else{
+//     panels.splice(index, 0, new NumberPanel(index, panelContainer));
+//   }
+
+//   var trackerBody = document.getElementById("hpPanelsContainer");
+//   trackerBody.insertBefore(panelContainer, trackerBody.childNodes[index]);  //add panel to tracker at index (in list of child panel elements)
+
+//   //TODO make tracker taller so can fit new panel
 
 
-function removePlayer(name){
-  console.log(playerData);
+//   //set the ids (index) of players and panels to their new index (pushed along 1 place)
+//   for(let i=index; i<players.length; i++){
+//     players[i].id = i;
+//     panels[i].playerId = i;
+//   }
 
-  //remove player from list
-  let index = players.findIndex(player => {
-    return player.characterName == name;
-  });
-  players.splice(index, 1);
+//   //TODO store player data json (with the id)
+//   charData.splice(index, 0, newPlayerData);
 
-  //remove panel from DOM and list
-  panels[index].parentElement.remove();
-  panels.splice(index, 1);
+// }
 
-  //set the ids (index) of players a panels to their new index (moved back one place)
-  for(let i=index; i<players.length; i++){
-    players[i].id = i;
-    panels[i].playerId = i;
-  }
 
-}
+// function removePlayer(name){
+//   console.log(playerData);
+
+//   //remove player from list
+//   let index = players.findIndex(player => {
+//     return player.characterName == name;
+//   });
+//   players.splice(index, 1);
+
+//   //remove panel from DOM and list
+//   panels[index].parentElement.remove();
+//   panels.splice(index, 1);
+
+//   //set the ids (index) of players a panels to their new index (moved back one place)
+//   for(let i=index; i<players.length; i++){
+//     players[i].id = i;
+//     panels[i].playerId = i;
+//   }
+
+// }
 
 
 
