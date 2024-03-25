@@ -892,12 +892,17 @@ function resetPlayers(playersToReset = players){
     player.removeAllEffects();
     panels[player.id].pauseUpdate = false;
     player.resetSpellslots();
+    if(!DoesPlayerStartHidden(player.characterName)) {showCharacter(player.characterName);}  
   }
   endInitiative()
 }
 
 function hideCharacter(charName){
   let player = getPlayer(charName);
+  if(player == null){
+    console.warn("hideCharacter: could not find character " + charName);
+    return;
+  }
   console.log(panels[player.id].panel);
   panels[player.id].panel.parentElement.style.setProperty("display", "none");
   player.isHidden = true;
@@ -907,6 +912,10 @@ function hideCharacter(charName){
 
 function showCharacter(charName){
   let player = getPlayer(charName);
+  if(player == null){
+    console.warn("showCharacter: could not find character " + charName);
+    return;
+  }
   panels[player.id].panel.parentElement.style.display = "flex";
   player.isHidden = false;
   SetDefaultPopupHeight();
@@ -940,13 +949,12 @@ function displaySpellInfo(spellInfo){
                                                       <div class="spellDesc">${spellDesc}</div>
                                                     </div>
                                                   </div> `);
-  //let parent = document.getElementById("hpPanelsContainer");
-  //document.getElementById("contentGrid").insertBefore(notifContainer, document.getElementById("hpPanelsContainer"));
 
   document.getElementById("trackerBlock").style.setProperty("--numNotifs", notifContainer.children.length);  
 
   notifElem = notifContainer.lastElementChild;
 
+  //make info table at top of spell description
   let table = notifElem.getElementsByClassName("spellStats")[0];
   console.log(spellInfo);
   let hasSpellStats = false;
@@ -956,10 +964,12 @@ function displaySpellInfo(spellInfo){
       hasSpellStats = true;
     }
   }
-
   if(!hasSpellStats){
     notifElem.getElementsByClassName("spellStats")[0].remove();
   }
+
+  //set max height of spell desc so that is doesn't go off the bottom of the screen
+  //notifElem.getElementsByClassName("spellInfo").getBoundingClientRect().top
 
   //set timer to remove the notification after a time
   let closeTimer = setTimeout((elem) => {
@@ -1364,6 +1374,10 @@ function makePanels(){
         panels.push(new NumberPanel(i, panelContainer));
       }
 
+      if(DoesPlayerStartHidden(players[i].characterName)){
+        hideCharacter(players[i].characterName);
+      }
+
       tbody.appendChild(panelContainer);
     }
 
@@ -1389,96 +1403,17 @@ function SetDefaultPopupHeight(){
   document.getElementById("trackerBlock").style.setProperty("--numPanels", numPanels);
 } 
 
-
-// //Make a new player panel and add it to the tracker at a given position (index)
-// async function addPlayer(playerRecordId, index){
-//   console.log("add player " + playerRecordId);
-
-//   //TODO check if already fetched the player
-
-
-//   //TODO get player data from db
-//   let documentName = (campaignNum == 3) ? "characters" : "characters-c2"
-//   let requestInit = {
-//     "headers": {
-//       "x-apikey": apiKey,
-//       "content-type": "application/json"
-//     }
-//   };
-//   let response = await fetch(`https://critrolehpdata-5227.restdb.io/rest/${documentName}?q={"_id":"${playerRecordId}"}`, requestInit);
-//   console.log(response);
-//   if(!response.ok){
-//     console.warn(`Could not fetch new character ${playerRecordId}     status: ${response.status} ${response.statusText}`);
-//   }
-//   let newPlayerData = (await response.json())[0];
-//   console.log(newPlayerData);
-//   console.log(newPlayerData.stats);
-
-
-//   //TODO reset/redo events after get data and add player (so don't miss events on new player if getting data takes a while)
-
-
-//   //make player and add to list
-//   players.splice(index, 0, new PlayerChracter(index,
-//                                               newPlayerData.name,
-//                                               newPlayerData.level,
-//                                               newPlayerData.charClass,
-//                                               newPlayerData.classLevels,
-//                                               newPlayerData.ac,
-//                                               newPlayerData.hp,
-//                                               newPlayerData.stats,
-//                                               newPlayerData.spellslots, 
-//                                               newPlayerData.color,
-//                                               newPlayerData.imageURL));
-
-//   //make the player panel and add to list and DOM
-//   var panelContainer = document.createElement("div");
-//   panelContainer.className = "panelContainer";
-
-//   if(displayType == "healthBar"){
-//     panels.splice(index, 0, new HeathbarPanel(index, panelContainer));
-//   }else{
-//     panels.splice(index, 0, new NumberPanel(index, panelContainer));
-//   }
-
-//   var trackerBody = document.getElementById("hpPanelsContainer");
-//   trackerBody.insertBefore(panelContainer, trackerBody.childNodes[index]);  //add panel to tracker at index (in list of child panel elements)
-
-//   //TODO make tracker taller so can fit new panel
-
-
-//   //set the ids (index) of players and panels to their new index (pushed along 1 place)
-//   for(let i=index; i<players.length; i++){
-//     players[i].id = i;
-//     panels[i].playerId = i;
-//   }
-
-//   //TODO store player data json (with the id)
-//   charData.splice(index, 0, newPlayerData);
-
-// }
-
-
-// function removePlayer(name){
-//   console.log(playerData);
-
-//   //remove player from list
-//   let index = players.findIndex(player => {
-//     return player.characterName == name;
-//   });
-//   players.splice(index, 1);
-
-//   //remove panel from DOM and list
-//   panels[index].parentElement.remove();
-//   panels.splice(index, 1);
-
-//   //set the ids (index) of players a panels to their new index (moved back one place)
-//   for(let i=index; i<players.length; i++){
-//     players[i].id = i;
-//     panels[i].playerId = i;
-//   }
-
-// }
+//Check if a player is hidden before the episode starts (in first 5 seconds)
+//    used to avoid player pannel quickly popping in and out again at start of ep or when seeking backwards in video
+function DoesPlayerStartHidden(playerName){
+  for(event of episodeData){
+    if(event.time < 5){
+      if(event.event.type == "hidePlayer" && event.event.playerName == playerName){
+        return true;
+      }
+    }else{break;}
+  }
+}
 
 
 
