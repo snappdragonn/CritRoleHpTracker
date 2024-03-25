@@ -969,7 +969,8 @@ function displaySpellInfo(spellInfo){
   }
 
   //set max height of spell desc so that is doesn't go off the bottom of the screen
-  //notifElem.getElementsByClassName("spellInfo").getBoundingClientRect().top
+  let spellInfoMaxHeight = window.innerHeight - notifElem.getBoundingClientRect().top - 5;
+  notifElem.getElementsByClassName("spellInfo")[0].style.setProperty("--maxHeight", spellInfoMaxHeight + "px");
 
   //set timer to remove the notification after a time
   let closeTimer = setTimeout((elem) => {
@@ -989,7 +990,7 @@ function displaySpellInfo(spellInfo){
     openEvent.stopPropagation();
 
     if(openEvent.currentTarget.getElementsByClassName("spellInfo")[0].style.display === "none"){
-      openEvent.currentTarget.getElementsByClassName("spellInfo")[0].style.display = "block";
+      openEvent.currentTarget.getElementsByClassName("spellInfo")[0].style.display = "";
 
       clearTimeout(closeTimer);
       

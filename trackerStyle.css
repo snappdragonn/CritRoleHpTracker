@@ -283,7 +283,7 @@
 }
 
 .spellInfo{
-  display: none;
+  --maxHeight: 1000px;
   position: absolute;
   z-index: 1;
   width: 20em;
@@ -293,17 +293,16 @@
   background-color: dimgray;
   border: 2px solid black;
   border-radius: 3px;
-  color: #c5c3bc;
+  color: rgb(209 209 209);
+  display: flex;
+  flex-direction: column;
+  max-height: min(38em, var(--maxHeight));
 }
 
 #trackerBlock[data-orientation="horizontal"] .spellInfo {
   width: 100%;
   top: 130%;
   right: -3px;
-}
-
-.spellInfo{
-  color: rgb(209 209 209);
 }
 
 .spellStatItem {
@@ -332,7 +331,7 @@
   margin: 0.25em;
   white-space: pre-line;
   overflow-y: auto;
-  max-height: 30em;
+  scrollbar-color: #494949 transparent;
 }
 
 .spellDesc::-webkit-scrollbar {
