@@ -1575,8 +1575,8 @@ async function MakeGalleryPopup(){
                                                             </div>`;
   }
 
-
 }
+
 
 function AddImagesToGallery(imageData){
   //imageData = {"galleryname": name, "images": [{"url": url, "artist": artistName}] };
@@ -1587,8 +1587,13 @@ function AddImagesToGallery(imageData){
   }
 
   //Add gallery name to popup title
-  //TODO do this
-  //let galleryTitle = ;
+  let galleryTitle = imageData["galleryName"].match(/(?<=\/)[\w\d-]+(?=\/)/g).slice(-1)[0];
+  console.log(galleryTitle + "    " + typeof galleryTitle)
+  galleryTitle = galleryTitle.replace("fan-art-gallery-", "");
+  galleryTitle = galleryTitle.replace(/-/g, " ");
+  galleryTitle = galleryTitle.replace(/\w\S*/g, function(txt){return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();}); //Convert to title case
+  document.getElementById("galleryHeader").innerText = "Fan Art Gallery: " + galleryTitle;
+
 
   //Add fan art to gallery popup
   let galleryElem = document.getElementById("fan-art-gallery");
