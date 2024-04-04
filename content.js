@@ -1464,6 +1464,7 @@ async function FindLatestGallery(){
 
   console.log(galleryImages);
 
+  AddImagesToGallery(galleryImages);
   return galleryImages; //{"galleryname": name, "images": [{"url": url, "artist": artistName}] };
 
 }
@@ -1503,6 +1504,7 @@ async function GetGalleryImages(galleryLink){
 
   console.log(galleryImages);
 
+  AddImagesToGallery(galleryImages);
   return galleryImages; //{"galleryname": name, "images": [{"url": url, "artist": artistName}] };
   //});
 }
@@ -1555,40 +1557,54 @@ async function MakeGalleryPopup(){
 
   //Get fan art urls and artist names
   if(galleryName != null){
-    var galleryData = await GetGalleryImages(galleryName);
+    GetGalleryImages(galleryName);
   }else if (campaignNum == 3){
-    var galleryData = await FindLatestGallery();
+    document.getElementById("fan-art-gallery").innerHTML = `<div style="text-align: center;">
+                                                              <h3 style="margin: 0.5em;">Gallery Not Found</h3>
+                                                              <button id="getLatestGalleryButton" style="font-size: 0.8em;">Get Latest Gallery</button>
+                                                            </div>`;
+    document.getElementById("getLatestGalleryButton").addEventListener("click", () => {
+      FindLatestGallery();
+      document.getElementById("fan-art-gallery").innerHTML = `<div class="spinner" style="width: 40px; height: 40px"></div>`;
+    });
+    //var galleryData = await FindLatestGallery();
   }else {
     document.getElementById("fan-art-gallery").innerHTML = `<div style="text-align: center;">
                                                               <h3>No Gallery</h3>
                                                               <h5>Fan Art Gallery Only Available For Campagin 3</h5>
                                                             </div>`;
-    return;
   }
-  //let galleryData = await GetGalleryForEpisode(); //FindLatestGallery();
 
-  if(galleryData["error"] != undefined){
-    console.warn("Gallery Error: " + galleryData["error"]);
-    document.getElementById("fan-art-gallery").innerHTML = `<h1>${galleryData["error"]}</h1>`;
+
+}
+
+function AddImagesToGallery(imageData){
+  //imageData = {"galleryname": name, "images": [{"url": url, "artist": artistName}] };
+  if(imageData["error"] != undefined){
+    console.warn("Gallery Error: " + imageData["error"]);
+    document.getElementById("fan-art-gallery").innerHTML = `<h1>${imageData["error"]}</h1>`;
     return;
   }
+
+  //Add gallery name to popup title
+  //TODO do this
+  //let galleryTitle = ;
 
   //Add fan art to gallery popup
   let galleryElem = document.getElementById("fan-art-gallery");
   galleryElem.innerHTML = ""; //remove loading spinner icon
 
-  for(image of galleryData["images"]){
+  for(image of imageData["images"]){
     galleryElem.insertAdjacentHTML("beforeend", `<img src="${image["url"]}" alt="${image["artist"]}" style="display: none" /> `);
   }
   galleryElem.firstElementChild.style.display = "block";
 
 
-  document.getElementById("galleryImageCount").lastElementChild.innerHTML = "/" + galleryData["images"].length;
+  document.getElementById("galleryImageCount").lastElementChild.innerHTML = "/" + imageData["images"].length;
   document.getElementById("galleryArtistCredit").innerText = galleryElem.firstElementChild.alt;
   document.getElementById("galleryArtistCredit").title = galleryElem.firstElementChild.alt;
 
   StartGalleryTimer();
-
 }
 
 
@@ -1598,6 +1614,7 @@ function StartGalleryTimer(){
   let galleryElem = document.getElementById("fan-art-gallery");
 
   galleryTimer = setInterval(() => {
+
     galleryElem.children[currentGalleryImage].style.display = "none";
     currentGalleryImage++;
     if(currentGalleryImage >= galleryElem.childElementCount){
@@ -1807,6 +1824,7 @@ function removeTrackerPopup(){
   // panels = [];
   players = [];
   galleryName = null;
+  currentGalleryImage = 0;
 }
 
 
