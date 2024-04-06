@@ -5,6 +5,12 @@
     "manifest_version": 3,
     "icons":  { "128": "icons/CombatTrackerIcon.png" },
 
+    "browser_specific_settings": {
+      "gecko": {
+        "id": "critrolehptracker@snappdragonn"
+      }
+    },
+
     "permissions": [
       "storage"
     ],
@@ -33,6 +39,7 @@
    ],
 
     "background": {
-      "service_worker": "serviceWorker.js"
+      "service_worker": "serviceWorker.js",
+      "scripts": ["serviceWorker.js"]
     }
 }
