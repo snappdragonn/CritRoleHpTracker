@@ -1308,7 +1308,7 @@ function makeTable(){
   document.getElementById("expandButton").addEventListener("click", expand, false);
   document.getElementById("minButton").addEventListener("click", minimise, false);
 
-  document.getElementById("openGalleryButton").addEventListener("click", OpenGalleryPopup, false);
+  document.getElementById("openGalleryButton").addEventListener("click", ToggleOpenGalleryPopup, false);
 
 
   //addDragListeners();
@@ -1534,7 +1534,7 @@ async function MakeGalleryPopup(){
 
   //Make gallery popup with loading spinner and add to DOM 
   document.body.insertAdjacentHTML("beforeend", 
-    `<div id="fan-art-gallery-popup">
+    `<div id="fan-art-gallery-popup" style="display: grid;">
         <h4 id="galleryHeader">Fan Art Gallery</h4>
         <div style="border-bottom: black solid 2px; width: 100%; height: 100%;">
           <button id="galleryCloseButton">
@@ -1567,6 +1567,7 @@ async function MakeGalleryPopup(){
 
   document.getElementById("galleryCloseButton").addEventListener("click", () => {
     document.getElementById("fan-art-gallery-popup").style.display = "none";
+    document.getElementById("openGalleryButton").firstElementChild.innerText = " Open Gallery ";
   });
 
   document.getElementById("galleryHeader").addEventListener("mousedown", (e) => StartDrag(e, document.getElementById("fan-art-gallery-popup")));
@@ -1694,13 +1695,19 @@ function jumpToNextImage(direction){
   StartGalleryTimer();
 }
 
-function OpenGalleryPopup(){
+function ToggleOpenGalleryPopup(){
   let gallery = document.getElementById("fan-art-gallery-popup");
-  if(gallery != null){
+  if(gallery == null){ //gallery not made
+    MakeGalleryPopup();
+    document.getElementById("openGalleryButton").firstElementChild.innerText = " Close Gallery ";
+  }else if(gallery.style.display == "none"){ //gallery hidden
     gallery.style.display = "grid";
     StartGalleryTimer();
-  }else {
-    MakeGalleryPopup();
+    document.getElementById("openGalleryButton").firstElementChild.innerText = " Close Gallery ";
+  }else { //gallery open
+    gallery.style.display = "none";
+    StopGalleryTimer();
+    document.getElementById("openGalleryButton").firstElementChild.innerText = " Open Gallery ";
   }
 }
 
