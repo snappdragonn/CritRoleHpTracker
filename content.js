@@ -1179,15 +1179,23 @@ function expand(){
   }
 }
 
+//open or close the menu
 function openMainMenu(event){
   var menu = document.getElementById("mainMenu");
-  menu.style.display = "block";
-  document.addEventListener("click", closeMenu, false);
+  if(menu.style.display == "block"){
+    menu.style.display = "none";
+    document.removeEventListener("click", closeMenu, false);
+  }else {
+    menu.style.display = "block";
+    document.addEventListener("click", closeMenu, false);
+  }
+  event.stopPropagation();
 
 }
 
 function closeMenu(event){
   if (event.target.closest("#menuContainer") == null || event.target.closest(".menuButton") != null){
+    console.log("close menu     #mainMenu=" + event.target.closest("#mainMenu") + "     .menuButton=" + event.target.closest(".menuButton"));
     document.getElementById("mainMenu").style.display = "none";
     document.removeEventListener("click", closeMenu, false);
   }
