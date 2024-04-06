@@ -574,6 +574,28 @@ class PlayerChracter {
     }
   }
 
+  //spellSlotsUsed = array of slots used where index equals the spell slot level
+  useSpellSlots(spellSlotsUsed){
+    //update the number of spell slots left
+    for(let i=0; i<spellSlotsUsed.length; i++){
+      this.spellslotsLeft[i] = Math.max(this.spellslotsLeft[i] - spellSlotsUsed[i], 0);
+    }
+
+    //update the stats panel to show the new spell slots
+    let spellLevelElems = this.statsPanel.getElementsByClassName("spellSlotLevel");
+    for(let i=0; i<spellSlotsUsed.length; i++){ //loop through all spell levels
+      let spellSlotElems = spellLevelElems[i].getElementsByClassName("slot");
+      for(let j=0; j<spellSlotElems.length; j++){ //loop through all spell slots at a level given by i
+        if(j<this.spellslotsLeft[i]){
+          spellSlotElems[j].style["background-color"] = this.characterColor;
+        }else{
+          spellSlotElems[j].style["background-color"] = "";
+        }
+      }
+    }
+
+  }
+
   //set spell slots back to full
   resetSpellslots(){
     this.spellslotsLeft = [...this.spellslots]; //copy the spellslots array
@@ -845,13 +867,11 @@ function applyEvent(event, updateUI, isSeek){
       if(event.spellInfo != undefined && !isSeek) displaySpellInfo(event.spellInfo);
     }else if(event.type === "regainSpell"){
       getPlayer(event.characterName).updateSpell(event.level, event.amount, false);
+    } else if (event.type === "useSpellSlots"){
+      getPlayer(event.characterName).useSpellSlots(event.spellSlotsUsed);
     } else if(event.type === "spellNotif"){ //TODO make this more general - for any type of notif?
       if(!isSeek) displaySpellInfo(event.spellInfo);
 
-    // }else if(event.type === "addPlayer"){
-    //   addPlayer(event.playerRecordId, event.playerIndex);
-    // }else if(event.type === "removePlayer"){
-    //   removePlayer(event.playerName); //TODO implement this
     }else if(event.type === "hidePlayer"){
       hideCharacter(event.playerName);
     }else if(event.type === "showPlayer"){
@@ -1591,7 +1611,7 @@ function AddImagesToGallery(imageData){
   console.log(galleryTitle + "    " + typeof galleryTitle)
   galleryTitle = galleryTitle.replace("fan-art-gallery-", "");
   galleryTitle = galleryTitle.replace(/-/g, " ");
-  galleryTitle = galleryTitle.replace(/\w\S*/g, function(txt){return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();}); //Convert to title case
+  galleryTitle = galleryTitle.replace(/\w\S*/g, function(txt){return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();}); //Convert to title case 
   document.getElementById("galleryHeader").innerText = "Fan Art Gallery: " + galleryTitle;
 
 
