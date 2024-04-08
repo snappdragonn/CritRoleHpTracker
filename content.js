@@ -1766,6 +1766,7 @@ function InjectHTML(){
       || /[\w\s]+\| Critical Role: THE MIGHTY NEIN \| Episode \d+$/.test(videoTitle)){
         var channelName = "Critical Role"
       }else {var channelName = ""}
+
     }
     //TODO could also get chanel name with JSON.parse(document.querySelector('#content script[type="application/ld+json"]').textContent).author
     console.log(channelName);
