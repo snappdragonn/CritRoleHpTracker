@@ -1544,7 +1544,7 @@ async function MakeGalleryPopup(){
   document.body.insertAdjacentHTML("beforeend", 
     `<div id="fan-art-gallery-popup" style="display: grid;">
         <h4 id="galleryHeader">Fan Art Gallery</h4>
-        <div style="border-bottom: black solid 2px; width: 100%; height: 100%;">
+        <div style="border-bottom: black solid 2px; width: 100%; height: 100%; box-sizing: content-box;">
           <button id="galleryCloseButton">
             <img src="${chrome.runtime.getURL("icons/cross_.png")}" alt="close icon">
           </button>

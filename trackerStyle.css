@@ -857,6 +857,11 @@ trackerBlock button {
   font-size: 1.2em;
 }
 
+#galleryHeader {
+  box-sizing: content-box;
+  line-height: 1.2em;
+}
+
 #fan-art-gallery img {
   width: 100%;
   height: 100%;
@@ -868,6 +873,7 @@ trackerBlock button {
   margin-top: -2px;
   cursor: default;
   display: grid;
+  line-height: 1.2em;
   grid-template-rows: 100%;
   grid-template-columns: 1em 1fr 5em 1fr 1em;
   grid-template-areas: "resizer imageCounter Controls ArtistCredit ArtistCredit";
