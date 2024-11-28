@@ -1,4 +1,0 @@
-{
-    "apikey": "63421f58626b9c747864aabf",
-    "authorization": "user"    
-}

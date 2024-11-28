@@ -1911,6 +1911,7 @@ function getEpisodeData(successCallback, failCallback){
 
   document.getElementById("hpPanelsContainer").innerHTML = `<div class="spinner" style="width: 40px; height: 40px"></div>`;
 
+  xhr.addEventListener("error", (event) => {console.log("xhr error: "); console.log(event)});
 
   xhr.addEventListener("readystatechange", function () {
     if (this.readyState === 4) {
