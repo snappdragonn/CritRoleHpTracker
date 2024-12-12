@@ -286,7 +286,7 @@ class HeathbarPanel extends Panel {
     var htmlstring = /*html*/`
             <div id=${"player"+this.playerId} class="playerPanel" data-deathSaves="false" style="background-color: ${players[this.playerId].characterColor}; justify-content: center;">
               <div class="barFlexbox" style="display: flex; flex-direction: column; gap: 3px; align-items: flex-start; height: 80%; width: 90%">
-                <div class="barPanelHeader" style="flex: 1; height: 45%; align-self: flex-start;">
+                <div class="barPanelHeader" style="flex: 1; height: 45%; align-self: flex-start; width: 100%;">
                   <img src=${players[this.playerId].headShotImg} alt="headshot" referrerPolicy="no-referrer" crossorigin="anonymous" style="height: 100%; float: left; border-radius: 50%; margin: 0 3px 0 0;"></img>
                   <div class="barPlayerName" style="float: left; font-weight: bold;">${players[this.playerId].characterName}</div>
                 </div>
