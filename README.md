@@ -54,6 +54,9 @@ Campaign 2 is a work is progress and episode data will be uploaded by about 9:00
 
 <b>Firefox:</b>
 
+You can get it directly from the Firefox addons store here: https://addons.mozilla.org/en-US/firefox/addon/critical-role-hp-tracker/
+<br/>Or you can download and install it manually:
+
 1) Either do the same as step one for Chrome or download only the CritroleHpTracker-0.x.x.xpi file by right clicking it and selecting 'Save Link As'.
 ![step-1](https://github.com/snappdragonn/CritRoleHpTracker/assets/109569193/d536d9f2-b70d-4511-a924-3ff73329825d)
 
