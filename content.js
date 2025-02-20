@@ -1777,12 +1777,13 @@ function InjectHTML(){
       let videoTitle = document.getElementsByTagName("title")[0].textContent; 
       campaignNum = ((c = videoTitle.match(/(?<=Campaign\s)\d/g)) !== null) ? c[0] : (videoTitle.includes("Critical Role: THE MIGHTY NEIN") ? 2 : 0); //get the campaign number or 0 if it cannot be found
       episodeNum = ((e = videoTitle.match(/(?<=Episode\s)\d+/g)) !== null) ? e[0] : 0; //get the episode number or 0 if it cannot be found
-
+      let isAbridged = videoTitle.includes("Abridged");
+      
       console.log("campaignNum = " + campaignNum);
       console.log("episodeNum = " + episodeNum);
 
       //if watching a campaign 2 or 3 episode get the data for that episode and add the tracker
-      if((campaignNum == 3 || campaignNum == 2) && episodeNum > 0){
+      if((campaignNum == 3 || campaignNum == 2) && episodeNum > 0 && !isAbridged){
 
           makeTable();
           getEpisodeData(() => {
