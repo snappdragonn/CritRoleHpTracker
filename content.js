@@ -1801,10 +1801,10 @@ function InjectHTMLTwitch() {
     let videoTitle = document.getElementsByTagName("title")[0].innerText;
     console.log(videoTitle);
     removeTrackerPopup();
-    if (videoTitle.startsWith("Critical Role Campaign 3") && location.pathname.startsWith("/videos")) {
+    if (videoTitle.startsWith("Critical Role Campaign ") && location.pathname.startsWith("/videos")) {
       //watching vod
-      campaignNum = 3;
-      console.log("is critical role c3 ep");
+      campaignNum = videoTitle.at(23);
+      console.log("is critical role campaign " + campaignNum + " ep");
 
       //Add popup
       episodeNum = (e = videoTitle.match(/(?<=Episode\s)\d+/g)) !== null ? e[0] : 0;
