@@ -1828,6 +1828,39 @@ function InjectHTMLTwitch() {
   console.log("start observe");
 }
 
+function InjectHTMLBeacon() {
+  console.log("inject html on beacon");
+
+  let videoTitle = document.getElementsByTagName("title")[0].innerText;
+  console.log(videoTitle);
+  let episodeText = videoTitle.match(/C\d E\d+/);
+  console.log(episodeText[0]);
+  removeTrackerPopup();
+  if (episodeText != null) {
+    episodeText = episodeText[0];
+    //watching main campaign episode
+    campaignNum = episodeText.at(1);
+    episodeNum = parseInt(episodeText.substring(4));
+    console.log("is critical role campaign " + campaignNum + " ep " + episodeNum);
+
+    //Add popup
+    makeTable();
+    getEpisodeData(() => {
+      document.getElementById("hpPanelsContainer").innerHTML = "";
+      makePanels();
+      setOrientation(orientation);
+
+      //check every second for an update to the stats
+      if (episodeData != null && episodeData.length > 0) {
+        //check there is data stored for the episode
+        updateTimer = setInterval(updateStats, 1000);
+      }
+    }, makeReloadButton);
+  }
+}
+
+
+
 function removeTrackerPopup() {
   if ((tracker = document.getElementById("trackerBlock")) !== null) tracker.remove();
   if ((gallery = document.getElementById("fan-art-gallery-popup")) != null) gallery.remove();
@@ -2059,4 +2092,7 @@ if (location.hostname == "www.twitch.tv") {
 } else if (location.hostname == "www.youtube.com") {
   host = "youtube";
   InjectHTML();
+}else if (location.hostname == "beacon.tv") {
+  host = "beacon";
+  InjectHTMLBeacon();
 }

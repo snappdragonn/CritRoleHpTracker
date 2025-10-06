@@ -16,7 +16,8 @@
     {
       "matches": [
         "*://www.youtube.com/*",
-        "*://www.twitch.tv/*"
+        "*://www.twitch.tv/*",
+        "*://beacon.tv/*"
       ],
       "all_frames": true,
       "css": [
@@ -38,7 +39,8 @@
       ],
       "matches": [
         "*://www.youtube.com/*",
-        "*://www.twitch.tv/*"
+        "*://www.twitch.tv/*",
+        "*://beacon.tv/*"
       ]
     },
     {
