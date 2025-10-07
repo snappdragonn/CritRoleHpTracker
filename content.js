@@ -1,5 +1,4 @@
-var apiKey = "";
-var authorization = "";
+var apiKey = null; //promise
 var host = ""; //Twitch or Youtube
 var minimised = false; //if the popup is minimised
 var episodeNum = 0;
@@ -1831,32 +1830,45 @@ function InjectHTMLTwitch() {
 function InjectHTMLBeacon() {
   console.log("inject html on beacon");
 
-  let videoTitle = document.getElementsByTagName("title")[0].innerText;
-  console.log(videoTitle);
-  let episodeText = videoTitle.match(/C\d E\d+/);
-  console.log(episodeText[0]);
-  removeTrackerPopup();
-  if (episodeText != null) {
-    episodeText = episodeText[0];
-    //watching main campaign episode
-    campaignNum = episodeText.at(1);
-    episodeNum = parseInt(episodeText.substring(4));
-    console.log("is critical role campaign " + campaignNum + " ep " + episodeNum);
 
-    //Add popup
-    makeTable();
-    getEpisodeData(() => {
-      document.getElementById("hpPanelsContainer").innerHTML = "";
-      makePanels();
-      setOrientation(orientation);
+  const addTracker = () => {
+    removeTrackerPopup();
 
-      //check every second for an update to the stats
-      if (episodeData != null && episodeData.length > 0) {
-        //check there is data stored for the episode
-        updateTimer = setInterval(updateStats, 1000);
-      }
-    }, makeReloadButton);
+    let videoTitle = document.getElementsByTagName("title")[0].innerText;
+    console.log(videoTitle);
+    let episodeText = videoTitle.match(/C\d E\d+/);
+    console.log(episodeText);
+    
+    if (episodeText != null) {
+      episodeText = episodeText[0];
+      //watching main campaign episode
+      campaignNum = episodeText.at(1);
+      episodeNum = parseInt(episodeText.substring(4));
+      console.log("is critical role campaign " + campaignNum + " ep " + episodeNum);
+
+      //Add popup
+      makeTable();
+      getEpisodeData(() => {
+        document.getElementById("hpPanelsContainer").innerHTML = "";
+        makePanels();
+        setOrientation(orientation);
+
+        //check every second for an update to the stats
+        if (episodeData != null && episodeData.length > 0) {
+          //check there is data stored for the episode
+          updateTimer = setInterval(updateStats, 1000);
+        }
+      }, makeReloadButton);
+    }
   }
+
+
+  addTracker();
+  const observer = new MutationObserver(addTracker);
+  observer.observe(document.getElementsByTagName("title")[0], { childList: true, subtree: false, attributes: false, characterData: true });
+  console.log("start observe");
+
+
 }
 
 
@@ -1917,6 +1929,7 @@ function makeReloadButton(status, message) {
 function getEpisodeData(successCallback, failCallback) {
   var data = null;
 
+  //TODO use fetch() instead
   var xhr = new XMLHttpRequest();
   xhr.withCredentials = false;
 
@@ -1956,18 +1969,23 @@ function getEpisodeData(successCallback, failCallback) {
     }
   });
 
-  //let documentName = campaignNum == 3 ? "combat-data" : "combat-data-c2";
-  let documentName = campaignNum != 3 ? "combat-data-c" + campaignNum : "combat-data";
-  xhr.open("GET", `https://critrolehpdata-5227.restdb.io/rest/${documentName}?q={\"EpNum\":${episodeNum}}`); //episodeNum critrolehpdata-5227 testdb-2091
-  xhr.setRequestHeader("content-type", "application/json");
-  xhr.setRequestHeader("x-apikey", apiKey);
-  xhr.setRequestHeader("cache-control", "no-cache");
-  xhr.setRequestHeader("authorization", authorization);
 
-  console.log(authorization);
+  apiKey.then((keyJSON) => {
+    let documentName = campaignNum != 3 ? "combat-data-c" + campaignNum : "combat-data";
+    xhr.open("GET", `https://critrolehpdata-5227.restdb.io/rest/${documentName}?q={\"EpNum\":${episodeNum}}`); //episodeNum critrolehpdata-5227 testdb-2091
+    xhr.setRequestHeader("content-type", "application/json");
+    xhr.setRequestHeader("x-apikey", keyJSON.apikey);
+    xhr.setRequestHeader("cache-control", "no-cache");
+    xhr.setRequestHeader("authorization", keyJSON.authorization);
+    console.log(keyJSON.authorization);
 
-  xhr.send(data);
-  console.log("request sent");
+    xhr.send(data);
+    console.log("request sent");
+  });
+  
+
+
+  
 }
 
 function onPanelHover(event, statsPanel) {
@@ -2062,6 +2080,11 @@ function OnResize(event, resizeElem) {
   resizeElem.style.setProperty("--heightMod", heightMod);
 }
 
+
+
+
+
+
 console.log("HPTracker Running");
 
 chrome.storage.sync.get(
@@ -2078,12 +2101,8 @@ chrome.storage.sync.get(
   }
 );
 
-fetch(chrome.runtime.getURL("/apiKey.txt"))
-  .then((response) => response.json())
-  .then((json) => {
-    apiKey = json.apikey;
-    authorization = json.authorization;
-  });
+apiKey = fetch(chrome.runtime.getURL("/apiKey.txt")).then((response) => response.json());
+
 
 console.log(location.hostname);
 if (location.hostname == "www.twitch.tv") {
@@ -2096,3 +2115,4 @@ if (location.hostname == "www.twitch.tv") {
   host = "beacon";
   InjectHTMLBeacon();
 }
+
