@@ -1927,66 +1927,57 @@ function makeReloadButton(status, message) {
 
 //get the episode data from the database
 function getEpisodeData(successCallback, failCallback) {
-  var data = null;
-
-  //TODO use fetch() instead
-  var xhr = new XMLHttpRequest();
-  xhr.withCredentials = false;
 
   document.getElementById("hpPanelsContainer").innerHTML = `<div class="spinner" style="width: 40px; height: 40px"></div>`;
 
-  xhr.addEventListener("error", (event) => {
-    console.log("xhr error: ");
-    console.log(event);
-  });
+  apiKey.then((keyJSON) => {
+    try {
 
-  xhr.addEventListener("readystatechange", function () {
-    if (this.readyState === 4) {
-      try {
-        console.log("restdb responded");
-
-        //console.log(this.responseText);
-        console.log(this.status);
-        console.log(this);
-
-        if (String(this.status)[0] === "2") {
-          var responseJson = JSON.parse(this.responseText);
-          episodeData = responseJson.length <= 0 ? null : responseJson[0].data;
-          charData = responseJson.length <= 0 ? null : responseJson[0].characterData;
-          galleryName = responseJson.length <= 0 ? null : responseJson[0].galleryName;
-          console.log(episodeData);
-          console.log(charData);
-
-          successCallback();
-        } else {
-          failCallback(this.status, this.statusText);
+      const documentName = campaignNum != 3 ? "combat-data-c" + campaignNum : "combat-data";
+      fetch(`https://critrolehpdata-5227.restdb.io/rest/${documentName}?q={\"EpNum\":${episodeNum}}`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          "x-apikey": keyJSON.apikey,
+          "authorization": keyJSON.authorization
         }
-      } catch (e) {
-        console.error(e.name + ": " + e.message + "\n" + e.stack);
+      }).then((response) => {
+        console.log("restdb responded");
+        console.log(response.status);
+        console.log(response);
+
+        if (response.ok) {
+            response.json().then((responseJson) => {
+              episodeData = responseJson.length <= 0 ? null : responseJson[0].data;
+              charData = responseJson.length <= 0 ? null : responseJson[0].characterData;
+              galleryName = responseJson.length <= 0 ? null : responseJson[0].galleryName;
+              console.log(episodeData);
+              console.log(charData);
+
+              successCallback();
+            }); 
+        } else {
+          failCallback(response.status, response.statusText);
+        }
+
+      }, (errorReason) => {
+        console.error("fetch error reason: ", errorReason);
         episodeData = null;
         charData = null;
-      }
+        failCallback(0, "Fetch failed");
+      });
+
+    }catch(error){
+      console.log("fetch error", error);
+      console.error(error.name + ": " + error.message + "\n" + error.stack);
+      episodeData = null;
+      charData = null;
+      failCallback(0, "Fetch failed. " + error.message);
     }
   });
 
-
-  apiKey.then((keyJSON) => {
-    let documentName = campaignNum != 3 ? "combat-data-c" + campaignNum : "combat-data";
-    xhr.open("GET", `https://critrolehpdata-5227.restdb.io/rest/${documentName}?q={\"EpNum\":${episodeNum}}`); //episodeNum critrolehpdata-5227 testdb-2091
-    xhr.setRequestHeader("content-type", "application/json");
-    xhr.setRequestHeader("x-apikey", keyJSON.apikey);
-    xhr.setRequestHeader("cache-control", "no-cache");
-    xhr.setRequestHeader("authorization", keyJSON.authorization);
-    console.log(keyJSON.authorization);
-
-    xhr.send(data);
-    console.log("request sent");
-  });
-  
-
-
-  
 }
+
 
 function onPanelHover(event, statsPanel) {
   let delayTimer = setInterval(openStatsPanel, 500, statsPanel);
