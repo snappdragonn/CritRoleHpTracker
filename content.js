@@ -1881,14 +1881,20 @@ function removeTrackerPopup() {
 
   minimised = false;
   episodeNum = 0;
+  campaignNum = 0;
   episodeData = null;
   charData = null;
   currentTimeSlot = 0;
-  // panels = [];
+  previousTime = 0;
+  panels = [];
   players = [];
   galleryName = null;
   currentGalleryImage = 0;
+  initiativeOrder = [];
+  currentInitiative = -1;
 }
+
+
 
 function makeReloadButton(status, message) {
   var tbody = document.getElementById("hpPanelsContainer");
@@ -1931,7 +1937,6 @@ function getEpisodeData(successCallback, failCallback) {
   document.getElementById("hpPanelsContainer").innerHTML = `<div class="spinner" style="width: 40px; height: 40px"></div>`;
 
   apiKey.then((keyJSON) => {
-    try {
 
       const documentName = campaignNum != 3 ? "combat-data-c" + campaignNum : "combat-data";
       fetch(`https://critrolehpdata-5227.restdb.io/rest/${documentName}?q={\"EpNum\":${episodeNum}}`, {
@@ -1967,13 +1972,6 @@ function getEpisodeData(successCallback, failCallback) {
         failCallback(0, "Fetch failed");
       });
 
-    }catch(error){
-      console.log("fetch error", error);
-      console.error(error.name + ": " + error.message + "\n" + error.stack);
-      episodeData = null;
-      charData = null;
-      failCallback(0, "Fetch failed. " + error.message);
-    }
   });
 
 }
