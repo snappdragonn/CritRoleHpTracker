@@ -4,8 +4,6 @@ var minimised = false; //if the popup is minimised
 var episodeNum = 0;
 var campaignNum = 0;
 var episodeData; //json data of events in the episode
-var charData; //json data of the player characters
-var galleryName; //the name of the fan art gallery for this episode
 var currentTimeSlot = 0; //the index of the time at the end of a time slot (between events)
 var previousTime = 0; //the time in the video when lasted checked of events (used to determine if the used has jumped to a differenet point in the video)
 var updateTimer; //timer for checking for new events (every second)
@@ -296,10 +294,10 @@ class HeathbarPanel extends Panel {
                 <div class="healthBar">
                   <div class="barBackground"></div>
                   <div class="slider hpSlider" style="width: ${
-                    Math.min(players[this.playerId].currentHp / charData[this.playerId].hp, 1) * 100
+                    Math.min(players[this.playerId].currentHp / episodeData.characterData[this.playerId].hp, 1) * 100
                   }%;"></div>
                   <div class="slider tmpHpSlider" style="background-color: rgba(10, 100, 255, 0.4); width: ${
-                    Math.min(players[this.playerId].tmpHp / charData[this.playerId].hp, 1) * 100
+                    Math.min(players[this.playerId].tmpHp / episodeData.characterData[this.playerId].hp, 1) * 100
                   }%;"></div>
                   <div class="healthbarHpNum"><div>${players[this.playerId].currentHp + players[this.playerId].tmpHp}</div></div>
                 </div>
@@ -356,7 +354,7 @@ class HeathbarPanel extends Panel {
   updatePanel(newHp) {
     //set slider with
     var slider = this.panel.getElementsByClassName("slider")[0];
-    slider.style.width = Math.min(newHp / charData[this.playerId].hp, 1) * 100 + "%";
+    slider.style.width = Math.min(newHp / episodeData.characterData[this.playerId].hp, 1) * 100 + "%";
 
     //set hp number on health bar
     var hpNum = this.panel.getElementsByClassName("healthbarHpNum")[0];
@@ -364,7 +362,7 @@ class HeathbarPanel extends Panel {
 
     //set tmp hp slider width
     var tmpHpSlider = this.panel.getElementsByClassName("tmpHpSlider")[0];
-    tmpHpSlider.style.width = Math.min(players[this.playerId].tmpHp / charData[this.playerId].hp, 1) * 100 + "%";
+    tmpHpSlider.style.width = Math.min(players[this.playerId].tmpHp / episodeData.characterData[this.playerId].hp, 1) * 100 + "%";
   }
 
   //saves = [num success, num fail]
@@ -772,21 +770,21 @@ class PlayerChracter {
 //------------------------------------------------------------------------------
 
 function isInTimeSlot(time, timeslot) {
-  if (timeslot >= episodeData.length) {
+  if (timeslot >= episodeData.data.length) {
     //time slot at the end
-    if (time > episodeData[episodeData.length - 1].time) {
+    if (time > episodeData.data[episodeData.data.length - 1].time) {
       //time also at end
       return true;
     }
   } else if (timeslot <= 0) {
     //time slot at the start
-    if (time <= episodeData[0].time) {
+    if (time <= episodeData.data[0].time) {
       // time also at start
       return true;
     }
   } else {
     //somewhere in the middle
-    if (time > episodeData[timeslot - 1].time && time <= episodeData[timeslot].time) {
+    if (time > episodeData.data[timeslot - 1].time && time <= episodeData.data[timeslot].time) {
       //time within the time slot (time slot is the index of the end time (inclusive) of the slot)
       return true;
     }
@@ -801,6 +799,9 @@ function updateStats() {
   if (host === "twitch") {
     currentTime -= 900;
   }
+  if(host === "beacon" && currentTime > episodeData.breakStart){
+    currentTime += episodeData.breakLength;
+  }
 
   var isSeek = currentTime > previousTime + 3 || currentTime < previousTime;
   //console.log(previousTime + " -> " + currentTime + " " + isSeek);
@@ -810,8 +811,8 @@ function updateStats() {
     //console.log("new time slot");
     //find the new current time slot
     let oldTimeSlot = currentTimeSlot;
-    for (i = 0; i <= episodeData.length; i++) {
-      if (i >= episodeData.length || episodeData[i].time >= currentTime) {
+    for (i = 0; i <= episodeData.data.length; i++) {
+      if (i >= episodeData.data.length || episodeData.data[i].time >= currentTime) {
         currentTimeSlot = i;
         break;
       }
@@ -821,14 +822,14 @@ function updateStats() {
     if (currentTimeSlot > oldTimeSlot) {
       //moved forwards - apply all events from current time to the new time
       for (i = oldTimeSlot + 1; i <= currentTimeSlot; i++) {
-        applyEvent(episodeData[i - 1].event, false, isSeek);
+        applyEvent(episodeData.data[i - 1].event, false, isSeek);
       }
       updateAllPanels();
     } else if (currentTimeSlot < oldTimeSlot) {
       //moved backwards - apply all events from the begining to the new time
       resetPlayers();
       for (i = 1; i <= currentTimeSlot; i++) {
-        applyEvent(episodeData[i - 1].event, false, isSeek);
+        applyEvent(episodeData.data[i - 1].event, false, isSeek);
       }
       updateAllPanels(); //TODO either update panels here or within every event method on the player
     }
@@ -1369,24 +1370,24 @@ function makePanels() {
   var tbody = document.getElementById("hpPanelsContainer");
   tbody.replaceChildren();
 
-  if (charData != null) {
+  if (episodeData != null) {
     //data for the episode is available
-    for (let i = 0; i < charData.length; i++) {
-      console.log(charData[i]);
+    for (let i = 0; i < episodeData.characterData.length; i++) {
+      console.log(episodeData.characterData[i]);
 
       players.push(
-        new PlayerChracter(
+        new PlayerChracter( //TODO pass the object itself
           i,
-          charData[i].name,
-          charData[i].level,
-          charData[i].charClass,
-          charData[i].classLevels,
-          charData[i].ac,
-          charData[i].hp,
-          charData[i].stats,
-          charData[i].spellslots,
-          charData[i].color,
-          charData[i].imageURL
+          episodeData.characterData[i].name,
+          episodeData.characterData[i].level,
+          episodeData.characterData[i].charClass,
+          episodeData.characterData[i].classLevels,
+          episodeData.characterData[i].ac,
+          episodeData.characterData[i].hp,
+          episodeData.characterData[i].stats,
+          episodeData.characterData[i].spellslots,
+          episodeData.characterData[i].color,
+          episodeData.characterData[i].imageURL
         )
       );
 
@@ -1433,7 +1434,7 @@ function SetDefaultPopupHeight() {
 //Check if a player is hidden before the episode starts (in first 5 seconds)
 //    used to avoid player pannel quickly popping in and out again at start of ep or when seeking backwards in video
 function DoesPlayerStartHidden(playerName) {
-  for (event of episodeData) {
+  for (event of episodeData.data) {
     if (event.time < 5) {
       if (event.event.type == "hidePlayer" && event.event.playerName == playerName) {
         return true;
@@ -1468,7 +1469,7 @@ async function FindLatestGallery() {
 
   //get fan art image urls and artist names
   let GalleryList = galleryDiv.getElementsByClassName("wonderplugin-gridgallery-list")[0];
-  let galleryImages = { galleryName: galleryName, images: [] };
+  let galleryImages = { galleryName: episodeData.galleryName, images: [] };
 
   for (galleryItem of GalleryList.children) {
     let imgElement = galleryItem.getElementsByTagName("img")[0];
@@ -1507,7 +1508,7 @@ async function GetGalleryImages(galleryLink) {
 
   //get fan art image urls and artist names
   let GalleryList = galleryDiv.getElementsByClassName("wonderplugin-gridgallery-list")[0];
-  let galleryImages = { galleryName: galleryName, images: [] }; //TODO extract gallery name from the link
+  let galleryImages = { galleryName: episodeData.galleryName, images: [] }; //TODO extract gallery name from the link
 
   for (galleryItem of GalleryList.children) {
     let imgElement = galleryItem.getElementsByTagName("img")[0];
@@ -1578,8 +1579,8 @@ async function MakeGalleryPopup() {
   document.getElementById("galleryForwardButton").addEventListener("click", () => jumpToNextImage(1));
 
   //Get fan art urls and artist names
-  if (galleryName != null) {
-    GetGalleryImages(galleryName);
+  if (episodeData != null && episodeData.galleryName != null) {
+    GetGalleryImages(episodeData.galleryName);
   } else if (campaignNum > 2) {
     document.getElementById("fan-art-gallery").innerHTML = `<div style="text-align: center;">
                                                               <h3 style="margin: 0.5em;">Gallery Not Found</h3>
@@ -1773,7 +1774,7 @@ function InjectHTML() {
           setOrientation(orientation);
 
           //check every few seconds for an update to the stats
-          if (episodeData != null && episodeData.length > 0) {
+          if (episodeData != null && episodeData.data.length > 0) {
             //check there is data stored for the episode
             updateTimer = setInterval(updateStats, 1000);
           }
@@ -1816,7 +1817,7 @@ function InjectHTMLTwitch() {
         setOrientation(orientation);
 
         //check every few seconds for an update to the stats
-        if (episodeData != null && episodeData.length > 0) {
+        if (episodeData != null && episodeData.data.length > 0) {
           //check there is data stored for the episode
           updateTimer = setInterval(updateStats, 1000);
         }
@@ -1854,7 +1855,7 @@ function InjectHTMLBeacon() {
         setOrientation(orientation);
 
         //check every second for an update to the stats
-        if (episodeData != null && episodeData.length > 0) {
+        if (episodeData != null && episodeData.data.length > 0) {
           //check there is data stored for the episode
           updateTimer = setInterval(updateStats, 1000);
         }
@@ -1883,12 +1884,10 @@ function removeTrackerPopup() {
   episodeNum = 0;
   campaignNum = 0;
   episodeData = null;
-  charData = null;
   currentTimeSlot = 0;
   previousTime = 0;
   panels = [];
   players = [];
-  galleryName = null;
   currentGalleryImage = 0;
   initiativeOrder = [];
   currentInitiative = -1;
@@ -1922,7 +1921,7 @@ function makeReloadButton(status, message) {
         setOrientation(orientation);
 
         //check every few seconds for an update to the stats
-        if (episodeData != null && episodeData.length > 0) {
+        if (episodeData != null && episodeData.data.length > 0) {
           //check there is data stored for the episode
           updateTimer = setInterval(updateStats, 1000);
         }
@@ -1953,11 +1952,9 @@ function getEpisodeData(successCallback, failCallback) {
 
         if (response.ok) {
             response.json().then((responseJson) => {
-              episodeData = responseJson.length <= 0 ? null : responseJson[0].data;
-              charData = responseJson.length <= 0 ? null : responseJson[0].characterData;
-              galleryName = responseJson.length <= 0 ? null : responseJson[0].galleryName;
+              episodeData = responseJson[0];
+              console.log("episode data:");
               console.log(episodeData);
-              console.log(charData);
 
               successCallback();
             }); 
