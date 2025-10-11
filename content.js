@@ -849,9 +849,9 @@ function applyEvent(event, updateUI, isSeek) {
       getPlayer(event.characterName).addDeathSave(event.saveType === "succeed", "amount" in event ? event.amount : 1, updateUI);
     } else if (event.type === "longRest") {
       if (event.players != null) {
-        resetPlayers(event.players.map((name) => getPlayer(name)));
+        longRest(event.players.map((name) => getPlayer(name)));
       } else {
-        resetPlayers();
+        longRest();
       }
     } else if (event.type === "addEffect") {
       getPlayer(event.characterName).addEffect(event.effectName, event.effectDesc, event.level);
@@ -924,6 +924,18 @@ function resetPlayers(playersToReset = players) {
     if (!DoesPlayerStartHidden(player.characterName)) {
       showCharacter(player.characterName);
     }
+  }
+  endInitiative();
+}
+
+function longRest(playersToReset = players) {
+  for (let player of playersToReset) {
+    player.deathSaves = [0, 0];
+    player.currentHp = player.maxHp;
+    player.tmpHp = 0;
+    player.removeAllEffects();
+    panels[player.id].pauseUpdate = false;
+    player.resetSpellslots();
   }
   endInitiative();
 }
@@ -1469,7 +1481,7 @@ async function FindLatestGallery() {
 
   //get fan art image urls and artist names
   let GalleryList = galleryDiv.getElementsByClassName("wonderplugin-gridgallery-list")[0];
-  let galleryImages = { galleryName: episodeData.galleryName, images: [] };
+  let galleryImages = { galleryName: "Latest Gallery", images: [] }; //TODO get publish date of gallery and its actual name
 
   for (galleryItem of GalleryList.children) {
     let imgElement = galleryItem.getElementsByTagName("img")[0];
