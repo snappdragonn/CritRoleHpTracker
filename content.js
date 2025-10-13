@@ -1464,6 +1464,10 @@ function DoesPlayerStartHidden(playerName) {
 async function FindLatestGallery() {
   console.log("Find latest gallery");
   let response = await chrome.runtime.sendMessage({ request: "GetWebPage", webpage: "https://critrole.com/tag/fan-art/" });
+  if (response["error"] != undefined) {
+    console.error(response["error"]);
+    return [];
+  }
 
   //convert gallery from string to html element
   let fanArtPage = document.createElement("div");
@@ -1481,7 +1485,7 @@ async function FindLatestGallery() {
 
   //get fan art image urls and artist names
   let GalleryList = galleryDiv.getElementsByClassName("wonderplugin-gridgallery-list")[0];
-  let galleryImages = { galleryName: "Latest Gallery", images: [] }; //TODO get publish date of gallery and its actual name
+  let images = []; 
 
   for (galleryItem of GalleryList.children) {
     let imgElement = galleryItem.getElementsByTagName("img")[0];
@@ -1491,23 +1495,26 @@ async function FindLatestGallery() {
     let imgURL = imgElement.getAttribute("src").replace(/-\d+x\d+(?=\.\w+)/, ""); //get the url and remove the image size (e.g. 300x200) to get the full size image
     let artist = imgElement.getAttribute("alt");
 
-    galleryImages["images"].push({ url: imgURL, artist: artist });
+    images.push({ url: imgURL, artist: artist });
   }
 
-  console.log(galleryImages);
+  console.log(images);
 
-  AddImagesToGallery(galleryImages);
-  return galleryImages; //{"galleryname": name, "images": [{"url": url, "artist": artistName}] };
+  //AddImagesToGallery(galleryImages);
+  return images; //[{"url": url, "artist": artistName}];
 }
 
 async function GetGalleryImages(galleryLink) {
-  if (galleryLink == undefined) {
-    return { error: "No Gallery" };
+  console.log("get gallery images");
+  if (galleryLink == undefined || galleryLink == "") {
+    console.warn("Cannot get gallery images because gallery url/link is undefined or empty");
+    return [];
   }
 
   let response = await chrome.runtime.sendMessage({ request: "GetWebPage", webpage: galleryLink });
   if (response["error"] != undefined) {
-    return { error: response[error] };
+    console.error(response["error"]);
+    return [];
   }
   galleryText = response.text;
 
@@ -1518,10 +1525,21 @@ async function GetGalleryImages(galleryLink) {
   galleryDiv.innerHTML = galleryText;
   console.log(galleryDiv);
 
+  
+  let images = []; //TODO extract gallery name from the link
+
+  //get the gallery name form its url
+  // let galleryTitle = galleryLink.match(/(?<=\/)[\w\d-]+(?=\/)/g).slice(-1)[0];
+  // console.log(galleryTitle + "    " + typeof galleryTitle);
+  // galleryTitle = galleryTitle.replace("fan-art-gallery-", "");
+  // galleryTitle = galleryTitle.replace(/-/g, " ");
+  // galleryTitle = galleryTitle.replace(/\w\S*/g, function (txt) {
+  //   return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
+  // });
+  //galleryImages.galleryName = galleryTitle;
+
   //get fan art image urls and artist names
   let GalleryList = galleryDiv.getElementsByClassName("wonderplugin-gridgallery-list")[0];
-  let galleryImages = { galleryName: episodeData.galleryName, images: [] }; //TODO extract gallery name from the link
-
   for (galleryItem of GalleryList.children) {
     let imgElement = galleryItem.getElementsByTagName("img")[0];
     if (imgElement == null) {
@@ -1530,17 +1548,18 @@ async function GetGalleryImages(galleryLink) {
     let imgURL = imgElement.getAttribute("src").replace(/-\d+x\d+(?=\.\w+)/, ""); //get the url and remove the image size (e.g. 300x200) to get the full size image
     let artist = imgElement.getAttribute("alt");
 
-    galleryImages["images"].push({ url: imgURL, artist: artist });
+    images.push({ url: imgURL, artist: artist });
   }
 
-  console.log(galleryImages);
+  console.log(images);
 
-  AddImagesToGallery(galleryImages);
-  return galleryImages; //{"galleryname": name, "images": [{"url": url, "artist": artistName}] };
+  //AddImagesToGallery(galleryImages);
+  return images; //[{"url": url, "artist": artistName}]
   //});
 }
 
-async function MakeGalleryPopup() {
+function MakeGalleryPopup() { //TODO does this need to be async?
+  console.log("make gallery popup");
   //Make gallery popup with loading spinner and add to DOM
   document.body.insertAdjacentHTML(
     "beforeend",
@@ -1590,55 +1609,63 @@ async function MakeGalleryPopup() {
   document.getElementById("galleryBackButton").addEventListener("click", () => jumpToNextImage(-1));
   document.getElementById("galleryForwardButton").addEventListener("click", () => jumpToNextImage(1));
 
+
   //Get fan art urls and artist names
-  if (episodeData != null && episodeData.galleryName != null) {
-    GetGalleryImages(episodeData.galleryName);
-  } else if (campaignNum > 2) {
+  if(campaignNum <= 2) {
+    //there is never a gallery for c2
+    document.getElementById("fan-art-gallery").innerHTML = `<div style="text-align: center;">
+                                                              <h3>No Gallery</h3>
+                                                              <h5>Fan Art Gallery Not Available For Campagin ${campaignNum}</h5>
+                                                            </div>`;
+
+  }else if (episodeData == undefined){
+    //There is no data from this episode so get latest gallery
+    FindLatestGallery().then((galleryImages) => AddImagesToGallery(galleryImages, "Latest Gallery") );
+    //TODO get publish date of gallery?
+
+  }else if(episodeData.galleryName == null || episodeData.galleryName == ""){
+    //No gallery given so give option to get lastest gallery
     document.getElementById("fan-art-gallery").innerHTML = `<div style="text-align: center;">
                                                               <h3 style="margin: 0.5em;">Gallery Not Found</h3>
                                                               <button id="getLatestGalleryButton" style="font-size: 0.8em;">Get Latest Gallery</button>
                                                             </div>`;
     document.getElementById("getLatestGalleryButton").addEventListener("click", () => {
-      FindLatestGallery();
+      FindLatestGallery().then((galleryImages) => AddImagesToGallery(galleryImages, "Latest Gallery") );
+      //TODO get publish date of gallery?
       document.getElementById("fan-art-gallery").innerHTML = `<div class="spinner" style="width: 40px; height: 40px"></div>`;
     });
-    //var galleryData = await FindLatestGallery();
-  } else {
-    document.getElementById("fan-art-gallery").innerHTML = `<div style="text-align: center;">
-                                                              <h3>No Gallery</h3>
-                                                              <h5>Fan Art Gallery Only Available For Campagin 3</h5>
-                                                            </div>`;
+
+  }else {
+    //get the gallery name form its url
+    let galleryTitle = episodeData.galleryName
+      .match(/(?<=\/)[\w\d-]+(?=\/)/g).slice(-1)[0]
+      .replace("fan-art-gallery-", "") //remove "fan-art-gallery-"
+      .replace(/-/g, " ") //replace "-" with a space
+      .replace(/\w\S*/g, (txt) => txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase()); //uppercase first letter of each word and lowercase every other letter
+
+    //try to get the gallery
+    GetGalleryImages(episodeData.galleryName).then((galleryImages) => AddImagesToGallery(galleryImages, galleryTitle) );
   }
+
 }
 
-function AddImagesToGallery(imageData) {
+function AddImagesToGallery(imageData, galleryTitle) {
   //imageData = {"galleryname": name, "images": [{"url": url, "artist": artistName}] };
-  if (imageData["error"] != undefined) {
-    console.warn("Gallery Error: " + imageData["error"]);
-    document.getElementById("fan-art-gallery").innerHTML = `<h1>${imageData["error"]}</h1>`;
-    return;
-  }
 
-  //Add gallery name to popup title
-  let galleryTitle = imageData["galleryName"].match(/(?<=\/)[\w\d-]+(?=\/)/g).slice(-1)[0];
-  console.log(galleryTitle + "    " + typeof galleryTitle);
-  galleryTitle = galleryTitle.replace("fan-art-gallery-", "");
-  galleryTitle = galleryTitle.replace(/-/g, " ");
-  galleryTitle = galleryTitle.replace(/\w\S*/g, function (txt) {
-    return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
-  }); //Convert to title case
-  document.getElementById("galleryHeader").innerText = "Fan Art Gallery: " + galleryTitle;
-
-  //Add fan art to gallery popup
+  console.log("add images to gallery");
   let galleryElem = document.getElementById("fan-art-gallery");
   galleryElem.innerHTML = ""; //remove loading spinner icon
 
-  for (image of imageData["images"]) {
+  //Add gallery name to popup title
+  document.getElementById("galleryHeader").innerText = "Fan Art Gallery: " + galleryTitle;
+
+  //Add fan art to gallery popup
+  for (image of imageData) {
     galleryElem.insertAdjacentHTML("beforeend", `<img src="${image["url"]}" alt="${image["artist"]}" style="display: none" /> `);
   }
   galleryElem.firstElementChild.style.display = "block";
 
-  document.getElementById("galleryImageCount").lastElementChild.innerHTML = "/" + imageData["images"].length;
+  document.getElementById("galleryImageCount").lastElementChild.innerHTML = "/" + imageData.length;
   document.getElementById("galleryArtistCredit").innerText = galleryElem.firstElementChild.alt;
   document.getElementById("galleryArtistCredit").title = galleryElem.firstElementChild.alt;
 
@@ -1950,7 +1977,7 @@ function getEpisodeData(successCallback, failCallback) {
   apiKey.then((keyJSON) => {
 
       const documentName = campaignNum != 3 ? "combat-data-c" + campaignNum : "combat-data";
-      fetch(`https://critrolehpdata-5227.restdb.io/rest/${documentName}?q={\"EpNum\":${episodeNum}}`, {
+      fetch(`https://critrolehpdata-5227.restdb.io/rest/${documentName}?q={\"EpNum\":${episodeNum}}`, { //episodeNum critrolehpdata-5227 testdb-2091
         method: "GET",
         headers: {
           "Content-Type": "application/json",
