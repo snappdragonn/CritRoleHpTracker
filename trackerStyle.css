@@ -453,7 +453,8 @@ trackerBlock button {
 }
 
 .playerImage {
-  height: min(calc(41px * var(--heightMod, 1)), calc(41px * var(--widthMod, 1)));
+  height: 2.5em;
+  /* height: min(calc(41px * var(--heightMod, 1)), calc(41px * var(--widthMod, 1))); */
   text-align: center;
 }
 
@@ -809,6 +810,7 @@ trackerBlock button {
   min-width: 100px;
   min-height: 80px;
 
+  font-family: Roboto, Arial, sans-serif;
   background-color: dimgray;
   color: white;
   border: black solid 2px;
@@ -826,6 +828,18 @@ trackerBlock button {
 
 #fan-art-gallery-popup button {
   cursor: pointer;
+}
+
+.click-button {
+  background-color: white;
+  border: none;
+  border-radius: 0.5em;
+  color: black;
+  padding: 0.1em 0.4em;
+}
+
+.click-button:hover {
+  background-color: rgb(231, 231, 231);
 }
 
 #fan-art-gallery-popup>h4 {

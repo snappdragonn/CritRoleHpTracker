@@ -122,25 +122,19 @@ class NumberPanel extends Panel {
   //make the panel html element
   makePanel() {
     var htmlstring = /*html*/ `
-                      <div id=${"player" + this.playerId} class="playerPanel" data-deathSaves="false" style="background-color: ${
-      players[this.playerId].characterColor
-    }; display: grid; grid-template: 1fr / 45% 55%">
+                      <div id=${"player" + this.playerId} class="playerPanel" data-deathSaves="false" style="background-color: ${players[this.playerId].characterColor}; display: grid; grid-template: 100% / 45% 55%">
                         <div class="playerImage" style="display: flex; justify-content: center;">
                           <div style="position: relative; height: 100%;">
                             <img class="headshotImg" src=${
                               players[this.playerId].headShotImg
                             } alt="headshot" referrerPolicy="no-referrer" crossorigin="anonymous" style="height: 100%;">
-                            <img class="headshotOverlay" src="${chrome.runtime.getURL("/icons/bloodSpatter.png")}" style="display: ${
-      players[this.playerId].currentHp < players[this.playerId].maxHp / 2 ? "inline" : "none"
-    }">
+                            <img class="headshotOverlay" src="${chrome.runtime.getURL("/icons/bloodSpatter.png")}" style="display: ${players[this.playerId].currentHp < players[this.playerId].maxHp / 2 ? "inline" : "none"}">
                           </div>
                           <!-- <div class="playerName">${players[this.playerId].characterName}</div> -->
                         </div>
                         <div class="hpNumber" style="display: flex; flex-direction: column; align-items: center;">
                           <h1>${players[this.playerId].currentHp}</h1>
-                          <h4 class="tmpHp" data-visibility="${players[this.playerId].tmpHp == 0 ? "hidden" : "visible"}">+${
-      players[this.playerId].tmpHp
-    }</h4>
+                          <h4 class="tmpHp" data-visibility="${players[this.playerId].tmpHp == 0 ? "hidden" : "visible"}">+${players[this.playerId].tmpHp}</h4>
                         </div>
                       </div>
                     `;
@@ -1528,16 +1522,6 @@ async function GetGalleryImages(galleryLink) {
   
   let images = []; //TODO extract gallery name from the link
 
-  //get the gallery name form its url
-  // let galleryTitle = galleryLink.match(/(?<=\/)[\w\d-]+(?=\/)/g).slice(-1)[0];
-  // console.log(galleryTitle + "    " + typeof galleryTitle);
-  // galleryTitle = galleryTitle.replace("fan-art-gallery-", "");
-  // galleryTitle = galleryTitle.replace(/-/g, " ");
-  // galleryTitle = galleryTitle.replace(/\w\S*/g, function (txt) {
-  //   return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
-  // });
-  //galleryImages.galleryName = galleryTitle;
-
   //get fan art image urls and artist names
   let GalleryList = galleryDiv.getElementsByClassName("wonderplugin-gridgallery-list")[0];
   for (galleryItem of GalleryList.children) {
@@ -1627,7 +1611,7 @@ function MakeGalleryPopup() { //TODO does this need to be async?
     //No gallery given so give option to get lastest gallery
     document.getElementById("fan-art-gallery").innerHTML = `<div style="text-align: center;">
                                                               <h3 style="margin: 0.5em;">Gallery Not Found</h3>
-                                                              <button id="getLatestGalleryButton" style="font-size: 0.8em;">Get Latest Gallery</button>
+                                                              <button id="getLatestGalleryButton" class="click-button" style="font-size: 0.8em;">Get Latest Gallery</button>
                                                             </div>`;
     document.getElementById("getLatestGalleryButton").addEventListener("click", () => {
       FindLatestGallery().then((galleryImages) => AddImagesToGallery(galleryImages, "Latest Gallery") );
