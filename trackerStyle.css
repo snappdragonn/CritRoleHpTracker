@@ -3,7 +3,7 @@
   --numNotifs: 0;
 
   --defaultWidth: 150px;
-  --defaultHeight: calc(var(--numPanels, 7) * 60px + 10px);
+  --defaultHeight: calc(var(--numPanels, 7) * 56px + 30px);
   --widthMod: 1;
   --heightMod: 1;
 
