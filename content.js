@@ -1455,47 +1455,23 @@ function DoesPlayerStartHidden(playerName) {
 // Make Fan Art Gallery
 //------------------------------------------------------------------------------
 
-async function FindLatestGallery() {
+async function FindLatestGalleryURL() {
   console.log("Find latest gallery");
   let response = await chrome.runtime.sendMessage({ request: "GetWebPage", webpage: "https://critrole.com/tag/fan-art/" });
   if (response["error"] != undefined) {
     console.error(response["error"]);
-    return [];
+    return "";
   }
 
-  //convert gallery from string to html element
+  //convert page from string to html element
   let fanArtPage = document.createElement("div");
   fanArtPage.innerHTML = response.text;
   console.log(fanArtPage);
 
-  let latestGalleryLink = fanArtPage.querySelector(".qt-part-archive-item.format-gallery .qt-readmore");
+  let latestGalleryLink = fanArtPage.querySelector(".qt-part-archive-item.format-gallery .qt-readmore").href;
   console.log(latestGalleryLink);
-  let galleryResponse = await chrome.runtime.sendMessage({ request: "GetWebPage", webpage: latestGalleryLink.href });
 
-  //convert gallery from string to html element
-  let galleryDiv = document.createElement("div");
-  galleryDiv.innerHTML = galleryResponse.text;
-  console.log(galleryDiv);
-
-  //get fan art image urls and artist names
-  let GalleryList = galleryDiv.getElementsByClassName("wonderplugin-gridgallery-list")[0];
-  let images = []; 
-
-  for (galleryItem of GalleryList.children) {
-    let imgElement = galleryItem.getElementsByTagName("img")[0];
-    if (imgElement == null) {
-      continue;
-    }
-    let imgURL = imgElement.getAttribute("src").replace(/-\d+x\d+(?=\.\w+)/, ""); //get the url and remove the image size (e.g. 300x200) to get the full size image
-    let artist = imgElement.getAttribute("alt");
-
-    images.push({ url: imgURL, artist: artist });
-  }
-
-  console.log(images);
-
-  //AddImagesToGallery(galleryImages);
-  return images; //[{"url": url, "artist": artistName}];
+  return latestGalleryLink;
 }
 
 async function GetGalleryImages(galleryLink) {
@@ -1604,7 +1580,9 @@ function MakeGalleryPopup() { //TODO does this need to be async?
 
   }else if (episodeData == undefined){
     //There is no data from this episode so get latest gallery
-    FindLatestGallery().then((galleryImages) => AddImagesToGallery(galleryImages, "Latest Gallery") );
+    FindLatestGalleryURL()
+    .then((url) => GetGalleryImages(url))
+    .then((galleryImages) => AddImagesToGallery(galleryImages, "Latest Gallery") );
     //TODO get publish date of gallery?
 
   }else if(episodeData.galleryName == null || episodeData.galleryName == ""){
@@ -1614,9 +1592,11 @@ function MakeGalleryPopup() { //TODO does this need to be async?
                                                               <button id="getLatestGalleryButton" class="click-button" style="font-size: 0.8em;">Get Latest Gallery</button>
                                                             </div>`;
     document.getElementById("getLatestGalleryButton").addEventListener("click", () => {
-      FindLatestGallery().then((galleryImages) => AddImagesToGallery(galleryImages, "Latest Gallery") );
-      //TODO get publish date of gallery?
       document.getElementById("fan-art-gallery").innerHTML = `<div class="spinner" style="width: 40px; height: 40px"></div>`;
+      FindLatestGalleryURL()
+      .then((url) => GetGalleryImages(url))
+      .then((galleryImages) => AddImagesToGallery(galleryImages, "Latest Gallery") );
+      //TODO get publish date of gallery?
     });
 
   }else {
