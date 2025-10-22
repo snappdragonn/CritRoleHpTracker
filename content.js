@@ -1646,7 +1646,6 @@ function StartGalleryTimer() {
   progressbarDiv = document.getElementById("fan-art-progressbar");
   let progress = 0;
   galleryTimer.progressbarTimer = setInterval(() => {
-    console.log("progress = " + progress);
     progressbarDiv.style.width = progress + "%";
     progress = Math.min(progress + 0.5, 100);
   }, 50)
@@ -1680,7 +1679,9 @@ function StopGalleryTimer() {
   clearInterval(galleryTimer.progressbarTimer);
   galleryTimer.timer = 0;
   galleryTimer.progressbarTimer = 0;
-  document.getElementById("fan-art-progressbar").style.width = 0;
+
+  let progressDiv = document.getElementById("fan-art-progressbar");
+  if(progressDiv != undefined) progressDiv.style.width = 0;
 }
 
 function toggleGalleryTimer() {
