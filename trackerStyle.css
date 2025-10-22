@@ -900,9 +900,9 @@ trackerBlock button {
 }
 
 #fan-art-progressbar {
-  width: 100%;
+  width: 0%;
   height: 0.3em;
-  background-color: #bd3812;
+  background-color: #3c3c3c;
   position: absolute;
   bottom: 2px;
 }

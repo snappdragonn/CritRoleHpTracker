@@ -7,7 +7,7 @@ var episodeData; //json data of events in the episode
 var currentTimeSlot = 0; //the index of the time at the end of a time slot (between events)
 var previousTime = 0; //the time in the video when lasted checked of events (used to determine if the used has jumped to a differenet point in the video)
 var updateTimer; //timer for checking for new events (every second)
-var galleryTimer;
+var galleryTimer = {timer: 0, progressbarTimer: 0}; //{timer: int, progressbarTime: int}
 var currentGalleryImage = 0;
 
 var displayType = "number"; //what type of player panels to use (number or healthbar)
@@ -1638,11 +1638,21 @@ function AddImagesToGallery(imageData, galleryTitle) {
 }
 
 function StartGalleryTimer() {
-  if (galleryTimer != null) return;
+  if (galleryTimer.timer != 0) return;
 
   let galleryElem = document.getElementById("fan-art-gallery");
 
-  galleryTimer = setInterval(() => {
+  //start the progress bar
+  progressbarDiv = document.getElementById("fan-art-progressbar");
+  let progress = 0;
+  galleryTimer.progressbarTimer = setInterval(() => {
+    console.log("progress = " + progress);
+    progressbarDiv.style.width = progress + "%";
+    progress = Math.min(progress + 0.5, 100);
+  }, 50)
+
+  //start the gallery slideshow
+  galleryTimer.timer = setInterval(() => {
     galleryElem.children[currentGalleryImage].style.display = "none";
     currentGalleryImage++;
     if (currentGalleryImage >= galleryElem.childElementCount) {
@@ -1654,7 +1664,11 @@ function StartGalleryTimer() {
     document.getElementById("galleryArtistCredit").innerText = galleryElem.children[currentGalleryImage].alt;
     document.getElementById("galleryArtistCredit").title = galleryElem.children[currentGalleryImage].alt;
     document.getElementById("galleryImageCount").firstElementChild.innerText = currentGalleryImage + 1;
+
+    progress = 0;
   }, 10000);
+
+  
 
   document.getElementById("galleryCloseButton").addEventListener("click", () => {
     StopGalleryTimer();
@@ -1662,14 +1676,15 @@ function StartGalleryTimer() {
 }
 
 function StopGalleryTimer() {
-  if (galleryTimer != null) {
-    clearInterval(galleryTimer);
-    galleryTimer = null;
-  }
+  clearInterval(galleryTimer.timer);
+  clearInterval(galleryTimer.progressbarTimer);
+  galleryTimer.timer = 0;
+  galleryTimer.progressbarTimer = 0;
+  document.getElementById("fan-art-progressbar").style.width = 0;
 }
 
 function toggleGalleryTimer() {
-  if (galleryTimer != null) {
+  if (galleryTimer.timer != 0) {
     //gallery is playing
     StopGalleryTimer();
     document.querySelector("#galleryPlayPauseButton img").src = chrome.runtime.getURL("icons/playIcon.png");
