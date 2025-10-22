@@ -1533,6 +1533,7 @@ function MakeGalleryPopup() { //TODO does this need to be async?
         <div id="fan-art-gallery" style="grid-area: Gallery">
           <div class="spinner" style="width: 40px; height: 40px"></div>
         </div>
+        <div id="fan-art-progressbar" style="grid-area: Gallery"></div>
         <div id="galleryInfo" style="grid-area: Controls">
           <div class="resizer" style="grid-area: resizer">
             <img src=${chrome.runtime.getURL("icons/dragSymbol.png")} style="width: 100%; vertical-align: top;">

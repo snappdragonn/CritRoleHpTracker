@@ -899,6 +899,14 @@ trackerBlock button {
   object-fit: contain;
 }
 
+#fan-art-progressbar {
+  width: 100%;
+  height: 0.3em;
+  background-color: #bd3812;
+  position: absolute;
+  bottom: 2px;
+}
+
 #galleryInfo {
   border-top: 2px solid black;
   margin-top: -2px;
