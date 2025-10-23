@@ -406,6 +406,7 @@ trackerBlock button {
   align-items: center;
   justify-content: center;
   position: relative;
+  anchor-name: --player-panel-anchor;
 }
 
 /*#trackerBlock[data-orientation="horizontal"] .panelContainer {
@@ -586,6 +587,9 @@ trackerBlock button {
   /*font-size: 0;*/
   cursor: default;
   border-radius: 3px;
+  position-anchor: --player-panel-anchor;
+  position-area: right span-bottom;
+  position-try-fallbacks: flip-inline;
 }
 
 #trackerBlock[data-orientation="horizontal"] .chracterStatsPanel {

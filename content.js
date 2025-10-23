@@ -56,7 +56,7 @@ class Panel {
       //if parent does not contain characterStatsPanel add it
       parentDiv.appendChild(players[playerId].statsPanel);
 
-      this.panel.addEventListener("mouseenter", (e) => onPanelHover(e, players[playerId].statsPanel));
+      //this.panel.addEventListener("mouseenter", (e) => onPanelHover(e, players[playerId].statsPanel));
     }
   }
 
@@ -97,7 +97,7 @@ class Panel {
   setHpDisplay(value, color, sliderWidth, bloody) {}
   unsetHpDisplay() {}
 
-  //take html for the panel as a string and turn it into a DOM element
+  //take html for the panel as a string and turn it into a DOM element and replace the old panel in the DOM
   setPanel(string) {
     var tmp = document.createElement("div");
     tmp.innerHTML = string;
@@ -1995,17 +1995,33 @@ function getEpisodeData(successCallback, failCallback) {
 
 
 function onPanelHover(event, statsPanel) {
-  let delayTimer = setInterval(openStatsPanel, 500, statsPanel);
+  let delayTimer = setTimeout(openStatsPanel, 500, statsPanel);
   statsPanel.parentElement.addEventListener("mouseleave", (e) => onPanelEndHover(e, delayTimer, statsPanel));
 }
 
 function onPanelEndHover(event, delayTimer, statsPanel) {
-  clearInterval(delayTimer);
+  clearTimeout(delayTimer);
   statsPanel.style.display = "none";
 }
 
 function openStatsPanel(statsPanel) {
   statsPanel.style.display = "flex";
+
+  //position stats panel to left or if not enough room postion it to the right or if also not enough room on the right pick the side with the most room
+  statsPanel.style.right = "100%";
+  statsPanel.style.left = "";
+  let leftOverflow = statsPanel.getBoundingClientRect().left * -1;
+  if(leftOverflow > 0){
+    statsPanel.style.right = "";
+    statsPanel.style.left = "100%";
+
+    //check if still overflowing on right side and if so put on side with most room
+    let rightOverflow = statsPanel.getBoundingClientRect().right - window.innerWidth;
+    if(leftOverflow < rightOverflow){
+      statsPanel.style.right = "100%";
+      statsPanel.style.left = "";
+    }
+  }
 }
 
 function clamp(n, min, max) {
