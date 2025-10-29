@@ -1034,8 +1034,10 @@ function displaySpellInfo(spellInfo) {
   notifElem.addEventListener("click", (openEvent) => {
     openEvent.stopPropagation();
 
-    if (openEvent.currentTarget.getElementsByClassName("spellInfo")[0].style.display === "none") {
-      openEvent.currentTarget.getElementsByClassName("spellInfo")[0].style.display = "";
+    spellInfoPanel = openEvent.currentTarget.getElementsByClassName("spellInfo")[0];
+    if (spellInfoPanel.style.display === "none") {
+      spellInfoPanel.style.display = "";
+      if(orientation == "vertical") setPanelPosition(spellInfoPanel, "103%");
 
       clearTimeout(closeTimer);
 
@@ -1447,6 +1449,25 @@ function DoesPlayerStartHidden(playerName) {
       }
     } else {
       break;
+    }
+  }
+}
+
+//position panel (stats or spell desc) to left of tracker or if not enough room postion it to the right or if also not 
+//enough room on the right either pick the side with the most room
+function setPanelPosition(panel, offset){
+  panel.style.right = offset;
+  panel.style.left = "";
+  let leftOverflow = panel.getBoundingClientRect().left * -1;
+  if(leftOverflow > 0){
+    panel.style.right = "";
+    panel.style.left = offset;
+
+    //check if still overflowing on right side and if so put on side with most room
+    let rightOverflow = panel.getBoundingClientRect().right - window.innerWidth;
+    if(leftOverflow < rightOverflow){
+      panel.style.right = offset;
+      panel.style.left = "";
     }
   }
 }
@@ -2006,22 +2027,23 @@ function onPanelEndHover(event, delayTimer, statsPanel) {
 
 function openStatsPanel(statsPanel) {
   statsPanel.style.display = "flex";
+  setPanelPosition(statsPanel, "100%");
 
-  //position stats panel to left or if not enough room postion it to the right or if also not enough room on the right pick the side with the most room
-  statsPanel.style.right = "100%";
-  statsPanel.style.left = "";
-  let leftOverflow = statsPanel.getBoundingClientRect().left * -1;
-  if(leftOverflow > 0){
-    statsPanel.style.right = "";
-    statsPanel.style.left = "100%";
+  // //position stats panel to left or if not enough room postion it to the right or if also not enough room on the right pick the side with the most room
+  // statsPanel.style.right = "100%";
+  // statsPanel.style.left = "";
+  // let leftOverflow = statsPanel.getBoundingClientRect().left * -1;
+  // if(leftOverflow > 0){
+  //   statsPanel.style.right = "";
+  //   statsPanel.style.left = "100%";
 
-    //check if still overflowing on right side and if so put on side with most room
-    let rightOverflow = statsPanel.getBoundingClientRect().right - window.innerWidth;
-    if(leftOverflow < rightOverflow){
-      statsPanel.style.right = "100%";
-      statsPanel.style.left = "";
-    }
-  }
+  //   //check if still overflowing on right side and if so put on side with most room
+  //   let rightOverflow = statsPanel.getBoundingClientRect().right - window.innerWidth;
+  //   if(leftOverflow < rightOverflow){
+  //     statsPanel.style.right = "100%";
+  //     statsPanel.style.left = "";
+  //   }
+  // }
 }
 
 function clamp(n, min, max) {
