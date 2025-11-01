@@ -1037,7 +1037,7 @@ function displaySpellInfo(spellInfo) {
     spellInfoPanel = openEvent.currentTarget.getElementsByClassName("spellInfo")[0];
     if (spellInfoPanel.style.display === "none") {
       spellInfoPanel.style.display = "";
-      if(orientation == "vertical") setPanelPosition(spellInfoPanel, "103%");
+      if(orientation == "vertical") setPanelXPosition(spellInfoPanel, "103%");
 
       clearTimeout(closeTimer);
 
@@ -1455,7 +1455,7 @@ function DoesPlayerStartHidden(playerName) {
 
 //position panel (stats or spell desc) to left of tracker or if not enough room postion it to the right or if also not 
 //enough room on the right either pick the side with the most room
-function setPanelPosition(panel, offset){
+function setPanelXPosition(panel, offset){
   panel.style.right = offset;
   panel.style.left = "";
   let leftOverflow = panel.getBoundingClientRect().left * -1;
@@ -1468,6 +1468,23 @@ function setPanelPosition(panel, offset){
     if(leftOverflow < rightOverflow){
       panel.style.right = offset;
       panel.style.left = "";
+    }
+  }
+}
+
+function setPanelYPosition(panel, offset){
+  panel.style.top = offset;
+  panel.style.bottom = "unset";
+  let bottomOverflow = panel.getBoundingClientRect().bottom - window.innerHeight;
+  if(bottomOverflow > 0){
+    panel.style.top = "unset";
+    panel.style.bottom = offset;
+
+    //check if still overflowing on right side and if so put on side with most room
+    let topOverflow = panel.getBoundingClientRect().top * -1;
+    if(bottomOverflow < topOverflow){
+      panel.style.top = offset;
+      panel.style.bottom = "unset";
     }
   }
 }
@@ -2027,23 +2044,11 @@ function onPanelEndHover(event, delayTimer, statsPanel) {
 
 function openStatsPanel(statsPanel) {
   statsPanel.style.display = "flex";
-  setPanelPosition(statsPanel, "100%");
-
-  // //position stats panel to left or if not enough room postion it to the right or if also not enough room on the right pick the side with the most room
-  // statsPanel.style.right = "100%";
-  // statsPanel.style.left = "";
-  // let leftOverflow = statsPanel.getBoundingClientRect().left * -1;
-  // if(leftOverflow > 0){
-  //   statsPanel.style.right = "";
-  //   statsPanel.style.left = "100%";
-
-  //   //check if still overflowing on right side and if so put on side with most room
-  //   let rightOverflow = statsPanel.getBoundingClientRect().right - window.innerWidth;
-  //   if(leftOverflow < rightOverflow){
-  //     statsPanel.style.right = "100%";
-  //     statsPanel.style.left = "";
-  //   }
-  // }
+  if(orientation == "vertical"){
+    setPanelXPosition(statsPanel, "100%");
+  }else {
+    setPanelYPosition(statsPanel, "100%");
+  }
 }
 
 function clamp(n, min, max) {
