@@ -1037,11 +1037,16 @@ function displaySpellInfo(spellInfo) {
       //set max height of spell desc so that is doesn't go off the bottom of the screen
       let spellInfoMaxHeight = window.innerHeight - notifElem.getBoundingClientRect().top - 5;
       if(orientation == "horizontal") spellInfoMaxHeight -= notifElem.clientHeight * 1.3 //on horizontal the spell desc starts below the notifElem by 130%
+      spellInfoMaxHeight = Math.max(spellInfoMaxHeight, 10 * parseFloat(getComputedStyle(spellInfoPanel).fontSize)); // set the min value of maxheight to 10em so the panel wont be shrunk to less than that
       notifElem.getElementsByClassName("spellInfo")[0].style.setProperty("--maxHeight", spellInfoMaxHeight + "px");
 
       if(orientation == "vertical") setPanelXPosition(spellInfoPanel, "103%");
+      else {
+        let pos = setPanelYPosition(spellInfoPanel, "130%");
+        if(pos == "top")spellInfoPanel.style.setProperty("--maxHeight", (notifElem.getBoundingClientRect().top - 5 - notifElem.clientHeight*0.3) + "px");
+      }
       //TODO if horizontal set y pos (above (over player panels) or below) based on a min amount of room
-      //TODO add a min height (prob just in css using em, doesn't need to change)
+      //TODO add a min height to 1em (prob just in css using em, doesn't need to change)
 
       clearTimeout(closeTimer);
 
@@ -1458,7 +1463,8 @@ function DoesPlayerStartHidden(playerName) {
 }
 
 //position panel (stats or spell desc) to left of tracker or if not enough room postion it to the right or if also not 
-//enough room on the right either pick the side with the most room
+//enough room on the right either pick the side with the most room.
+//return the side it is put on
 function setPanelXPosition(panel, offset){
   panel.style.right = offset;
   panel.style.left = "";
@@ -1472,8 +1478,11 @@ function setPanelXPosition(panel, offset){
     if(leftOverflow < rightOverflow){
       panel.style.right = offset;
       panel.style.left = "";
+      return "left";
     }
+    return "right";
   }
+  return "left";
 }
 
 function setPanelYPosition(panel, offset){
@@ -1489,8 +1498,11 @@ function setPanelYPosition(panel, offset){
     if(bottomOverflow < topOverflow){
       panel.style.top = offset;
       panel.style.bottom = "unset";
+      return "bottom";
     }
+    return "top";
   }
+  return "bottom";
 }
 
 //------------------------------------------------------------------------------
