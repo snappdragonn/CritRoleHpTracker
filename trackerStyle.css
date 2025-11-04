@@ -304,12 +304,13 @@ trackerBlock button {
   display: flex;
   flex-direction: column;
   max-height: min(38em, var(--maxHeight));
+  /* min-height: 5em; */
 }
 
 #trackerBlock[data-orientation="horizontal"] .spellInfo {
   width: 100%;
   top: 130%;
-  right: -3px;
+  right: 0;
 }
 
 .spellStatItem {
@@ -361,6 +362,10 @@ trackerBlock button {
   background-clip: content-box;
   border: solid transparent;
   border-width: 0 0 0 2px;
+}
+
+.spellDesc::-webkit-scrollbar-thumb:hover {
+  background-color: #5a5a5a;
 }
 
 .spellInfoNotif .spellName {
@@ -595,7 +600,7 @@ trackerBlock button {
 #trackerBlock[data-orientation="horizontal"] .chracterStatsPanel {
   right: unset;
   top: 100%;
-  left: 0;
+  left: 2.5%;
 
 }
 

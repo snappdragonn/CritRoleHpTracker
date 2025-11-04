@@ -1009,10 +1009,6 @@ function displaySpellInfo(spellInfo) {
     notifElem.getElementsByClassName("spellStats")[0].remove();
   }
 
-  //set max height of spell desc so that is doesn't go off the bottom of the screen
-  let spellInfoMaxHeight = window.innerHeight - notifElem.getBoundingClientRect().top - 5;
-  notifElem.getElementsByClassName("spellInfo")[0].style.setProperty("--maxHeight", spellInfoMaxHeight + "px");
-
   //set timer to remove the notification after a time
   let closeTimer = setTimeout(
     (elem) => {
@@ -1037,7 +1033,15 @@ function displaySpellInfo(spellInfo) {
     spellInfoPanel = openEvent.currentTarget.getElementsByClassName("spellInfo")[0];
     if (spellInfoPanel.style.display === "none") {
       spellInfoPanel.style.display = "";
+
+      //set max height of spell desc so that is doesn't go off the bottom of the screen
+      let spellInfoMaxHeight = window.innerHeight - notifElem.getBoundingClientRect().top - 5;
+      if(orientation == "horizontal") spellInfoMaxHeight -= notifElem.clientHeight * 1.3 //on horizontal the spell desc starts below the notifElem by 130%
+      notifElem.getElementsByClassName("spellInfo")[0].style.setProperty("--maxHeight", spellInfoMaxHeight + "px");
+
       if(orientation == "vertical") setPanelXPosition(spellInfoPanel, "103%");
+      //TODO if horizontal set y pos (above (over player panels) or below) based on a min amount of room
+      //TODO add a min height (prob just in css using em, doesn't need to change)
 
       clearTimeout(closeTimer);
 
