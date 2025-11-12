@@ -944,7 +944,6 @@ function hideCharacter(charName) {
     console.warn("hideCharacter: could not find character " + charName);
     return;
   }
-  console.log(panels[player.id].panel);
   panels[player.id].panel.parentElement.style.setProperty("display", "none");
   player.isHidden = true;
   SetDefaultPopupHeight();
@@ -1915,7 +1914,7 @@ function InjectHTMLBeacon() {
 
     let videoTitle = document.getElementsByTagName("title")[0].innerText;
     console.log(videoTitle);
-    let episodeText = videoTitle.match(/C\d E\d+/);
+    let episodeText = videoTitle.match(/^C\d E\d+/);
     console.log(episodeText);
     
     if (episodeText != null) {

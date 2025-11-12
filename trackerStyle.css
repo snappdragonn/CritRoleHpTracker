@@ -340,6 +340,7 @@ trackerBlock button {
   white-space: pre-line;
   overflow-y: auto;
   scrollbar-color: #494949 transparent;
+  scrollbar-width: thin;
 }
 
 .spellDesc::-webkit-scrollbar {
