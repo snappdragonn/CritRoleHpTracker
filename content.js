@@ -571,9 +571,13 @@ class PlayerChracter {
       this.spellslotsLeft[spell] = Math.max(this.spellslotsLeft[spell] + diff, 0); //add or remove the spell slots
 
       //update the stats panel to show the new amount of spell slots the player has left
-      let slots = this.statsPanel.getElementsByClassName("level-" + level)[0].getElementsByClassName("slot");
-      this.statsPanel.getElementsByClassName("level-" + level)[0].title =
-        "lvl " + level + ": " + this.spellslotsLeft[spell] + "/" + this.spellslots[spell];
+      let spellSlotElem = this.statsPanel.getElementsByClassName("level-" + level)[0];
+      if(!spellSlotElem){
+        console.error(`Error updating spell slots: No spell slots of level ${level} for ${this.characterName}`);
+        return;
+      }
+      let slots = spellSlotElem.getElementsByClassName("slot");
+      spellSlotElem.title = "lvl " + level + ": " + this.spellslotsLeft[spell] + "/" + this.spellslots[spell];
       for (let i = 0; i < slots.length; i++) {
         if (i < this.spellslotsLeft[spell]) {
           slots[i].style["background-color"] = this.characterColor;
