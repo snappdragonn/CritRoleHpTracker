@@ -1,16 +1,13 @@
-var apiKey = "";
-var authorization = "";
+var apiKey = null; //promise
 var host = ""; //Twitch or Youtube
 var minimised = false; //if the popup is minimised
 var episodeNum = 0;
 var campaignNum = 0;
 var episodeData; //json data of events in the episode
-var charData; //json data of the player characters
-var galleryName; //the name of the fan art gallery for this episode
 var currentTimeSlot = 0; //the index of the time at the end of a time slot (between events)
 var previousTime = 0; //the time in the video when lasted checked of events (used to determine if the used has jumped to a differenet point in the video)
 var updateTimer; //timer for checking for new events (every second)
-var galleryTimer;
+var galleryTimer = {timer: 0, progressbarTimer: 0}; //{timer: int, progressbarTime: int}
 var currentGalleryImage = 0;
 
 var displayType = "number"; //what type of player panels to use (number or healthbar)
@@ -59,7 +56,7 @@ class Panel {
       //if parent does not contain characterStatsPanel add it
       parentDiv.appendChild(players[playerId].statsPanel);
 
-      this.panel.addEventListener("mouseenter", (e) => onPanelHover(e, players[playerId].statsPanel));
+      //this.panel.addEventListener("mouseenter", (e) => onPanelHover(e, players[playerId].statsPanel));
     }
   }
 
@@ -100,7 +97,7 @@ class Panel {
   setHpDisplay(value, color, sliderWidth, bloody) {}
   unsetHpDisplay() {}
 
-  //take html for the panel as a string and turn it into a DOM element
+  //take html for the panel as a string and turn it into a DOM element and replace the old panel in the DOM
   setPanel(string) {
     var tmp = document.createElement("div");
     tmp.innerHTML = string;
@@ -125,25 +122,19 @@ class NumberPanel extends Panel {
   //make the panel html element
   makePanel() {
     var htmlstring = /*html*/ `
-                      <div id=${"player" + this.playerId} class="playerPanel" data-deathSaves="false" style="background-color: ${
-      players[this.playerId].characterColor
-    }; display: grid; grid-template: 1fr / 45% 55%">
+                      <div id=${"player" + this.playerId} class="playerPanel" data-deathSaves="false" style="background-color: ${players[this.playerId].characterColor}; display: grid; grid-template: 100% / 45% 55%">
                         <div class="playerImage" style="display: flex; justify-content: center;">
                           <div style="position: relative; height: 100%;">
                             <img class="headshotImg" src=${
                               players[this.playerId].headShotImg
                             } alt="headshot" referrerPolicy="no-referrer" crossorigin="anonymous" style="height: 100%;">
-                            <img class="headshotOverlay" src="${chrome.runtime.getURL("/icons/bloodSpatter.png")}" style="display: ${
-      players[this.playerId].currentHp < players[this.playerId].maxHp / 2 ? "inline" : "none"
-    }">
+                            <img class="headshotOverlay" src="${chrome.runtime.getURL("/icons/bloodSpatter.png")}" style="display: ${players[this.playerId].currentHp < players[this.playerId].maxHp / 2 ? "inline" : "none"}">
                           </div>
                           <!-- <div class="playerName">${players[this.playerId].characterName}</div> -->
                         </div>
                         <div class="hpNumber" style="display: flex; flex-direction: column; align-items: center;">
                           <h1>${players[this.playerId].currentHp}</h1>
-                          <h4 class="tmpHp" data-visibility="${players[this.playerId].tmpHp == 0 ? "hidden" : "visible"}">+${
-      players[this.playerId].tmpHp
-    }</h4>
+                          <h4 class="tmpHp" data-visibility="${players[this.playerId].tmpHp == 0 ? "hidden" : "visible"}">+${players[this.playerId].tmpHp}</h4>
                         </div>
                       </div>
                     `;
@@ -297,10 +288,10 @@ class HeathbarPanel extends Panel {
                 <div class="healthBar">
                   <div class="barBackground"></div>
                   <div class="slider hpSlider" style="width: ${
-                    Math.min(players[this.playerId].currentHp / charData[this.playerId].hp, 1) * 100
+                    Math.min(players[this.playerId].currentHp / episodeData.characterData[this.playerId].hp, 1) * 100
                   }%;"></div>
                   <div class="slider tmpHpSlider" style="background-color: rgba(10, 100, 255, 0.4); width: ${
-                    Math.min(players[this.playerId].tmpHp / charData[this.playerId].hp, 1) * 100
+                    Math.min(players[this.playerId].tmpHp / episodeData.characterData[this.playerId].hp, 1) * 100
                   }%;"></div>
                   <div class="healthbarHpNum"><div>${players[this.playerId].currentHp + players[this.playerId].tmpHp}</div></div>
                 </div>
@@ -357,7 +348,7 @@ class HeathbarPanel extends Panel {
   updatePanel(newHp) {
     //set slider with
     var slider = this.panel.getElementsByClassName("slider")[0];
-    slider.style.width = Math.min(newHp / charData[this.playerId].hp, 1) * 100 + "%";
+    slider.style.width = Math.min(newHp / episodeData.characterData[this.playerId].hp, 1) * 100 + "%";
 
     //set hp number on health bar
     var hpNum = this.panel.getElementsByClassName("healthbarHpNum")[0];
@@ -365,7 +356,7 @@ class HeathbarPanel extends Panel {
 
     //set tmp hp slider width
     var tmpHpSlider = this.panel.getElementsByClassName("tmpHpSlider")[0];
-    tmpHpSlider.style.width = Math.min(players[this.playerId].tmpHp / charData[this.playerId].hp, 1) * 100 + "%";
+    tmpHpSlider.style.width = Math.min(players[this.playerId].tmpHp / episodeData.characterData[this.playerId].hp, 1) * 100 + "%";
   }
 
   //saves = [num success, num fail]
@@ -580,9 +571,13 @@ class PlayerChracter {
       this.spellslotsLeft[spell] = Math.max(this.spellslotsLeft[spell] + diff, 0); //add or remove the spell slots
 
       //update the stats panel to show the new amount of spell slots the player has left
-      let slots = this.statsPanel.getElementsByClassName("level-" + level)[0].getElementsByClassName("slot");
-      this.statsPanel.getElementsByClassName("level-" + level)[0].title =
-        "lvl " + level + ": " + this.spellslotsLeft[spell] + "/" + this.spellslots[spell];
+      let spellSlotElem = this.statsPanel.getElementsByClassName("level-" + level)[0];
+      if(!spellSlotElem){
+        console.error(`Error updating spell slots: No spell slots of level ${level} for ${this.characterName}`);
+        return;
+      }
+      let slots = spellSlotElem.getElementsByClassName("slot");
+      spellSlotElem.title = "lvl " + level + ": " + this.spellslotsLeft[spell] + "/" + this.spellslots[spell];
       for (let i = 0; i < slots.length; i++) {
         if (i < this.spellslotsLeft[spell]) {
           slots[i].style["background-color"] = this.characterColor;
@@ -773,21 +768,21 @@ class PlayerChracter {
 //------------------------------------------------------------------------------
 
 function isInTimeSlot(time, timeslot) {
-  if (timeslot >= episodeData.length) {
+  if (timeslot >= episodeData.data.length) {
     //time slot at the end
-    if (time > episodeData[episodeData.length - 1].time) {
+    if (time > episodeData.data[episodeData.data.length - 1].time) {
       //time also at end
       return true;
     }
   } else if (timeslot <= 0) {
     //time slot at the start
-    if (time <= episodeData[0].time) {
+    if (time <= episodeData.data[0].time) {
       // time also at start
       return true;
     }
   } else {
     //somewhere in the middle
-    if (time > episodeData[timeslot - 1].time && time <= episodeData[timeslot].time) {
+    if (time > episodeData.data[timeslot - 1].time && time <= episodeData.data[timeslot].time) {
       //time within the time slot (time slot is the index of the end time (inclusive) of the slot)
       return true;
     }
@@ -802,6 +797,9 @@ function updateStats() {
   if (host === "twitch") {
     currentTime -= 900;
   }
+  if(host === "beacon" && currentTime > episodeData.breakStart){
+    currentTime += episodeData.breakLength;
+  }
 
   var isSeek = currentTime > previousTime + 3 || currentTime < previousTime;
   //console.log(previousTime + " -> " + currentTime + " " + isSeek);
@@ -811,8 +809,8 @@ function updateStats() {
     //console.log("new time slot");
     //find the new current time slot
     let oldTimeSlot = currentTimeSlot;
-    for (i = 0; i <= episodeData.length; i++) {
-      if (i >= episodeData.length || episodeData[i].time >= currentTime) {
+    for (i = 0; i <= episodeData.data.length; i++) {
+      if (i >= episodeData.data.length || episodeData.data[i].time >= currentTime) {
         currentTimeSlot = i;
         break;
       }
@@ -822,14 +820,14 @@ function updateStats() {
     if (currentTimeSlot > oldTimeSlot) {
       //moved forwards - apply all events from current time to the new time
       for (i = oldTimeSlot + 1; i <= currentTimeSlot; i++) {
-        applyEvent(episodeData[i - 1].event, false, isSeek);
+        applyEvent(episodeData.data[i - 1].event, false, isSeek);
       }
       updateAllPanels();
     } else if (currentTimeSlot < oldTimeSlot) {
       //moved backwards - apply all events from the begining to the new time
       resetPlayers();
       for (i = 1; i <= currentTimeSlot; i++) {
-        applyEvent(episodeData[i - 1].event, false, isSeek);
+        applyEvent(episodeData.data[i - 1].event, false, isSeek);
       }
       updateAllPanels(); //TODO either update panels here or within every event method on the player
     }
@@ -849,9 +847,9 @@ function applyEvent(event, updateUI, isSeek) {
       getPlayer(event.characterName).addDeathSave(event.saveType === "succeed", "amount" in event ? event.amount : 1, updateUI);
     } else if (event.type === "longRest") {
       if (event.players != null) {
-        resetPlayers(event.players.map((name) => getPlayer(name)));
+        longRest(event.players.map((name) => getPlayer(name)));
       } else {
-        resetPlayers();
+        longRest();
       }
     } else if (event.type === "addEffect") {
       getPlayer(event.characterName).addEffect(event.effectName, event.effectDesc, event.level);
@@ -928,13 +926,24 @@ function resetPlayers(playersToReset = players) {
   endInitiative();
 }
 
+function longRest(playersToReset = players) {
+  for (let player of playersToReset) {
+    player.deathSaves = [0, 0];
+    player.currentHp = player.maxHp;
+    player.tmpHp = 0;
+    player.removeAllEffects();
+    panels[player.id].pauseUpdate = false;
+    player.resetSpellslots();
+  }
+  endInitiative();
+}
+
 function hideCharacter(charName) {
   let player = getPlayer(charName);
   if (player == null) {
     console.warn("hideCharacter: could not find character " + charName);
     return;
   }
-  console.log(panels[player.id].panel);
   panels[player.id].panel.parentElement.style.setProperty("display", "none");
   player.isHidden = true;
   SetDefaultPopupHeight();
@@ -1003,10 +1012,6 @@ function displaySpellInfo(spellInfo) {
     notifElem.getElementsByClassName("spellStats")[0].remove();
   }
 
-  //set max height of spell desc so that is doesn't go off the bottom of the screen
-  let spellInfoMaxHeight = window.innerHeight - notifElem.getBoundingClientRect().top - 5;
-  notifElem.getElementsByClassName("spellInfo")[0].style.setProperty("--maxHeight", spellInfoMaxHeight + "px");
-
   //set timer to remove the notification after a time
   let closeTimer = setTimeout(
     (elem) => {
@@ -1028,8 +1033,23 @@ function displaySpellInfo(spellInfo) {
   notifElem.addEventListener("click", (openEvent) => {
     openEvent.stopPropagation();
 
-    if (openEvent.currentTarget.getElementsByClassName("spellInfo")[0].style.display === "none") {
-      openEvent.currentTarget.getElementsByClassName("spellInfo")[0].style.display = "";
+    spellInfoPanel = openEvent.currentTarget.getElementsByClassName("spellInfo")[0];
+    if (spellInfoPanel.style.display === "none") {
+      spellInfoPanel.style.display = "";
+
+      //set max height of spell desc so that is doesn't go off the bottom of the screen
+      let spellInfoMaxHeight = window.innerHeight - notifElem.getBoundingClientRect().top - 5;
+      if(orientation == "horizontal") spellInfoMaxHeight -= notifElem.clientHeight * 1.3 //on horizontal the spell desc starts below the notifElem by 130%
+      spellInfoMaxHeight = Math.max(spellInfoMaxHeight, 10 * parseFloat(getComputedStyle(spellInfoPanel).fontSize)); // set the min value of maxheight to 10em so the panel wont be shrunk to less than that
+      notifElem.getElementsByClassName("spellInfo")[0].style.setProperty("--maxHeight", spellInfoMaxHeight + "px");
+
+      if(orientation == "vertical") setPanelXPosition(spellInfoPanel, "103%");
+      else {
+        let pos = setPanelYPosition(spellInfoPanel, "130%");
+        if(pos == "top")spellInfoPanel.style.setProperty("--maxHeight", (notifElem.getBoundingClientRect().top - 5 - notifElem.clientHeight*0.3) + "px");
+      }
+      //TODO if horizontal set y pos (above (over player panels) or below) based on a min amount of room
+      //TODO add a min height to 1em (prob just in css using em, doesn't need to change)
 
       clearTimeout(closeTimer);
 
@@ -1370,24 +1390,24 @@ function makePanels() {
   var tbody = document.getElementById("hpPanelsContainer");
   tbody.replaceChildren();
 
-  if (charData != null) {
+  if (episodeData != null) {
     //data for the episode is available
-    for (let i = 0; i < charData.length; i++) {
-      console.log(charData[i]);
+    for (let i = 0; i < episodeData.characterData.length; i++) {
+      console.log(episodeData.characterData[i]);
 
       players.push(
-        new PlayerChracter(
+        new PlayerChracter( //TODO pass the object itself
           i,
-          charData[i].name,
-          charData[i].level,
-          charData[i].charClass,
-          charData[i].classLevels,
-          charData[i].ac,
-          charData[i].hp,
-          charData[i].stats,
-          charData[i].spellslots,
-          charData[i].color,
-          charData[i].imageURL
+          episodeData.characterData[i].name,
+          episodeData.characterData[i].level,
+          episodeData.characterData[i].charClass,
+          episodeData.characterData[i].classLevels,
+          episodeData.characterData[i].ac,
+          episodeData.characterData[i].hp,
+          episodeData.characterData[i].stats,
+          episodeData.characterData[i].spellslots,
+          episodeData.characterData[i].color,
+          episodeData.characterData[i].imageURL
         )
       );
 
@@ -1434,7 +1454,7 @@ function SetDefaultPopupHeight() {
 //Check if a player is hidden before the episode starts (in first 5 seconds)
 //    used to avoid player pannel quickly popping in and out again at start of ep or when seeking backwards in video
 function DoesPlayerStartHidden(playerName) {
-  for (event of episodeData) {
+  for (event of episodeData.data) {
     if (event.time < 5) {
       if (event.event.type == "hidePlayer" && event.event.playerName == playerName) {
         return true;
@@ -1445,57 +1465,83 @@ function DoesPlayerStartHidden(playerName) {
   }
 }
 
+//position panel (stats or spell desc) to left of tracker or if not enough room postion it to the right or if also not 
+//enough room on the right either pick the side with the most room.
+//return the side it is put on
+function setPanelXPosition(panel, offset){
+  panel.style.right = offset;
+  panel.style.left = "";
+  let leftOverflow = panel.getBoundingClientRect().left * -1;
+  if(leftOverflow > 0){
+    panel.style.right = "";
+    panel.style.left = offset;
+
+    //check if still overflowing on right side and if so put on side with most room
+    let rightOverflow = panel.getBoundingClientRect().right - window.innerWidth;
+    if(leftOverflow < rightOverflow){
+      panel.style.right = offset;
+      panel.style.left = "";
+      return "left";
+    }
+    return "right";
+  }
+  return "left";
+}
+
+function setPanelYPosition(panel, offset){
+  panel.style.top = offset;
+  panel.style.bottom = "unset";
+  let bottomOverflow = panel.getBoundingClientRect().bottom - window.innerHeight;
+  if(bottomOverflow > 0){
+    panel.style.top = "unset";
+    panel.style.bottom = offset;
+
+    //check if still overflowing on right side and if so put on side with most room
+    let topOverflow = panel.getBoundingClientRect().top * -1;
+    if(bottomOverflow < topOverflow){
+      panel.style.top = offset;
+      panel.style.bottom = "unset";
+      return "bottom";
+    }
+    return "top";
+  }
+  return "bottom";
+}
+
 //------------------------------------------------------------------------------
 // Make Fan Art Gallery
 //------------------------------------------------------------------------------
 
-async function FindLatestGallery() {
+async function FindLatestGalleryURL() {
   console.log("Find latest gallery");
   let response = await chrome.runtime.sendMessage({ request: "GetWebPage", webpage: "https://critrole.com/tag/fan-art/" });
+  if (response["error"] != undefined) {
+    console.error(response["error"]);
+    return "";
+  }
 
-  //convert gallery from string to html element
+  //convert page from string to html element
   let fanArtPage = document.createElement("div");
   fanArtPage.innerHTML = response.text;
   console.log(fanArtPage);
 
-  let latestGalleryLink = fanArtPage.querySelector(".qt-part-archive-item.format-gallery .qt-readmore");
+  let latestGalleryLink = fanArtPage.querySelector(".qt-part-archive-item.format-gallery .qt-readmore").href;
   console.log(latestGalleryLink);
-  let galleryResponse = await chrome.runtime.sendMessage({ request: "GetWebPage", webpage: latestGalleryLink.href });
 
-  //convert gallery from string to html element
-  let galleryDiv = document.createElement("div");
-  galleryDiv.innerHTML = galleryResponse.text;
-  console.log(galleryDiv);
-
-  //get fan art image urls and artist names
-  let GalleryList = galleryDiv.getElementsByClassName("wonderplugin-gridgallery-list")[0];
-  let galleryImages = { galleryName: galleryName, images: [] };
-
-  for (galleryItem of GalleryList.children) {
-    let imgElement = galleryItem.getElementsByTagName("img")[0];
-    if (imgElement == null) {
-      continue;
-    }
-    let imgURL = imgElement.getAttribute("src").replace(/-\d+x\d+(?=\.\w+)/, ""); //get the url and remove the image size (e.g. 300x200) to get the full size image
-    let artist = imgElement.getAttribute("alt");
-
-    galleryImages["images"].push({ url: imgURL, artist: artist });
-  }
-
-  console.log(galleryImages);
-
-  AddImagesToGallery(galleryImages);
-  return galleryImages; //{"galleryname": name, "images": [{"url": url, "artist": artistName}] };
+  return latestGalleryLink;
 }
 
 async function GetGalleryImages(galleryLink) {
-  if (galleryLink == undefined) {
-    return { error: "No Gallery" };
+  console.log("get gallery images");
+  if (galleryLink == undefined || galleryLink == "") {
+    console.warn("Cannot get gallery images because gallery url/link is undefined or empty");
+    return [];
   }
 
   let response = await chrome.runtime.sendMessage({ request: "GetWebPage", webpage: galleryLink });
   if (response["error"] != undefined) {
-    return { error: response[error] };
+    console.error(response["error"]);
+    return [];
   }
   galleryText = response.text;
 
@@ -1506,10 +1552,11 @@ async function GetGalleryImages(galleryLink) {
   galleryDiv.innerHTML = galleryText;
   console.log(galleryDiv);
 
+  
+  let images = []; //TODO extract gallery name from the link
+
   //get fan art image urls and artist names
   let GalleryList = galleryDiv.getElementsByClassName("wonderplugin-gridgallery-list")[0];
-  let galleryImages = { galleryName: galleryName, images: [] }; //TODO extract gallery name from the link
-
   for (galleryItem of GalleryList.children) {
     let imgElement = galleryItem.getElementsByTagName("img")[0];
     if (imgElement == null) {
@@ -1518,17 +1565,18 @@ async function GetGalleryImages(galleryLink) {
     let imgURL = imgElement.getAttribute("src").replace(/-\d+x\d+(?=\.\w+)/, ""); //get the url and remove the image size (e.g. 300x200) to get the full size image
     let artist = imgElement.getAttribute("alt");
 
-    galleryImages["images"].push({ url: imgURL, artist: artist });
+    images.push({ url: imgURL, artist: artist });
   }
 
-  console.log(galleryImages);
+  console.log(images);
 
-  AddImagesToGallery(galleryImages);
-  return galleryImages; //{"galleryname": name, "images": [{"url": url, "artist": artistName}] };
+  //AddImagesToGallery(galleryImages);
+  return images; //[{"url": url, "artist": artistName}]
   //});
 }
 
-async function MakeGalleryPopup() {
+function MakeGalleryPopup() { //TODO does this need to be async?
+  console.log("make gallery popup");
   //Make gallery popup with loading spinner and add to DOM
   document.body.insertAdjacentHTML(
     "beforeend",
@@ -1542,6 +1590,7 @@ async function MakeGalleryPopup() {
         <div id="fan-art-gallery" style="grid-area: Gallery">
           <div class="spinner" style="width: 40px; height: 40px"></div>
         </div>
+        <div id="fan-art-progressbar" style="grid-area: Gallery"></div>
         <div id="galleryInfo" style="grid-area: Controls">
           <div class="resizer" style="grid-area: resizer">
             <img src=${chrome.runtime.getURL("icons/dragSymbol.png")} style="width: 100%; vertical-align: top;">
@@ -1578,55 +1627,67 @@ async function MakeGalleryPopup() {
   document.getElementById("galleryBackButton").addEventListener("click", () => jumpToNextImage(-1));
   document.getElementById("galleryForwardButton").addEventListener("click", () => jumpToNextImage(1));
 
+
   //Get fan art urls and artist names
-  if (galleryName != null) {
-    GetGalleryImages(galleryName);
-  } else if (campaignNum > 2) {
-    document.getElementById("fan-art-gallery").innerHTML = `<div style="text-align: center;">
-                                                              <h3 style="margin: 0.5em;">Gallery Not Found</h3>
-                                                              <button id="getLatestGalleryButton" style="font-size: 0.8em;">Get Latest Gallery</button>
-                                                            </div>`;
-    document.getElementById("getLatestGalleryButton").addEventListener("click", () => {
-      FindLatestGallery();
-      document.getElementById("fan-art-gallery").innerHTML = `<div class="spinner" style="width: 40px; height: 40px"></div>`;
-    });
-    //var galleryData = await FindLatestGallery();
-  } else {
+  if(campaignNum <= 2) {
+    //there is never a gallery for c2
     document.getElementById("fan-art-gallery").innerHTML = `<div style="text-align: center;">
                                                               <h3>No Gallery</h3>
-                                                              <h5>Fan Art Gallery Only Available For Campagin 3</h5>
+                                                              <h5>Fan Art Gallery Not Available For Campagin ${campaignNum}</h5>
                                                             </div>`;
+
+  }else if (episodeData == undefined){
+    //There is no data from this episode so get latest gallery
+    FindLatestGalleryURL()
+    .then((url) => GetGalleryImages(url))
+    .then((galleryImages) => AddImagesToGallery(galleryImages, "Latest Gallery") );
+    //TODO get publish date of gallery?
+
+  }else if(episodeData.galleryName == null || episodeData.galleryName == ""){
+    //No gallery given so give option to get lastest gallery
+    document.getElementById("fan-art-gallery").innerHTML = `<div style="text-align: center;">
+                                                              <h3 style="margin: 0.5em;">Gallery Not Found</h3>
+                                                              <button id="getLatestGalleryButton" class="click-button" style="font-size: 0.8em;">Get Latest Gallery</button>
+                                                            </div>`;
+    document.getElementById("getLatestGalleryButton").addEventListener("click", () => {
+      document.getElementById("fan-art-gallery").innerHTML = `<div class="spinner" style="width: 40px; height: 40px"></div>`;
+      FindLatestGalleryURL()
+      .then((url) => GetGalleryImages(url))
+      .then((galleryImages) => AddImagesToGallery(galleryImages, "Latest Gallery") );
+      //TODO get publish date of gallery?
+    });
+
+  }else {
+    //get the gallery name form its url
+    let galleryTitle = episodeData.galleryName
+      .match(/(?<=\/)[\w\d-]+(?=\/)/g).slice(-1)[0]
+      .replace("fan-art-gallery-", "") //remove "fan-art-gallery-"
+      .replace(/-/g, " ") //replace "-" with a space
+      .replace(/\w\S*/g, (txt) => txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase()); //uppercase first letter of each word and lowercase every other letter
+
+    //try to get the gallery
+    GetGalleryImages(episodeData.galleryName).then((galleryImages) => AddImagesToGallery(galleryImages, galleryTitle) );
   }
+
 }
 
-function AddImagesToGallery(imageData) {
+function AddImagesToGallery(imageData, galleryTitle) {
   //imageData = {"galleryname": name, "images": [{"url": url, "artist": artistName}] };
-  if (imageData["error"] != undefined) {
-    console.warn("Gallery Error: " + imageData["error"]);
-    document.getElementById("fan-art-gallery").innerHTML = `<h1>${imageData["error"]}</h1>`;
-    return;
-  }
 
-  //Add gallery name to popup title
-  let galleryTitle = imageData["galleryName"].match(/(?<=\/)[\w\d-]+(?=\/)/g).slice(-1)[0];
-  console.log(galleryTitle + "    " + typeof galleryTitle);
-  galleryTitle = galleryTitle.replace("fan-art-gallery-", "");
-  galleryTitle = galleryTitle.replace(/-/g, " ");
-  galleryTitle = galleryTitle.replace(/\w\S*/g, function (txt) {
-    return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
-  }); //Convert to title case
-  document.getElementById("galleryHeader").innerText = "Fan Art Gallery: " + galleryTitle;
-
-  //Add fan art to gallery popup
+  console.log("add images to gallery");
   let galleryElem = document.getElementById("fan-art-gallery");
   galleryElem.innerHTML = ""; //remove loading spinner icon
 
-  for (image of imageData["images"]) {
+  //Add gallery name to popup title
+  document.getElementById("galleryHeader").innerText = "Fan Art Gallery: " + galleryTitle;
+
+  //Add fan art to gallery popup
+  for (image of imageData) {
     galleryElem.insertAdjacentHTML("beforeend", `<img src="${image["url"]}" alt="${image["artist"]}" style="display: none" /> `);
   }
   galleryElem.firstElementChild.style.display = "block";
 
-  document.getElementById("galleryImageCount").lastElementChild.innerHTML = "/" + imageData["images"].length;
+  document.getElementById("galleryImageCount").lastElementChild.innerHTML = "/" + imageData.length;
   document.getElementById("galleryArtistCredit").innerText = galleryElem.firstElementChild.alt;
   document.getElementById("galleryArtistCredit").title = galleryElem.firstElementChild.alt;
 
@@ -1634,11 +1695,20 @@ function AddImagesToGallery(imageData) {
 }
 
 function StartGalleryTimer() {
-  if (galleryTimer != null) return;
+  if (galleryTimer.timer != 0) return;
 
   let galleryElem = document.getElementById("fan-art-gallery");
 
-  galleryTimer = setInterval(() => {
+  //start the progress bar
+  progressbarDiv = document.getElementById("fan-art-progressbar");
+  let progress = 0;
+  galleryTimer.progressbarTimer = setInterval(() => {
+    progressbarDiv.style.width = progress + "%";
+    progress = Math.min(progress + 0.5, 100);
+  }, 50)
+
+  //start the gallery slideshow
+  galleryTimer.timer = setInterval(() => {
     galleryElem.children[currentGalleryImage].style.display = "none";
     currentGalleryImage++;
     if (currentGalleryImage >= galleryElem.childElementCount) {
@@ -1650,7 +1720,11 @@ function StartGalleryTimer() {
     document.getElementById("galleryArtistCredit").innerText = galleryElem.children[currentGalleryImage].alt;
     document.getElementById("galleryArtistCredit").title = galleryElem.children[currentGalleryImage].alt;
     document.getElementById("galleryImageCount").firstElementChild.innerText = currentGalleryImage + 1;
+
+    progress = 0;
   }, 10000);
+
+  
 
   document.getElementById("galleryCloseButton").addEventListener("click", () => {
     StopGalleryTimer();
@@ -1658,14 +1732,17 @@ function StartGalleryTimer() {
 }
 
 function StopGalleryTimer() {
-  if (galleryTimer != null) {
-    clearInterval(galleryTimer);
-    galleryTimer = null;
-  }
+  clearInterval(galleryTimer.timer);
+  clearInterval(galleryTimer.progressbarTimer);
+  galleryTimer.timer = 0;
+  galleryTimer.progressbarTimer = 0;
+
+  let progressDiv = document.getElementById("fan-art-progressbar");
+  if(progressDiv != undefined) progressDiv.style.width = 0;
 }
 
 function toggleGalleryTimer() {
-  if (galleryTimer != null) {
+  if (galleryTimer.timer != 0) {
     //gallery is playing
     StopGalleryTimer();
     document.querySelector("#galleryPlayPauseButton img").src = chrome.runtime.getURL("icons/playIcon.png");
@@ -1774,7 +1851,7 @@ function InjectHTML() {
           setOrientation(orientation);
 
           //check every few seconds for an update to the stats
-          if (episodeData != null && episodeData.length > 0) {
+          if (episodeData != null && episodeData.data.length > 0) {
             //check there is data stored for the episode
             updateTimer = setInterval(updateStats, 1000);
           }
@@ -1817,7 +1894,7 @@ function InjectHTMLTwitch() {
         setOrientation(orientation);
 
         //check every few seconds for an update to the stats
-        if (episodeData != null && episodeData.length > 0) {
+        if (episodeData != null && episodeData.data.length > 0) {
           //check there is data stored for the episode
           updateTimer = setInterval(updateStats, 1000);
         }
@@ -1828,6 +1905,52 @@ function InjectHTMLTwitch() {
   console.log("start observe");
 }
 
+function InjectHTMLBeacon() {
+  console.log("inject html on beacon");
+
+
+  const addTracker = () => {
+    removeTrackerPopup();
+
+    let videoTitle = document.getElementsByTagName("title")[0].innerText;
+    console.log(videoTitle);
+    let episodeText = videoTitle.match(/^C\d E\d+/);
+    console.log(episodeText);
+    
+    if (episodeText != null) {
+      episodeText = episodeText[0];
+      //watching main campaign episode
+      campaignNum = episodeText.at(1);
+      episodeNum = parseInt(episodeText.substring(4));
+      console.log("is critical role campaign " + campaignNum + " ep " + episodeNum);
+
+      //Add popup
+      makeTable();
+      getEpisodeData(() => {
+        document.getElementById("hpPanelsContainer").innerHTML = "";
+        makePanels();
+        setOrientation(orientation);
+
+        //check every second for an update to the stats
+        if (episodeData != null && episodeData.data.length > 0) {
+          //check there is data stored for the episode
+          updateTimer = setInterval(updateStats, 1000);
+        }
+      }, makeReloadButton);
+    }
+  }
+
+
+  addTracker();
+  const observer = new MutationObserver(addTracker);
+  observer.observe(document.getElementsByTagName("title")[0], { childList: true, subtree: false, attributes: false, characterData: true });
+  console.log("start observe");
+
+
+}
+
+
+
 function removeTrackerPopup() {
   if ((tracker = document.getElementById("trackerBlock")) !== null) tracker.remove();
   if ((gallery = document.getElementById("fan-art-gallery-popup")) != null) gallery.remove();
@@ -1836,14 +1959,18 @@ function removeTrackerPopup() {
 
   minimised = false;
   episodeNum = 0;
+  campaignNum = 0;
   episodeData = null;
-  charData = null;
   currentTimeSlot = 0;
-  // panels = [];
+  previousTime = 0;
+  panels = [];
   players = [];
-  galleryName = null;
   currentGalleryImage = 0;
+  initiativeOrder = [];
+  currentInitiative = -1;
 }
+
+
 
 function makeReloadButton(status, message) {
   var tbody = document.getElementById("hpPanelsContainer");
@@ -1871,7 +1998,7 @@ function makeReloadButton(status, message) {
         setOrientation(orientation);
 
         //check every few seconds for an update to the stats
-        if (episodeData != null && episodeData.length > 0) {
+        if (episodeData != null && episodeData.data.length > 0) {
           //check there is data stored for the episode
           updateTimer = setInterval(updateStats, 1000);
         }
@@ -1882,73 +2009,65 @@ function makeReloadButton(status, message) {
 
 //get the episode data from the database
 function getEpisodeData(successCallback, failCallback) {
-  var data = null;
-
-  var xhr = new XMLHttpRequest();
-  xhr.withCredentials = false;
 
   document.getElementById("hpPanelsContainer").innerHTML = `<div class="spinner" style="width: 40px; height: 40px"></div>`;
 
-  xhr.addEventListener("error", (event) => {
-    console.log("xhr error: ");
-    console.log(event);
-  });
+  apiKey.then((keyJSON) => {
 
-  xhr.addEventListener("readystatechange", function () {
-    if (this.readyState === 4) {
-      try {
-        console.log("restdb responded");
-
-        //console.log(this.responseText);
-        console.log(this.status);
-        console.log(this);
-
-        if (String(this.status)[0] === "2") {
-          var responseJson = JSON.parse(this.responseText);
-          episodeData = responseJson.length <= 0 ? null : responseJson[0].data;
-          charData = responseJson.length <= 0 ? null : responseJson[0].characterData;
-          galleryName = responseJson.length <= 0 ? null : responseJson[0].galleryName;
-          console.log(episodeData);
-          console.log(charData);
-
-          successCallback();
-        } else {
-          failCallback(this.status, this.statusText);
+      const documentName = campaignNum != 3 ? "combat-data-c" + campaignNum : "combat-data";
+      fetch(`https://critrolehpdata-5227.restdb.io/rest/${documentName}?q={\"EpNum\":${episodeNum}}`, { //episodeNum critrolehpdata-5227 testdb-2091
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          "x-apikey": keyJSON.apikey,
+          "authorization": keyJSON.authorization
         }
-      } catch (e) {
-        console.error(e.name + ": " + e.message + "\n" + e.stack);
+      }).then((response) => {
+        console.log("restdb responded");
+        console.log(response.status);
+        console.log(response);
+
+        if (response.ok) {
+            response.json().then((responseJson) => {
+              episodeData = responseJson[0];
+              console.log("episode data:");
+              console.log(episodeData);
+
+              successCallback();
+            }); 
+        } else {
+          failCallback(response.status, response.statusText);
+        }
+
+      }, (errorReason) => {
+        console.error("fetch error reason: ", errorReason);
         episodeData = null;
         charData = null;
-      }
-    }
+        failCallback(0, "Fetch failed");
+      });
+
   });
 
-  //let documentName = campaignNum == 3 ? "combat-data" : "combat-data-c2";
-  let documentName = campaignNum != 3 ? "combat-data-c" + campaignNum : "combat-data";
-  xhr.open("GET", `https://critrolehpdata-5227.restdb.io/rest/${documentName}?q={\"EpNum\":${episodeNum}}`); //episodeNum critrolehpdata-5227 testdb-2091
-  xhr.setRequestHeader("content-type", "application/json");
-  xhr.setRequestHeader("x-apikey", apiKey);
-  xhr.setRequestHeader("cache-control", "no-cache");
-  xhr.setRequestHeader("authorization", authorization);
-
-  console.log(authorization);
-
-  xhr.send(data);
-  console.log("request sent");
 }
 
+
 function onPanelHover(event, statsPanel) {
-  let delayTimer = setInterval(openStatsPanel, 500, statsPanel);
+  let delayTimer = setTimeout(openStatsPanel, 500, statsPanel);
   statsPanel.parentElement.addEventListener("mouseleave", (e) => onPanelEndHover(e, delayTimer, statsPanel));
 }
 
 function onPanelEndHover(event, delayTimer, statsPanel) {
-  clearInterval(delayTimer);
+  clearTimeout(delayTimer);
   statsPanel.style.display = "none";
 }
 
 function openStatsPanel(statsPanel) {
   statsPanel.style.display = "flex";
+  if(orientation == "vertical"){
+    setPanelXPosition(statsPanel, "100%");
+  }else {
+    setPanelYPosition(statsPanel, "100%");
+  }
 }
 
 function clamp(n, min, max) {
@@ -2029,6 +2148,11 @@ function OnResize(event, resizeElem) {
   resizeElem.style.setProperty("--heightMod", heightMod);
 }
 
+
+
+
+
+
 console.log("HPTracker Running");
 
 chrome.storage.sync.get(
@@ -2045,12 +2169,8 @@ chrome.storage.sync.get(
   }
 );
 
-fetch(chrome.runtime.getURL("/apiKey.txt"))
-  .then((response) => response.json())
-  .then((json) => {
-    apiKey = json.apikey;
-    authorization = json.authorization;
-  });
+apiKey = fetch(chrome.runtime.getURL("/apiKey.txt")).then((response) => response.json());
+
 
 console.log(location.hostname);
 if (location.hostname == "www.twitch.tv") {
@@ -2059,4 +2179,8 @@ if (location.hostname == "www.twitch.tv") {
 } else if (location.hostname == "www.youtube.com") {
   host = "youtube";
   InjectHTML();
+}else if (location.hostname == "beacon.tv") {
+  host = "beacon";
+  InjectHTMLBeacon();
 }
+

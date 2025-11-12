@@ -3,16 +3,17 @@
   --numNotifs: 0;
 
   --defaultWidth: 150px;
-  --defaultHeight: calc( var(--numPanels, 7) * 60px + 10px );
-  --widthMod:  1;
+  --defaultHeight: calc(var(--numPanels, 7) * 56px + 30px);
+  --widthMod: 1;
   --heightMod: 1;
 
   position: absolute;
   z-index: 3000;
+  font-family: Roboto, Arial, sans-serif;
 }
 
 #trackerBlock[data-orientation="horizontal"] {
-  --defaultWidth: calc( var(--numPanels, 7) * 140px + 42px );
+  --defaultWidth: calc(var(--numPanels, 7) * 140px + 42px);
   --defaultHeight: 58px;
 }
 
@@ -28,11 +29,11 @@ trackerBlock button {
   cursor: pointer;
 }
 
-#trackerBody{
+#trackerBody {
   width: calc(var(--defaultWidth, 150px) * var(--widthMod, 1));
   height: calc(var(--defaultHeight, 430px) * var(--heightMod, 1));
   min-width: 55px;
-  min-height: calc( var(--numPanels, 7) * 22px + 16px );
+  min-height: calc(var(--numPanels, 7) * 22px + 16px);
   background-color: dimgray;
   border-style: solid;
   border-color: black;
@@ -48,7 +49,7 @@ trackerBlock button {
 
 #trackerBlock[data-orientation="horizontal"] #trackerBody {
   min-height: 30px;
-  min-width: calc( var(--numPanels, 7) * 52px + 16px );
+  min-width: calc(var(--numPanels, 7) * 52px + 16px);
 }
 
 #trackerBody:has(.spellInfoNotif) {
@@ -63,21 +64,21 @@ trackerBlock button {
 }
 
 #contentGrid {
-  width: 100%; 
-  height: 100%; 
-  font-size: calc( 16px * min(var(--heightMod, 1), var(--widthMod, 1)) );
-  display: grid; 
-  grid-template: calc( 22px * min(var(--heightMod, 1), var(--widthMod, 1)) ) 1fr / 1fr calc( 22px * min(var(--heightMod, 1), var(--widthMod, 1)) ); 
+  width: 100%;
+  height: 100%;
+  font-size: calc(16px * min(var(--heightMod, 1), var(--widthMod, 1)));
+  display: grid;
+  grid-template: calc(22px * min(var(--heightMod, 1), var(--widthMod, 1))) 1fr / 1fr calc(22px * min(var(--heightMod, 1), var(--widthMod, 1)));
   grid-template-areas: 'title menuButton' 'content content';
 }
 
 #contentGrid:has(.spellInfoNotif) {
-  grid-template-rows: calc( 22px * min(var(--heightMod, 1), var(--widthMod, 1)) ) auto 1fr; 
+  grid-template-rows: calc(22px * min(var(--heightMod, 1), var(--widthMod, 1))) auto 1fr;
   grid-template-areas: 'title menuButton' 'notif notif' 'content content';
 }
 
 #trackerBlock[data-orientation="horizontal"] #contentGrid:has(.spellInfoNotif) {
-  grid-template-rows: calc( 22px * min(var(--heightMod, 1), var(--widthMod, 1)) ) 1fr auto; 
+  grid-template-rows: calc(22px * min(var(--heightMod, 1), var(--widthMod, 1))) 1fr auto;
   grid-template-areas: "content menuButton" "content title" "notif title";
 }
 
@@ -87,7 +88,7 @@ trackerBlock button {
 
 
 #trackerTitle {
-  display: flex; 
+  display: flex;
   align-items: center;
   height: 100%;
   cursor: move;
@@ -95,7 +96,7 @@ trackerBlock button {
   border: black solid;
   border-width: 0 2px 2px 0;
   box-sizing: border-box;
-  font-size: calc( 16px * min(var(--heightMod, 1), var(--widthMod, 1)) );
+  font-size: calc(16px * min(var(--heightMod, 1), var(--widthMod, 1)));
 }
 
 #trackerBlock[data-orientation="horizontal"] #trackerTitle {
@@ -106,12 +107,12 @@ trackerBlock button {
 }
 
 #trackerTitle h4 {
-  padding: 0 0 0 calc( 4px * min(var(--heightMod, 1), var(--widthMod, 1)) );
-  font-size: calc( 16px * min(var(--heightMod, 1), var(--widthMod, 1)) );
+  padding: 0 0 0 calc(4px * min(var(--heightMod, 1), var(--widthMod, 1)));
+  font-size: calc(16px * min(var(--heightMod, 1), var(--widthMod, 1)));
 }
 
 #trackerBlock[data-orientation="horizontal"] #trackerTitle h4 {
-  padding: calc( 4px * min(var(--heightMod, 1), var(--widthMod, 1)) ) 0 0 calc( 2px * min(var(--heightMod, 1), var(--widthMod, 1)) );
+  padding: calc(4px * min(var(--heightMod, 1), var(--widthMod, 1))) 0 0 calc(2px * min(var(--heightMod, 1), var(--widthMod, 1)));
 }
 
 
@@ -143,9 +144,9 @@ trackerBlock button {
   background-color: dimgray;
   /* color: #d5d3cc; */
   display: none;
-  box-shadow: 0px 8px 16px 8px rgba(0,0,0,0.2);
+  box-shadow: 0px 8px 16px 8px rgba(0, 0, 0, 0.2);
   position: absolute;
-  width: calc( 120px * min(var(--heightMod, 1), var(--widthMod, 1)) );
+  width: calc(120px * min(var(--heightMod, 1), var(--widthMod, 1)));
   cursor: default;
   right: 0;
   z-index: 1000;
@@ -156,25 +157,25 @@ trackerBlock button {
 
 .menuDropDown h4 {
   font-weight: 100;
-  font-size: calc( 16px * min(var(--heightMod, 1), var(--widthMod, 1)) );
+  font-size: calc(16px * min(var(--heightMod, 1), var(--widthMod, 1)));
   line-height: initial;
   white-space: nowrap;
 }
 
 #mainMenu {
   right: -2px;
-  font-size: calc( 16px * min(var(--heightMod, 1), var(--widthMod, 1)) );
+  font-size: calc(16px * min(var(--heightMod, 1), var(--widthMod, 1)));
 }
 
 #mainMenu img {
-  height: calc( 12px * min(var(--heightMod, 1), var(--widthMod, 1)) );
+  height: calc(12px * min(var(--heightMod, 1), var(--widthMod, 1)));
 }
 
 .submenu {
   position: relative;
   display: flex;
   align-items: center;
-  gap: calc( 3px * min(var(--heightMod, 1), var(--widthMod, 1)) );
+  gap: calc(3px * min(var(--heightMod, 1), var(--widthMod, 1)));
 }
 
 .radioButton {
@@ -207,7 +208,7 @@ trackerBlock button {
   background-color: gray;
 }
 
-.button:hover img{
+.button:hover img {
   height: 90% !important;
 }
 
@@ -215,8 +216,8 @@ trackerBlock button {
   display: block !important;
 }
 
-.submenuDropdown{
-  right: calc( 110px * min(var(--heightMod, 1), var(--widthMod, 1)) );
+.submenuDropdown {
+  right: calc(110px * min(var(--heightMod, 1), var(--widthMod, 1)));
   top: 0;
 }
 
@@ -254,16 +255,16 @@ trackerBlock button {
   align-items: center;
   cursor: pointer;
   margin: 0.1em 0;
-  font-size: calc( 16px * min(var(--heightMod, 1), var(--widthMod, 1)) );
+  font-size: calc(16px * min(var(--heightMod, 1), var(--widthMod, 1)));
 }
 
-.spellInfoNotif > span {
+.spellInfoNotif>span {
   margin-left: 0.15em;
   white-space: nowrap;
   overflow: hidden;
   width: 85%;
   text-overflow: ellipsis;
-/*  color: #ededed;*/
+  /*  color: #ededed;*/
 }
 
 /*.spellInfoNotif > span:hover {
@@ -288,7 +289,7 @@ trackerBlock button {
   background-color: #5c5c5c;
 }
 
-.spellInfo{
+.spellInfo {
   --maxHeight: 1000px;
   position: absolute;
   z-index: 1;
@@ -303,12 +304,13 @@ trackerBlock button {
   display: flex;
   flex-direction: column;
   max-height: min(38em, var(--maxHeight));
+  /* min-height: 5em; */
 }
 
 #trackerBlock[data-orientation="horizontal"] .spellInfo {
   width: 100%;
   top: 130%;
-  right: -3px;
+  right: 0;
 }
 
 .spellStatItem {
@@ -338,28 +340,32 @@ trackerBlock button {
   white-space: pre-line;
   overflow-y: auto;
   scrollbar-color: #494949 transparent;
+  scrollbar-width: thin;
 }
 
 .spellDesc::-webkit-scrollbar {
-    width: 0.7em;
-    margin-left: 2px;
-
+  width: 0.7em;
+  margin-left: 2px;
 }
 
 .spellDesc::-webkit-scrollbar-track {
-    background-color: #585858;
-    /*border-radius: 10px;*/
-    background-clip: content-box;
-    border: solid transparent;
-    border-width: 0 0 0 2px;
+  background-color: #585858;
+  /*border-radius: 10px;*/
+  background-clip: content-box;
+  border: solid transparent;
+  border-width: 0 0 0 2px;
 }
 
 .spellDesc::-webkit-scrollbar-thumb {
-    background-color: #464646;
-    /*border-radius: 10px;*/
-    background-clip: content-box;
-    border: solid transparent;
-    border-width: 0 0 0 2px;
+  background-color: #464646;
+  /*border-radius: 10px;*/
+  background-clip: content-box;
+  border: solid transparent;
+  border-width: 0 0 0 2px;
+}
+
+.spellDesc::-webkit-scrollbar-thumb:hover {
+  background-color: #5a5a5a;
 }
 
 .spellInfoNotif .spellName {
@@ -372,7 +378,8 @@ trackerBlock button {
 #hpPanelsContainer {
   width: 98%;
   height: 98%;
-  color: #b1ac9e; /*#9e9a8d;*/
+  color: #b1ac9e;
+  /*#9e9a8d;*/
   min-height: 0px;
   min-width: 0;
   display: flex;
@@ -404,6 +411,7 @@ trackerBlock button {
   align-items: center;
   justify-content: center;
   position: relative;
+  anchor-name: --player-panel-anchor;
 }
 
 /*#trackerBlock[data-orientation="horizontal"] .panelContainer {
@@ -425,10 +433,11 @@ trackerBlock button {
   cursor: default;
 }
 
-.panelContainer.initiative .playerPanel{
+.panelContainer.initiative .playerPanel {
   border-color: darkgray;
 }
-.panelContainer.initiativeCurrent .playerPanel{
+
+.panelContainer.initiativeCurrent .playerPanel {
   border-color: white;
   border-width: 2px;
 }
@@ -450,19 +459,20 @@ trackerBlock button {
 }
 
 .playerImage {
-  height: min(calc(41px * var(--heightMod, 1)), calc(41px * var(--widthMod, 1)));
+  height: 2.5em;
+  /* height: min(calc(41px * var(--heightMod, 1)), calc(41px * var(--widthMod, 1))); */
   text-align: center;
 }
 
-.playerImage img{
+.playerImage img {
   aspect-ratio: 1 / 1;
 }
 
 .headshotOverlay {
-  height: 100%; 
-  width: 100%; 
-  position: absolute; 
-  left: 0; 
+  height: 100%;
+  width: 100%;
+  position: absolute;
+  left: 0;
   border-radius: 50%;
   display: none;
   opacity: 70%;
@@ -489,35 +499,36 @@ trackerBlock button {
   display: block;
 }
 
-.hpNumber .tmpHp[data-visibility="hidden"]{
+.hpNumber .tmpHp[data-visibility="hidden"] {
   display: none;
 }
 
 .healthBar {
-  flex: 1; 
-  height: 45%; 
-  width: 100%; 
-  position: relative;    
-  border-radius: 3px; 
+  flex: 1;
+  height: 45%;
+  width: 100%;
+  position: relative;
+  border-radius: 3px;
   overflow: hidden;
 }
 
 .healthBar .barBackground {
-  background-color: #723939; 
-  width: 100%; 
-  height: 100%; 
-  position: absolute; 
-  top: 0; 
-  left: 0; 
+  background-color: #723939;
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
   border-radius: 3px;
   border: 1px solid #9e9a8d;
   box-sizing: border-box;
 }
 
 .slider {
-  height: 100%; 
-  position: absolute; 
-  top: 0; /* -1px because border takes up 1px */
+  height: 100%;
+  position: absolute;
+  top: 0;
+  /* -1px because border takes up 1px */
   left: 0;
   border: 1px solid rgb(158, 154, 141);
   border-radius: 3px;
@@ -529,7 +540,7 @@ trackerBlock button {
 }
 
 .tmpHpSlider[style*="width: 0%;"] {
-    border: none;   
+  border: none;
 }
 
 .playerPanel .barPlayerName {
@@ -544,28 +555,28 @@ trackerBlock button {
 .playerPanel .healthbarHpNum {
   font-weight: 500;
   position: absolute;
-  margin-left: calc( 2px * min(var(--heightMod, 1), var(--widthMod, 1)) );
-  font-size: calc( 15px * min(var(--heightMod, 1), var(--widthMod, 1)) );
+  margin-left: calc(2px * min(var(--heightMod, 1), var(--widthMod, 1)));
+  font-size: calc(15px * min(var(--heightMod, 1), var(--widthMod, 1)));
   display: flex;
   align-items: center;
   height: 100%;
 }
 
 .playerPanel .barDeathSaveGrid {
-  display: grid; 
-  height: 80%; 
-  width: 90%; 
+  display: grid;
+  height: 80%;
+  width: 90%;
   grid-template: 50% 50% / repeat(3, 1fr) 5% repeat(3, 1fr);
   grid-template-areas:
-      "header header header header header header header"
-      "succ1 succ2 succ3 . fail1 fail2 fail3";
-  row-gap: calc( 3px * min(var(--heightMod, 1), var(--widthMod, 1)) );
+    "header header header header header header header"
+    "succ1 succ2 succ3 . fail1 fail2 fail3";
+  row-gap: calc(3px * min(var(--heightMod, 1), var(--widthMod, 1)));
 }
 
 
 .chracterStatsPanel {
-  width: calc( 230px * min(var(--heightMod, 1), var(--widthMod, 1)) );
-  font-size: calc( 15px * min(var(--heightMod, 1), var(--widthMod, 1)) );
+  width: calc(230px * min(var(--heightMod, 1), var(--widthMod, 1)));
+  font-size: calc(15px * min(var(--heightMod, 1), var(--widthMod, 1)));
   z-index: 1000;
   display: none;
   flex-direction: column;
@@ -581,44 +592,47 @@ trackerBlock button {
   /*font-size: 0;*/
   cursor: default;
   border-radius: 3px;
+  position-anchor: --player-panel-anchor;
+  position-area: right span-bottom;
+  position-try-fallbacks: flip-inline;
 }
 
 #trackerBlock[data-orientation="horizontal"] .chracterStatsPanel {
   right: unset;
   top: 100%;
-  left: 0;
+  left: 2.5%;
 
 }
 
 .charBasicInfo {
   border-bottom: solid black 2px;
-  margin-bottom: calc( 3px * min(var(--heightMod, 1), var(--widthMod, 1)) );
+  margin-bottom: calc(3px * min(var(--heightMod, 1), var(--widthMod, 1)));
 }
 
 .chracterStats {
-  margin-bottom: calc( 3px * min(var(--heightMod, 1), var(--widthMod, 1)) );
-  margin-left: calc( 3px * min(var(--heightMod, 1), var(--widthMod, 1)) );
+  margin-bottom: calc(3px * min(var(--heightMod, 1), var(--widthMod, 1)));
+  margin-left: calc(3px * min(var(--heightMod, 1), var(--widthMod, 1)));
 }
 
 .statsHeader {
   border-bottom: solid #3c3c3c 1px;
-  font-size: calc( 20px * min(var(--heightMod, 1), var(--widthMod, 1)) );
+  font-size: calc(20px * min(var(--heightMod, 1), var(--widthMod, 1)));
   font-weight: 500;
-  padding: calc( 2px * min(var(--heightMod, 1), var(--widthMod, 1)) ) calc( 5px * min(var(--heightMod, 1), var(--widthMod, 1)) );
+  padding: calc(2px * min(var(--heightMod, 1), var(--widthMod, 1))) calc(5px * min(var(--heightMod, 1), var(--widthMod, 1)));
 }
 
 .charLevel {
   float: right;
-  line-height: calc( 25px * min(var(--heightMod, 1), var(--widthMod, 1)) );
-  font-size: calc( 25px * min(var(--heightMod, 1), var(--widthMod, 1)) );
+  line-height: calc(25px * min(var(--heightMod, 1), var(--widthMod, 1)));
+  font-size: calc(25px * min(var(--heightMod, 1), var(--widthMod, 1)));
 }
 
 .classLevel {
-  font-size: calc( 12px * min(var(--heightMod, 1), var(--widthMod, 1)) );
-  padding: 0 calc( 5px * min(var(--heightMod, 1), var(--widthMod, 1)) );
+  font-size: calc(12px * min(var(--heightMod, 1), var(--widthMod, 1)));
+  padding: 0 calc(5px * min(var(--heightMod, 1), var(--widthMod, 1)));
 }
 
-.separator{
+.separator {
   width: 100%;
   height: 2px;
   margin: 2px 0 2px 0;
@@ -627,23 +641,24 @@ trackerBlock button {
 
 .chracterStatsPanel .separator {
   height: 2px;
-  margin: calc( 3px * min(var(--heightMod, 1), var(--widthMod, 1)) ) 0;
+  margin: calc(3px * min(var(--heightMod, 1), var(--widthMod, 1))) 0;
 }
 
 .initSeparator {
-  display: flex; /* to make order property work - it does not work on display block */
+  display: flex;
+  /* to make order property work - it does not work on display block */
   height: 0.2em;
   margin: 0.3em 0;
 }
 
-#trackerBlock[data-orientation="horizontal"] .initSeparator{
+#trackerBlock[data-orientation="horizontal"] .initSeparator {
   width: 0.2em;
   height: 100%;
   margin: 0 0.3em;
 }
 
 
-.EffectsBox:not(:has(*)) + .separator{
+.EffectsBox:not(:has(*))+.separator {
   display: none;
 }
 
@@ -656,11 +671,11 @@ trackerBlock button {
   padding: 2px;
   cursor: default;
   font-weight: bold;
-  font-size: calc( 18px * min(var(--heightMod, 1), var(--widthMod, 1)) );
+  font-size: calc(18px * min(var(--heightMod, 1), var(--widthMod, 1)));
 }
 
 .svgShape {
-  height: calc( 40px * min(var(--heightMod, 1), var(--widthMod, 1)) );
+  height: calc(40px * min(var(--heightMod, 1), var(--widthMod, 1)));
 }
 
 .statsTable {
@@ -668,7 +683,7 @@ trackerBlock button {
   width: 100%;
 }
 
-.statsTable,  
+.statsTable,
 .statsTable th,
 .statsTable td {
   border: solid black 1px;
@@ -686,6 +701,7 @@ trackerBlock button {
   font-weight: bold;
   width: 20%;
 }
+
 .statsTable th {
   border-right: solid rgb(82 82 82) 1px;
   font-weight: normal;
@@ -698,14 +714,14 @@ trackerBlock button {
 }
 
 .hp-ac .heart {
-  --size: calc( 33px * min(var(--heightMod, 1), var(--widthMod, 1)) ) !important;
+  --size: calc(33px * min(var(--heightMod, 1), var(--widthMod, 1))) !important;
 }
 
 .hp-ac .shield {
-  --size: calc( 25px * min(var(--heightMod, 1), var(--widthMod, 1)) ) !important;
+  --size: calc(25px * min(var(--heightMod, 1), var(--widthMod, 1))) !important;
 }
 
-.EffectsBox{
+.EffectsBox {
   display: flex;
   flex-wrap: wrap;
   margin: 0 3px;
@@ -728,14 +744,14 @@ trackerBlock button {
   display: none;
   position: absolute;
   width: max-content;
-  max-width: calc( 200px * min(var(--heightMod, 1), var(--widthMod, 1)) );
+  max-width: calc(200px * min(var(--heightMod, 1), var(--widthMod, 1)));
   left: 0;
   z-index: 1001;
   border-color: black;
   border-style: solid;
   border-width: 2px;
   background-color: dimgray;
-  box-shadow: 0px 8px 16px 8px rgba(0,0,0,0.2);
+  box-shadow: 0px 8px 16px 8px rgba(0, 0, 0, 0.2);
   cursor: default;
   color: #e1e1e1;
   opacity: 0.9;
@@ -744,7 +760,8 @@ trackerBlock button {
   white-space: pre-line;
 }
 
-*:has(> .tooltip):hover .tooltip{ /* show tooltip when hover over direct parent  */
+*:has(> .tooltip):hover .tooltip {
+  /* show tooltip when hover over direct parent  */
   display: block;
 }
 
@@ -753,10 +770,10 @@ trackerBlock button {
   display: flex;
   justify-content: flex-start;
   flex-flow: wrap;
-  column-gap: calc( 8px * min(var(--heightMod, 1), var(--widthMod, 1)) );
-  margin-left: calc( 3px * min(var(--heightMod, 1), var(--widthMod, 1)) );
-  margin-bottom: calc( 3px * min(var(--heightMod, 1), var(--widthMod, 1)) );
-  margin-right: calc( 3px * min(var(--heightMod, 1), var(--widthMod, 1)) );
+  column-gap: calc(8px * min(var(--heightMod, 1), var(--widthMod, 1)));
+  margin-left: calc(3px * min(var(--heightMod, 1), var(--widthMod, 1)));
+  margin-bottom: calc(3px * min(var(--heightMod, 1), var(--widthMod, 1)));
+  margin-right: calc(3px * min(var(--heightMod, 1), var(--widthMod, 1)));
 }
 
 .spellSlotLevel {
@@ -764,24 +781,24 @@ trackerBlock button {
   --fillNum: 0;
 
   display: flex;
-  margin: calc( 3px * min(var(--heightMod, 1), var(--widthMod, 1)) ) 0;
+  margin: calc(3px * min(var(--heightMod, 1), var(--widthMod, 1))) 0;
 }
 
-.spellSlotLevel > div {
-  height: calc( 20px * min(var(--heightMod, 1), var(--widthMod, 1)) );
+.spellSlotLevel>div {
+  height: calc(20px * min(var(--heightMod, 1), var(--widthMod, 1)));
   border: solid black 1px;
   background-color: #606060;
 }
 
-.levelLable{
-  width: calc( 15px * min(var(--heightMod, 1), var(--widthMod, 1)) );
+.levelLable {
+  width: calc(15px * min(var(--heightMod, 1), var(--widthMod, 1)));
   display: flex;
   justify-content: center;
   align-items: center;
 }
 
 .slot {
-  width: calc( 10px * min(var(--heightMod, 1), var(--widthMod, 1)) );
+  width: calc(10px * min(var(--heightMod, 1), var(--widthMod, 1)));
 }
 
 /*
@@ -793,15 +810,16 @@ trackerBlock button {
 
 
 #fan-art-gallery-popup {
-  --widthMod:  1;
+  --widthMod: 1;
   --heightMod: 1;
 
-  font-size: calc(16px * min(var(--heightMod, 1), var(--widthMod, 1)) );
+  font-size: calc(16px * min(var(--heightMod, 1), var(--widthMod, 1)));
   width: calc(600px * var(--widthMod, 1));
   height: calc(480px * var(--heightMod, 1));
   min-width: 100px;
   min-height: 80px;
 
+  font-family: Roboto, Arial, sans-serif;
   background-color: dimgray;
   color: white;
   border: black solid 2px;
@@ -812,16 +830,28 @@ trackerBlock button {
   z-index: 3100;
   display: grid;
   grid-template: 1.2em 1fr 1.2em / 1fr 1.2em;
-  grid-template-areas: "Title CloseButton" 
-                       "Gallery Gallery"
-                       "Controls Controls";
+  grid-template-areas: "Title CloseButton"
+    "Gallery Gallery"
+    "Controls Controls";
 }
 
 #fan-art-gallery-popup button {
   cursor: pointer;
 }
 
-#fan-art-gallery-popup > h4 {
+.click-button {
+  background-color: white;
+  border: none;
+  border-radius: 0.5em;
+  color: black;
+  padding: 0.1em 0.4em;
+}
+
+.click-button:hover {
+  background-color: rgb(231, 231, 231);
+}
+
+#fan-art-gallery-popup>h4 {
   height: 100%;
   border-bottom: black solid 2px;
   border-right: black solid 2px;
@@ -878,6 +908,14 @@ trackerBlock button {
   object-fit: contain;
 }
 
+#fan-art-progressbar {
+  width: 0%;
+  height: 0.3em;
+  background-color: #3c3c3c;
+  position: absolute;
+  bottom: 2px;
+}
+
 #galleryInfo {
   border-top: 2px solid black;
   margin-top: -2px;
@@ -914,7 +952,7 @@ trackerBlock button {
   border-right: 2px solid black;
 }
 
-#galleryControls button img{
+#galleryControls button img {
   max-width: 100%;
   max-height: 100%;
   object-fit: contain;
@@ -947,15 +985,18 @@ trackerBlock button {
   0% {
     transform: rotate(0deg);
   }
+
   100% {
     transform: rotate(360deg);
   }
 }
-.spinner{
+
+.spinner {
   width: 100px;
   height: 100px;
   position: relative;
 }
+
 .spinner:before {
   content: "";
   box-sizing: border-box;
@@ -978,13 +1019,14 @@ trackerBlock button {
 
 
 .heart {
- --size: 33px;
- --color: red;
+  --size: 33px;
+  --color: red;
 
   position: relative;
   width: var(--size);
   height: calc(var(--size) * 0.9);
 }
+
 .heart:before,
 .heart:after {
   position: absolute;
@@ -998,6 +1040,7 @@ trackerBlock button {
   transform: translate(0, calc(var(--size) * 0.05)) rotate(-45deg);
   transform-origin: 0 100%;
 }
+
 .heart:after {
   left: 0;
   transform: translate(0, calc(var(--size) * 0.05)) rotate(45deg);
@@ -1013,7 +1056,8 @@ trackerBlock button {
   height: calc(var(--size) * 1.2);
   position: relative;
 }
-.shieldCenter{
+
+.shieldCenter {
   width: var(--size);
   height: calc(var(--size) * 0.9);
   background: var(--color);
@@ -1023,10 +1067,12 @@ trackerBlock button {
   border-radius: 0 0 calc(var(--size) * 0.4) calc(var(--size) * 0.4);
   box-sizing: border-box;
 }
+
 .shield::before {
   content: "";
   position: absolute;
-  top: 0; /*calc(var(--size) * -0.15);*/
+  top: 0;
+  /*calc(var(--size) * -0.15);*/
   left: 0;
   width: 0;
   height: 0;
@@ -1035,10 +1081,12 @@ trackerBlock button {
   border-bottom: calc(var(--size) * 0.15) solid var(--color);
   box-sizing: border-box;
 }
+
 .shield::after {
   content: "";
   position: absolute;
-  bottom: 0; /*calc(var(--size) * -0.15); */
+  bottom: 0;
+  /*calc(var(--size) * -0.15); */
   left: calc(var(--size) * 0.2);
   width: 0;
   height: 0;
