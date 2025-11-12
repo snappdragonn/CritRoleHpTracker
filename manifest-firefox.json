@@ -1,6 +1,6 @@
 {
   "name": "Critrole HP Tracker",
-  "version": "0.4.8",
+  "version": "0.5.0",
   "description": "Track current health of players during combats",
   "manifest_version": 3,
   "icons": {
@@ -8,7 +8,10 @@
   },
   "browser_specific_settings": {
     "gecko": {
-      "id": "critrolehptracker@snappdragonn"
+      "id": "critrolehptracker@snappdragonn",
+      "data_collection_permissions": {
+        "required": ["none"]
+      }
     }
   },
   "permissions": [
