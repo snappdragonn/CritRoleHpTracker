@@ -1578,8 +1578,8 @@ async function GetGalleryImages(galleryLink) {
 function MakeGalleryPopup() { //TODO does this need to be async?
   console.log("make gallery popup");
   //Make gallery popup with loading spinner and add to DOM
-  document.body.insertAdjacentHTML(
-    "beforeend",
+  document.getElementById("trackerBlock").insertAdjacentHTML(
+    "afterend",
     `<div id="fan-art-gallery-popup" style="display: grid;">
         <h4 id="galleryHeader">Fan Art Gallery</h4>
         <div style="border-bottom: black solid 2px; width: 100%; height: 100%; box-sizing: content-box;">
@@ -1937,6 +1937,24 @@ function InjectHTMLBeacon() {
           updateTimer = setInterval(updateStats, 1000);
         }
       }, makeReloadButton);
+
+      //Make visible when Beacon in fullscreen
+      document.addEventListener("fullscreenchange", () => {
+        console.log("Fullscreen Change");
+        console.log(document.fullscreenElement);
+
+        if(document.fullscreenElement){ // is fullscreened
+          document.fullscreenElement.append(document.getElementById("trackerBlock"));
+          if(document.getElementById("fan-art-gallery-popup")){
+            document.fullscreenElement.append(document.getElementById("fan-art-gallery-popup"));
+          }
+        }else { // is un-fullscreened
+          document.body.append(document.getElementById("trackerBlock"));
+          if(document.getElementById("fan-art-gallery-popup")){
+            document.body.append(document.getElementById("fan-art-gallery-popup"));
+          }
+        }
+      });
     }
   }
 
