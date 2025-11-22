@@ -1,9 +1,9 @@
 ## A fan-made hp/combat tracker for Critical Role
-For campaigns 2 & 3
+For campaigns 2, 3, & 4
 
 <br />
 
-A browser extension (Chrome & Firefox) that creates a popup on critical role campaign 2 & 3 episodes on youtube and VODs on Twitch.
+A browser extension (Chrome & Firefox) that creates a popup on critical role campaign 2, 3, and 4 episodes on youtube, Twitch, and Beacon.
 
 ![image](https://user-images.githubusercontent.com/109569193/211224761-8c414b76-4586-4d2f-9483-8e42439c5367.png)
 
@@ -27,7 +27,7 @@ A browser extension (Chrome & Firefox) that creates a popup on critical role cam
 
 <br />
 
-The data for each new campaign 3 episode is uploaded by about 24 hours after the end of the stream (Saturday 1:00am PT). Depending on how much combat there is in the episode and how soon I start working on it it could be sooner but probably not later. 
+The data for each new campaign 4 episode is uploaded by about 24 hours after the end of the stream (Saturday 1:00am PT). Depending on how much combat there is in the episode and how soon I start working on it it could be sooner but probably not later. 
 
 Campaign 2 is a work is progress and episode data will be uploaded by about 9:00pm wednesday Pacific Time each week
 
