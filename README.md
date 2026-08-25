@@ -27,9 +27,7 @@ A browser extension (Chrome & Firefox) that creates a popup on critical role cam
 
 <br />
 
-The data for each new campaign 4 episode is uploaded by about 24 hours after the end of the stream (Saturday 1:00am PT). Depending on how much combat there is in the episode and how soon I start working on it it could be sooner but probably not later. 
-
-Campaign 2 is a work is progress and episode data will be uploaded by about 9:00pm wednesday Pacific Time each week
+The data for each new campaign 4 episode is uploaded a week later. On the Sunday evening (Pacific time) after the episode is uploaded to YouTube on Monday.
 
 <br />
 <br />
